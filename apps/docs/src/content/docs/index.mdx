@@ -1,0 +1,67 @@
+---
+title: Artellio Developer Documentation
+description: API documentation and developer guides for Artellio video collaboration platform.
+template: splash
+hero:
+  tagline: Build powerful video collaboration tools with our comprehensive API
+  image:
+    file: ../../assets/houston.webp
+  actions:
+    - text: API Reference
+      link: /api/00-overview/
+      icon: right-arrow
+      variant: primary
+    - text: View on GitHub
+      link: https://github.com/artellio/artellio
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## Get Started
+
+<CardGrid stagger>
+	<Card title="API Overview" icon="open-book">
+		Explore the complete [API Reference](/api/00-overview/) with 26 MVP endpoints ready to implement.
+	</Card>
+	<Card title="Authentication" icon="lock">
+		Secure your app with [Better-Auth](/api/01-authentication/) - email/password, sessions, and OAuth.
+	</Card>
+	<Card title="Video Collaboration" icon="seti:video">
+		Upload, process, and stream videos with [Videos API](/api/04-videos/) and [Comments API](/api/05-comments/).
+	</Card>
+	<Card title="Project Management" icon="seti:folder">
+		Organize content with [Projects](/api/03-projects/) and manage [Users](/api/02-users/) with role-based permissions.
+	</Card>
+</CardGrid>
+
+## Development Roadmap
+
+Our API is organized into **4 development phases**:
+
+- **🚀 MVP (Month 0-1)** - 26 endpoints across 5 core domains (Auth, Users, Projects, Videos, Comments)
+- **📈 Post-Launch (Month 1-2)** - +25 endpoints (Annotations, Versions, Permissions, Notifications)
+- **⚡ Growth (Month 3-6)** - +31 endpoints (Teams, Assets, advanced features)
+- **🌐 Scale (Month 6+)** - +21 endpoints (Webhooks, enterprise features)
+
+**Total: 103 planned endpoints** for a complete video collaboration platform.
+
+---
+
+## Quick Links
+
+- **[API Overview](/api/00-overview/)** - Complete endpoint reference
+- **[Authentication Guide](/api/01-authentication/)** - Secure user management
+- **[Videos API](/api/04-videos/)** - Video upload & processing
+- **[Comments API](/api/05-comments/)** - Real-time collaboration
+
+---
+
+## Tech Stack
+
+- **Backend:** tRPC + Hono + Better-Auth
+- **Database:** MongoDB + Prisma ORM
+- **Frontend:** React 19 + TanStack Router + TailwindCSS
+- **Runtime:** Bun (fast TypeScript runtime)
+- **Build:** Turborepo (monorepo orchestration)

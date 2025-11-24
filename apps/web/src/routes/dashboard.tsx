@@ -1,0 +1,154 @@
+import { IconPlus, IconUpload } from "@tabler/icons-react";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { AppSidebar } from "@/components/app-sidebar";
+import { ChartAreaInteractive } from "@/components/chart-area-interactive";
+import { SectionCards } from "@/components/section-cards";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import {
+	SidebarInset,
+	SidebarProvider,
+	SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { VideoProjectsTable } from "@/components/video-projects-table";
+import { authClient } from "@/lib/auth-client";
+import { mockChartData, mockMetrics, mockProjects } from "@/lib/mock-data";
+
+export const Route = createFileRoute("/dashboard")({
+	component: RouteComponent,
+	beforeLoad: async () => {
+		const session = await authClient.getSession();
+		if (!session.data) {
+			redirect({
+				to: "/login",
+				throw: true,
+			});
+		}
+		const { data: customerState } = await authClient.customer.state();
+		return { session, customerState };
+	},
+});
+
+function RouteComponent() {
+	const { session, customerState } = Route.useRouteContext();
+
+	const hasProSubscription =
+		(customerState?.activeSubscriptions?.length ?? 0) > 0;
+
+	// Get current date for greeting
+	const currentDate = new Date().toLocaleDateString("en-US", {
+		weekday: "long",
+		month: "long",
+		day: "numeric",
+		year: "numeric",
+	});
+
+	// User data for sidebar
+	const userData = {
+		name: session.data?.user.name || "User",
+		email: session.data?.user.email || "user@example.com",
+		avatar:
+			session.data?.user.image ||
+			`https://api.dicebear.com/7.x/avataaars/svg?seed=${session.data?.user.name || "User"}`,
+	};
+
+	return (
+		<SidebarProvider>
+			<AppSidebar user={userData} />
+			<SidebarInset>
+				<div className="@container/main flex min-h-screen flex-col">
+					{/* Header with sidebar trigger */}
+					<header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+						<div className="flex h-16 items-center gap-2 px-4 lg:px-6">
+							<SidebarTrigger className="-ml-1" />
+							<Separator orientation="vertical" className="mr-2 h-4" />
+							<div className="flex flex-1 items-center justify-between gap-4">
+								<div className="flex-1">
+									<h1 className="font-bold text-xl tracking-tight lg:text-2xl">
+										Welcome back, {session.data?.user.name || "there"}!
+									</h1>
+									<p className="text-muted-foreground text-sm">
+										{currentDate} • {mockMetrics.pendingReviews.count} videos
+										pending review
+									</p>
+								</div>
+
+								<div className="flex flex-wrap gap-2">
+									<Button variant="outline" size="sm">
+										<IconPlus className="mr-2 size-4" />
+										<span className="hidden sm:inline">New Project</span>
+									</Button>
+									<Button size="sm">
+										<IconUpload className="mr-2 size-4" />
+										<span className="hidden sm:inline">Upload Video</span>
+									</Button>
+								</div>
+							</div>
+						</div>
+
+						{/* Subscription badge */}
+						<div className="flex items-center gap-2 border-t px-4 py-2 lg:px-6">
+							<span className="text-muted-foreground text-xs">Plan:</span>
+							<span
+								className={`rounded-full px-2 py-0.5 font-medium text-xs ${hasProSubscription ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}
+							>
+								{hasProSubscription ? "Pro" : "Free"}
+							</span>
+							{!hasProSubscription && (
+								<Button
+									size="sm"
+									variant="link"
+									className="h-auto p-0 text-xs"
+									onClick={async () =>
+										await authClient.checkout({ slug: "pro" })
+									}
+								>
+									Upgrade to Pro →
+								</Button>
+							)}
+							{hasProSubscription && (
+								<Button
+									size="sm"
+									variant="link"
+									className="h-auto p-0 text-xs"
+									onClick={async () => await authClient.customer.portal()}
+								>
+									Manage Subscription
+								</Button>
+							)}
+						</div>
+					</header>
+
+					{/* Main Content */}
+					<div className="flex-1 space-y-6 p-4 pb-8 lg:p-6">
+						{/* KPI Metrics Cards */}
+						<section aria-label="Dashboard metrics">
+							<SectionCards metrics={mockMetrics} />
+						</section>
+
+						{/* Review Activity Chart */}
+						<section aria-label="Review activity chart">
+							<ChartAreaInteractive data={mockChartData} />
+						</section>
+
+						{/* Video Projects Table */}
+						<section aria-label="Video projects" className="space-y-4">
+							<div className="flex items-center justify-between">
+								<div>
+									<h2 className="font-semibold text-2xl tracking-tight">
+										Active Projects
+									</h2>
+									<p className="text-muted-foreground text-sm">
+										Manage and review your video projects
+									</p>
+								</div>
+							</div>
+
+							<VideoProjectsTable projects={mockProjects} />
+						</section>
+					</div>
+				</div>
+			</SidebarInset>
+		</SidebarProvider>
+	);
+}
