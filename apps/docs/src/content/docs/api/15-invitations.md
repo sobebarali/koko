@@ -297,7 +297,7 @@ interface BulkInviteOutput {
 ### Invitation Email
 
 ```
-Subject: {InviterName} invited you to {ProjectName} on Artellio
+Subject: {InviterName} invited you to {ProjectName} on Koko
 
 Hi there,
 
@@ -311,7 +311,7 @@ Decline: {DeclineUrl}
 This invitation expires in {DaysRemaining} days.
 
 ---
-Artellio - Video Collaboration Made Simple
+Koko - Video Collaboration Made Simple
 ```
 
 ### Reminder Email (3 days before expiry)
@@ -326,7 +326,7 @@ This is a friendly reminder that your invitation to "{ProjectName}" expires in 3
 Accept Invitation: {AcceptUrl}
 
 ---
-Artellio
+Koko
 ```
 
 ---

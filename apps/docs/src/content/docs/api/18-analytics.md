@@ -646,7 +646,7 @@ await trpc.analytics.customReport.mutate({
 
 Analytics data comes from two sources:
 
-1. **Artellio Database** - Comments, annotations, shares, user activity
+1. **Koko Database** - Comments, annotations, shares, user activity
 2. **Bunny Stream API** - Views, watch time, heatmaps, geographic data
 
 ### Syncing Bunny Stream Analytics

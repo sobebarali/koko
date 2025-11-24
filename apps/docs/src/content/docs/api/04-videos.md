@@ -7,7 +7,7 @@ description: Video upload, processing, playback via Bunny Stream - Core MVP Feat
 
 ## Overview
 
-The Videos domain is the **core feature** of Artellio. It handles video upload, transcoding, storage, playback, and metadata management using **Bunny Stream** - a managed video platform with automatic transcoding, global CDN delivery, and HLS streaming.
+The Videos domain is the **core feature** of Koko. It handles video upload, transcoding, storage, playback, and metadata management using **Bunny Stream** - a managed video platform with automatic transcoding, global CDN delivery, and HLS streaming.
 
 **Video Provider:** [Bunny Stream](https://bunny.net/stream/)
 
@@ -60,7 +60,7 @@ The Videos domain is the **core feature** of Artellio. It handles video upload, 
 
 ```typescript
 interface Video {
-  id: string;                      // MongoDB ObjectId
+  id: string;                      // SQLite text ID or UUID
   projectId: string;               // Parent project
   uploadedBy: string;              // User ID
   
@@ -113,7 +113,7 @@ enum VideoStatus {
 }
 ```
 
-### Prisma Schema
+### Drizzle Schema
 
 ```prisma
 model Video {
@@ -232,7 +232,7 @@ enum VideoStatus {
 **Example Request:**
 
 ```typescript
-// Step 1: Initialize upload with Artellio API
+// Step 1: Initialize upload with Koko API
 const result = await trpc.video.createUpload.mutate({
   projectId: "507f1f77bcf86cd799439011",
   fileName: "demo-v1.mp4",
@@ -318,7 +318,7 @@ upload.start();
 3. Project must exist and user must have upload permission
 4. Title defaults to fileName if not provided
 5. Upload quota checked before creating video
-6. Video record created in MongoDB with status `UPLOADING`
+6. Video record created in SQLite/Turso with status `UPLOADING`
 7. Bunny video created via `/library/{libraryId}/videos` API
 8. TUS signature generated using: `sha256(libraryId + apiKey + expirationTime + videoId)`
 9. Signature expires in 24 hours
@@ -326,15 +326,15 @@ upload.start();
 **Upload Flow (TUS Resumable):**
 
 ```
-1. Client → Artellio API: video.createUpload
-2. Artellio → Bunny API: POST /library/{id}/videos (create video object)
-3. Artellio → MongoDB: Create video record (status: UPLOADING)
-4. Artellio → Client: TUS endpoint + signed headers
+1. Client → Koko API: video.createUpload
+2. Koko → Bunny API: POST /library/{id}/videos (create video object)
+3. Koko → SQLite/Turso: Create video record (status: UPLOADING)
+4. Koko → Client: TUS endpoint + signed headers
 5. Client → Bunny TUS: Upload video chunks (resumable)
 6. Bunny → Bunny: Automatic transcoding starts
-7. Bunny Webhook → Artellio: video.encoded event
-8. Artellio → MongoDB: Update status to READY, save URLs
-9. Artellio → WebSocket: Notify client (optional)
+7. Bunny Webhook → Koko: video.encoded event
+8. Koko → SQLite/Turso: Update status to READY, save URLs
+9. Koko → WebSocket: Notify client (optional)
 ```
 
 **Processing States (Bunny Managed):**
@@ -361,7 +361,7 @@ FAILED               → Bunny processing error
 
 **Side Effects:**
 
-- Video record created in MongoDB
+- Video record created in SQLite/Turso
 - Bunny video object created via API
 - TUS upload signature generated (expires 24h)
 - Project's `videoCount` incremented
@@ -457,7 +457,7 @@ const { video } = await trpc.video.getById.query({
 1. User must have view access to parent project
 2. Increment view count (throttled: once per user per 24h)
 3. Return related project and uploader info
-4. Bunny URLs are pulled from MongoDB (synced via webhooks)
+4. Bunny URLs are pulled from SQLite/Turso (synced via webhooks)
 
 ---
 
@@ -566,7 +566,7 @@ const { video } = await trpc.video.updateMetadata.mutate({
 
 **Implementation Notes:**
 
-- Updates MongoDB record
+- Updates SQLite/Turso record
 - Optionally sync title to Bunny via `POST /library/{id}/videos/{videoId}` (not required for MVP)
 
 **Error Codes:**
@@ -581,7 +581,7 @@ const { video } = await trpc.video.updateMetadata.mutate({
 
 **Status:** ✅ MVP
 
-**Purpose:** Delete a video (soft delete in MongoDB, hard delete from Bunny after 30 days)
+**Purpose:** Delete a video (soft delete in SQLite/Turso, hard delete from Bunny after 30 days)
 
 **Type:** Mutation
 
@@ -621,9 +621,9 @@ await trpc.video.delete.mutate({
 
 **Business Rules:**
 
-1. **Soft delete:** Mark `deletedAt` timestamp in MongoDB
+1. **Soft delete:** Mark `deletedAt` timestamp in SQLite/Turso
 2. **Hard delete after 30 days:** Background job calls `DELETE /library/{id}/videos/{videoId}` on Bunny
-3. **Cascade delete:** Comments, annotations, versions (in MongoDB)
+3. **Cascade delete:** Comments, annotations, versions (in SQLite/Turso)
 4. **Decrement:** Project video count
 
 **Implementation:**
@@ -646,7 +646,7 @@ for (const video of deletedVideos) {
   // Delete from Bunny Stream
   await bunnyApi.deleteVideo(video.bunnyLibraryId, video.bunnyVideoId);
   
-  // Delete from MongoDB
+  // Delete from SQLite/Turso
   await db.video.delete({ where: { id: video.id } });
 }
 ```
@@ -710,7 +710,7 @@ const { streamingUrl, iframeUrl } = await trpc.video.getPlaybackUrl.query({
 **Business Rules:**
 
 - Bunny Stream URLs are **public by default** (library can be configured for signed URLs)
-- For MVP, rely on Artellio's permission checking before returning URL
+- For MVP, rely on Koko's permission checking before returning URL
 - Adaptive HLS automatically selects quality based on bandwidth
 - CDN-delivered for low latency worldwide
 
@@ -819,7 +819,7 @@ Bunny Stream Library {libraryId}/
 ### Retention Policy
 - **Original files:** Retained by Bunny indefinitely
 - **Transcoded segments:** Auto-managed by Bunny
-- **Deleted videos:** Removed from Bunny immediately (30-day grace in MongoDB only)
+- **Deleted videos:** Removed from Bunny immediately (30-day grace in SQLite/Turso only)
 
 ---
 
@@ -832,7 +832,7 @@ Bunny Stream Library {libraryId}/
    - Rate limiting: 10 uploads/hour/user
 
 2. **Playback Security:**
-   - Permission checked in Artellio API before returning URL
+   - Permission checked in Koko API before returning URL
    - Optional: Enable Bunny token authentication for URLs
    - Optional: Geographic restrictions in Bunny library settings
 
@@ -857,7 +857,7 @@ Bunny Stream Library {libraryId}/
 
 ### Webhook Configuration
 
-Set up webhooks in Bunny Stream to notify Artellio when:
+Set up webhooks in Bunny Stream to notify Koko when:
 - Video encoding completes → Update status to `READY`
 - Video fails → Update status to `FAILED` with error
 - Thumbnail generated → Save `thumbnailUrl`

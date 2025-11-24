@@ -816,7 +816,7 @@ await trpc.compliance.setRetentionPolicy.mutate({
 
 - **At-rest:** AES-256 encryption for all stored data
 - **In-transit:** TLS 1.3 for all API requests
-- **Database:** MongoDB encryption at rest
+- **Database:** SQLite/Turso encryption at rest
 - **Files:** S3 server-side encryption (SSE-S3)
 - **Bunny Stream:** Videos encrypted at rest and in-transit
 

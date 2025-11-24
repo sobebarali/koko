@@ -7,7 +7,7 @@ description: Event-driven integrations and automation - Scale Phase Feature
 
 ## Overview
 
-Webhooks enable real-time integrations with external services by sending HTTP callbacks when events occur in Artellio.
+Webhooks enable real-time integrations with external services by sending HTTP callbacks when events occur in Koko.
 
 **Status:** ⚡ Scale Phase (Month 6+)
 

@@ -7,7 +7,7 @@ description: Complete API reference for billing, subscriptions, and payment mana
 
 ## Overview
 
-The Billing API manages subscriptions, payments, and plan upgrades using **Polar.sh** as the payment provider. Artellio uses a freemium model with tiered pricing based on storage, team size, and features.
+The Billing API manages subscriptions, payments, and plan upgrades using **Polar.sh** as the payment provider. Koko uses a freemium model with tiered pricing based on storage, team size, and features.
 
 ## 🎯 MVP Endpoints
 
@@ -103,7 +103,7 @@ plans.forEach((plan) => {
 			"id": "plan_free",
 			"name": "free",
 			"displayName": "Free",
-			"description": "Perfect for trying out Artellio",
+			"description": "Perfect for trying out Koko",
 			"price": {
 				"monthly": 0,
 				"annual": 0,

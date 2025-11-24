@@ -7,7 +7,7 @@ description: Timecode-based comments, threaded replies, and collaboration feedba
 
 ## Overview
 
-The Comments domain enables **timecode-based feedback** on videos, which is the core collaboration feature of Artellio. Users can comment on specific moments in videos, reply to each other, and mark feedback as resolved.
+The Comments domain enables **timecode-based feedback** on videos, which is the core collaboration feature of Koko. Users can comment on specific moments in videos, reply to each other, and mark feedback as resolved.
 
 ---
 
@@ -54,7 +54,7 @@ The Comments domain enables **timecode-based feedback** on videos, which is the 
 
 ```typescript
 interface Comment {
-  id: string;                      // MongoDB ObjectId
+  id: string;                      // SQLite text ID or UUID
   videoId: string;                 // Parent video
   authorId: string;                // User who created comment
   
@@ -85,7 +85,7 @@ interface Comment {
 }
 ```
 
-### Prisma Schema
+### Drizzle Schema
 
 ```prisma
 model Comment {

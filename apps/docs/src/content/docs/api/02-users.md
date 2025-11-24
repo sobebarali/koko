@@ -50,7 +50,7 @@ The Users domain handles user profile management, avatar uploads, user search, a
 
 ```typescript
 interface User {
-  id: string;                      // MongoDB ObjectId
+  id: string;                      // SQLite text ID or UUID
   email: string;                   // Unique email
   name: string;                    // Display name
   emailVerified: boolean;          // Email verification status
@@ -89,32 +89,31 @@ interface UserPreferences {
 }
 ```
 
-### Prisma Schema
+### Drizzle Schema
 
-```prisma
-model User {
-  id            String    @id @map("_id")
-  name          String
-  email         String
-  emailVerified Boolean
-  image         String?
-  bio           String?
-  title         String?
-  company       String?
-  location      String?
-  website       String?
-  createdAt     DateTime
-  updatedAt     DateTime
-  
-  sessions      Session[]
-  accounts      Account[]
-  projects      ProjectMember[]
-  videos        Video[]
-  comments      Comment[]
+```typescript
+import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { sql } from "drizzle-orm";
 
-  @@unique([email])
-  @@map("user")
-}
+export const user = sqliteTable("user", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  emailVerified: integer("email_verified", { mode: "boolean" }).default(false).notNull(),
+  image: text("image"),
+  bio: text("bio"),
+  title: text("title"),
+  company: text("company"),
+  location: text("location"),
+  website: text("website"),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+    .notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
 ```
 
 ---

@@ -7,7 +7,7 @@ description: Project creation, management, organization, and collaboration endpo
 
 ## Overview
 
-Projects are the primary organizational unit in Artellio. Each project contains videos, comments, and collaborators. Users create projects to organize their video collaboration work.
+Projects are the primary organizational unit in Koko. Each project contains videos, comments, and collaborators. Users create projects to organize their video collaboration work.
 
 ---
 
@@ -52,7 +52,7 @@ Projects are the primary organizational unit in Artellio. Each project contains 
 
 ```typescript
 interface Project {
-  id: string;                      // MongoDB ObjectId
+  id: string;                      // SQLite text ID or UUID
   name: string;                    // Project name
   description?: string;            // Optional description
   ownerId: string;                 // User who created project
@@ -75,12 +75,6 @@ interface Project {
   updatedAt: DateTime;
   archivedAt?: DateTime;           // When archived
   deletedAt?: DateTime;            // Soft delete timestamp
-}
-
-enum ProjectStatus {
-  ACTIVE = "active",               // Normal state
-  ARCHIVED = "archived",           // Read-only, hidden from main list
-  DELETED = "deleted"              // Soft deleted (30-day grace)
 }
 ```
 
@@ -111,73 +105,78 @@ enum ProjectRole {
 }
 ```
 
-### Prisma Schema
+### Drizzle Schema
 
-```prisma
-model Project {
-  id          String        @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  description String?
-  ownerId     String        @db.ObjectId
-  
-  status      ProjectStatus @default(ACTIVE)
-  color       String?
-  thumbnail   String?
-  tags        String[]
-  
-  videoCount   Int          @default(0)
-  memberCount  Int          @default(1)
-  commentCount Int          @default(0)
-  
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  archivedAt  DateTime?
-  deletedAt   DateTime?
-  
-  // Relations
-  owner       User          @relation("ProjectOwner", fields: [ownerId], references: [id])
-  members     ProjectMember[]
-  videos      Video[]
-  
-  @@index([ownerId])
-  @@index([status])
-  @@index([createdAt(sort: Desc)])
-  @@map("project")
-}
+```typescript
+import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
+import { sql } from "drizzle-orm";
 
-model ProjectMember {
-  id        String      @id @default(auto()) @map("_id") @db.ObjectId
-  projectId String      @db.ObjectId
-  userId    String      @db.ObjectId
-  role      ProjectRole @default(VIEWER)
-  
-  canUpload  Boolean    @default(false)
-  canComment Boolean    @default(true)
-  canInvite  Boolean    @default(false)
-  
-  joinedAt  DateTime    @default(now())
-  invitedBy String?     @db.ObjectId
-  
-  project   Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@unique([projectId, userId])
-  @@index([userId])
-  @@map("project_member")
-}
+export const project = sqliteTable(
+  "project",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    description: text("description"),
+    ownerId: text("owner_id")
+      .notNull()
+      .references(() => user.id),
+    
+    status: text("status", { enum: ["active", "archived", "deleted"] })
+      .default("active")
+      .notNull(),
+    color: text("color"),
+    thumbnail: text("thumbnail"),
+    tags: text("tags", { mode: "json" }).$type<string[]>().default([]).notNull(),
+    
+    videoCount: integer("video_count").default(0).notNull(),
+    memberCount: integer("member_count").default(1).notNull(),
+    commentCount: integer("comment_count").default(0).notNull(),
+    
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .$onUpdate(() => new Date())
+      .notNull(),
+    archivedAt: integer("archived_at", { mode: "timestamp_ms" }),
+    deletedAt: integer("deleted_at", { mode: "timestamp_ms" }),
+  },
+  (table) => [
+    index("project_owner_idx").on(table.ownerId),
+    index("project_status_idx").on(table.status),
+    index("project_created_idx").on(table.createdAt),
+  ]
+);
 
-enum ProjectStatus {
-  ACTIVE
-  ARCHIVED
-  DELETED
-}
-
-enum ProjectRole {
-  OWNER
-  EDITOR
-  REVIEWER
-  VIEWER
-}
+export const projectMember = sqliteTable(
+  "project_member",
+  {
+    id: text("id").primaryKey(),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => project.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    role: text("role", { enum: ["owner", "admin", "editor", "viewer"] })
+      .default("viewer")
+      .notNull(),
+    
+    canUpload: integer("can_upload", { mode: "boolean" }).default(false).notNull(),
+    canComment: integer("can_comment", { mode: "boolean" }).default(true).notNull(),
+    canInvite: integer("can_invite", { mode: "boolean" }).default(false).notNull(),
+    
+    joinedAt: integer("joined_at", { mode: "timestamp_ms" })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .notNull(),
+    invitedBy: text("invited_by"),
+  },
+  (table) => [
+    index("project_member_user_idx").on(table.userId),
+    index("project_member_project_idx").on(table.projectId),
+  ]
+);
 ```
 
 ---

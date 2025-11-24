@@ -7,7 +7,7 @@ description: User registration, login, session management, and password reset en
 
 ## Overview
 
-The Authentication domain handles user registration, login, logout, session management, and password reset functionality. Built on Better-Auth v1.3.28 with MongoDB session storage.
+The Authentication domain handles user registration, login, logout, session management, and password reset functionality. Built on Better-Auth v1.4.0 with SQLite/Turso session storage.
 
 ---
 
@@ -53,7 +53,7 @@ The Authentication domain handles user registration, login, logout, session mana
 
 ```typescript
 interface User {
-  id: string;                      // MongoDB ObjectId
+  id: string;                      // SQLite text ID or UUID
   email: string;                   // Unique email address
   name: string;                    // Display name
   emailVerified: boolean;          // Email verification status
@@ -67,7 +67,7 @@ interface User {
 
 ```typescript
 interface Session {
-  id: string;                      // MongoDB ObjectId
+  id: string;                      // SQLite text ID or UUID
   token: string;                   // Unique session token (hashed)
   userId: string;                  // User ID
   expiresAt: DateTime;             // Session expiration
@@ -82,7 +82,7 @@ interface Session {
 
 ```typescript
 interface Account {
-  id: string;                      // MongoDB ObjectId
+  id: string;                      // SQLite text ID or UUID
   userId: string;                  // User ID
   accountId: string;               // Provider-specific account ID
   providerId: string;              // Auth provider (email, google, github)
@@ -98,68 +98,57 @@ interface Account {
 }
 ```
 
-### Prisma Schema
+### Drizzle Schema
 
-```prisma
-model User {
-  id            String    @id @map("_id")
-  name          String
-  email         String
-  emailVerified Boolean
-  image         String?
-  createdAt     DateTime
-  updatedAt     DateTime
-  sessions      Session[]
-  accounts      Account[]
+```typescript
+import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { sql } from "drizzle-orm";
 
-  @@unique([email])
-  @@map("user")
-}
+export const user = sqliteTable("user", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  emailVerified: integer("email_verified", { mode: "boolean" }).default(false).notNull(),
+  image: text("image"),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+    .notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
 
-model Session {
-  id        String   @id @map("_id")
-  expiresAt DateTime
-  token     String
-  createdAt DateTime
-  updatedAt DateTime
-  ipAddress String?
-  userAgent String?
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+export const session = sqliteTable("session", {
+  id: text("id").primaryKey(),
+  expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
+  token: text("token").notNull().unique(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+});
 
-  @@unique([token])
-  @@map("session")
-}
-
-model Account {
-  id                    String    @id @map("_id")
-  accountId             String
-  providerId            String
-  userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accessToken           String?
-  refreshToken          String?
-  idToken               String?
-  accessTokenExpiresAt  DateTime?
-  refreshTokenExpiresAt DateTime?
-  scope                 String?
-  password              String?
-  createdAt             DateTime
-  updatedAt             DateTime
-
-  @@map("account")
-}
-
-model Verification {
-  id         String    @id @map("_id")
-  identifier String
-  value      String
-  expiresAt  DateTime
-  createdAt  DateTime?
-  updatedAt  DateTime?
-
-  @@map("verification")
-}
+export const account = sqliteTable("account", {
+  id: text("id").primaryKey(),
+  accountId: text("account_id").notNull(),
+  providerId: text("provider_id").notNull(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  accessToken: text("access_token"),
+  refreshToken: text("refresh_token"),
+  idToken: text("id_token"),
+  accessTokenExpiresAt: integer("access_token_expires_at", { mode: "timestamp_ms" }),
+  refreshTokenExpiresAt: integer("refresh_token_expires_at", { mode: "timestamp_ms" }),
+  scope: text("scope"),
+  password: text("password"),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
+});
 ```
 
 ---

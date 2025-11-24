@@ -7,7 +7,7 @@ description: Unified search across videos, projects, comments, and users
 
 ## Overview
 
-The Search API provides unified, fast search across all Artellio resources (videos, projects, comments, users, tags). Uses full-text search with MongoDB Atlas Search or Elasticsearch for production.
+The Search API provides unified, fast search across all Koko resources (videos, projects, comments, users, tags). Uses full-text search with SQLite FTS5 or Turso for production.
 
 ## 📋 Growth Phase Endpoints
 
@@ -458,24 +458,25 @@ const suggestions = await trpc.search.suggestions.query({
 
 ## 🔧 Search Implementation
 
-### MongoDB Atlas Search
+### SQLite FTS5 Full-Text Search
 
 ```typescript
 // Server-side search implementation
-import { db } from "@artellio/db";
+import { db } from "@koko/db";
+import { videos } from "@koko/db/schema";
+import { sql } from "drizzle-orm";
 
 export async function searchVideos(userId: string, query: string) {
-	const results = await db.video.aggregatePipeline([
-		{
-			$search: {
-				index: "videos_search",
-				text: {
-					query: query,
-					path: ["title", "description", "tags"],
-					fuzzy: {
-						maxEdits: 2,
-						prefixLength: 3,
-					},
+	// Using SQLite FTS5 for full-text search
+	const results = await db.execute(sql`
+		SELECT v.*
+		FROM videos v
+		JOIN videos_fts ON videos_fts.rowid = v.rowid
+		WHERE videos_fts MATCH ${query}
+		AND v.user_id = ${userId}
+		ORDER BY rank
+		LIMIT 50
+	`);
 				},
 			},
 		},

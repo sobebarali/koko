@@ -1,20 +1,20 @@
 ---
 title: API Overview
-description: Complete API reference for Artellio video collaboration platform
+description: Complete API reference for Koko video collaboration platform
 ---
 
-# Artellio API Documentation
+# Koko API Documentation
 
 ## 🎯 Introduction
 
-Artellio provides a type-safe, end-to-end API built with tRPC for video collaboration. All endpoints are automatically typed from server to client, ensuring complete type safety across your entire application.
+Koko provides a type-safe, end-to-end API built with tRPC for video collaboration. All endpoints are automatically typed from server to client, ensuring complete type safety across your entire application.
 
 ## 🏗️ Architecture
 
 - **API Framework:** tRPC v11.5.0 (end-to-end type-safe APIs)
 - **Server:** Hono v4.8.2 (lightweight, fast HTTP server)
-- **Database:** MongoDB via Prisma v6.19.0
-- **Authentication:** Better-Auth v1.3.28
+- **Database:** SQLite/Turso with Drizzle ORM
+- **Authentication:** Better-Auth v1.4.0
 - **Video Infrastructure:** Bunny Stream (managed video platform)
 - **Type Safety:** Full TypeScript coverage with strict mode
 
@@ -678,7 +678,7 @@ X-RateLimit-Reset: 1705334400
 3. **Pluralization:** Use singular (e.g., `video.getAll`, not `videos.getAll`)
 
 ### Data Formats
-1. **IDs:** MongoDB ObjectId strings (24 hex characters)
+1. **IDs:** Text or Integer (configurable per table in Drizzle schema)
 2. **Dates:** ISO 8601 DateTime strings (`2025-01-15T10:30:00Z`)
 3. **Timecodes:** Decimal seconds (`125.5` = 2 minutes 5.5 seconds)
 4. **File sizes:** Bytes as integers
@@ -686,12 +686,16 @@ X-RateLimit-Reset: 1705334400
 
 ### ID Format Examples
 ```typescript
-// MongoDB ObjectId (24 hex chars)
-"507f1f77bcf86cd799439011"
+// SQLite Text ID (various formats supported)
+"user_abc123xyz789"
+"550e8400-e29b-41d4-a716-446655440000" // UUID
 
-// Invalid IDs
-"123"              // Too short
-"not-an-objectid"  // Not hex
+// SQLite Integer ID (auto-increment)
+1
+42
+1234567890
+
+// Drizzle supports both formats
 ```
 
 ### Date Format Examples
@@ -858,9 +862,9 @@ const comment = await trpc.comment.create.mutate({
 
 ## 📞 Support
 
-- **Documentation:** [https://docs.artellio.com](https://docs.artellio.com)
-- **GitHub Issues:** [Report a bug](https://github.com/artellio/artellio/issues)
-- **Email:** support@artellio.com
+- **Documentation:** [https://docs.koko.dev](https://docs.koko.dev)
+- **GitHub Issues:** [Report a bug](https://github.com/koko/koko/issues)
+- **Email:** support@koko.dev
 
 ---
 
