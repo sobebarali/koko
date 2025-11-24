@@ -1,67 +1,193 @@
 ---
-title: Artellio Developer Documentation
-description: API documentation and developer guides for Artellio video collaboration platform.
-template: splash
-hero:
-  tagline: Build powerful video collaboration tools with our comprehensive API
-  image:
-    file: ../../assets/houston.webp
-  actions:
-    - text: API Reference
-      link: /api/00-overview/
-      icon: right-arrow
-      variant: primary
-    - text: View on GitHub
-      link: https://github.com/artellio/artellio
-      icon: external
-      variant: minimal
+title: Welcome to Koko
+description: Complete developer documentation for the Koko video collaboration platform - built with tRPC, Drizzle ORM, and React 19.
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
-## Get Started
+# Welcome to Koko Documentation
 
-<CardGrid stagger>
-	<Card title="API Overview" icon="open-book">
-		Explore the complete [API Reference](/api/00-overview/) with 26 MVP endpoints ready to implement.
+Koko is a modern video collaboration platform built with cutting-edge technologies. This documentation covers everything you need to build, integrate, and extend the platform.
+
+## Quick Start
+
+<CardGrid>
+	<Card title="🔐 Authentication" icon="lock">
+		Learn about user authentication, session management, and security best practices.
+		
+		[View Authentication API →](/api/01-authentication/)
 	</Card>
-	<Card title="Authentication" icon="lock">
-		Secure your app with [Better-Auth](/api/01-authentication/) - email/password, sessions, and OAuth.
+	
+	<Card title="🎬 Videos" icon="seti:video">
+		Upload, process, and stream videos with our comprehensive video API.
+		
+		[View Videos API →](/api/04-videos/)
 	</Card>
-	<Card title="Video Collaboration" icon="seti:video">
-		Upload, process, and stream videos with [Videos API](/api/04-videos/) and [Comments API](/api/05-comments/).
+	
+	<Card title="💬 Comments & Collaboration" icon="comment">
+		Enable real-time collaboration with timecode-based comments and threads.
+		
+		[View Comments API →](/api/05-comments/)
 	</Card>
-	<Card title="Project Management" icon="seti:folder">
-		Organize content with [Projects](/api/03-projects/) and manage [Users](/api/02-users/) with role-based permissions.
+	
+	<Card title="📁 Projects & Organization" icon="seti:folder">
+		Organize your content with projects and manage team permissions.
+		
+		[View Projects API →](/api/03-projects/)
 	</Card>
 </CardGrid>
 
-## Development Roadmap
+## API Overview
 
-Our API is organized into **4 development phases**:
+The Koko API is built with **tRPC** for end-to-end type safety, ensuring your frontend and backend stay in sync automatically.
 
-- **🚀 MVP (Month 0-1)** - 26 endpoints across 5 core domains (Auth, Users, Projects, Videos, Comments)
-- **📈 Post-Launch (Month 1-2)** - +25 endpoints (Annotations, Versions, Permissions, Notifications)
-- **⚡ Growth (Month 3-6)** - +31 endpoints (Teams, Assets, advanced features)
-- **🌐 Scale (Month 6+)** - +21 endpoints (Webhooks, enterprise features)
+### Key Features
 
-**Total: 103 planned endpoints** for a complete video collaboration platform.
+- ✅ **Type-Safe APIs** - Full TypeScript coverage from server to client
+- ✅ **Real-time Collaboration** - WebSocket support for live updates
+- ✅ **Video Processing** - Automated transcoding and streaming
+- ✅ **Secure by Default** - Built-in authentication and authorization
+- ✅ **RESTful Patterns** - Familiar query/mutation structure
+
+### Technology Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **API Framework** | tRPC v11.5.0 |
+| **Server Runtime** | Hono v4.8.2 |
+| **Database** | SQLite/Turso with Drizzle ORM |
+| **Authentication** | Better-Auth v1.4.0 |
+| **Frontend** | React 19 + TanStack Router |
+| **Type Safety** | TypeScript 5.8 (strict mode) |
+
+## API Domains
+
+Explore the complete API reference organized by domain:
+
+### Core Features
+- [**Authentication**](/api/01-authentication/) - User registration, login, sessions
+- [**Users**](/api/02-users/) - Profile management, preferences
+- [**Projects**](/api/03-projects/) - Project CRUD operations
+- [**Videos**](/api/04-videos/) - Video upload, processing, streaming
+- [**Comments**](/api/05-comments/) - Timecode comments, threads, mentions
+
+### Advanced Features
+- [**Annotations**](/api/06-annotations/) - Frame-based visual annotations
+- [**Versions**](/api/07-versions/) - Version control and comparison
+- [**Teams**](/api/08-teams/) - Team collaboration features
+- [**Permissions**](/api/09-permissions/) - Access control and sharing
+- [**Notifications**](/api/10-notifications/) - Real-time notifications
+
+### Additional Features
+- [**Assets**](/api/11-assets/) - File management
+- [**Webhooks**](/api/12-webhooks/) - Event-driven integrations
+- [**Billing**](/api/13-billing/) - Subscriptions and payments
+- [**Quota**](/api/14-quota/) - Usage tracking and limits
+- [**Invitations**](/api/15-invitations/) - Team invites
+- [**Search**](/api/16-search/) - Global search functionality
+- [**Tags**](/api/17-tags/) - Content organization
+- [**Analytics**](/api/18-analytics/) - Usage metrics
+- [**Compliance**](/api/19-compliance/) - GDPR and security
+
+## Getting Started with the API
+
+### 1. Authentication
+
+All API requests require authentication. Start by signing up and obtaining a session:
+
+```typescript
+import { trpc } from '@/lib/trpc';
+
+// Sign up
+const user = await trpc.auth.signUp.mutate({
+  email: 'user@example.com',
+  password: 'SecurePass123!',
+  name: 'John Doe',
+});
+
+// Sign in (session cookie automatically set)
+await trpc.auth.signIn.mutate({
+  email: 'user@example.com',
+  password: 'SecurePass123!',
+});
+```
+
+### 2. Create a Project
+
+```typescript
+const project = await trpc.project.create.mutate({
+  name: 'My Video Project',
+  description: 'Product demo videos',
+});
+```
+
+### 3. Upload a Video
+
+```typescript
+const video = await trpc.video.createUpload.mutate({
+  projectId: project.id,
+  fileName: 'demo.mp4',
+  title: 'Product Demo V1',
+});
+
+// Upload file using the provided upload URL
+// (See Videos API documentation for full upload flow)
+```
+
+### 4. Add Comments
+
+```typescript
+const comment = await trpc.comment.create.mutate({
+  videoId: video.id,
+  text: 'Great shot! Consider adjusting the lighting.',
+  timecode: 45.2, // 45.2 seconds into the video
+});
+```
+
+## Development Workflow
+
+### Monorepo Structure
+
+Koko uses a Turborepo-based monorepo:
+
+```
+koko/
+├── apps/
+│   ├── web/          # React frontend
+│   ├── server/       # Hono API server
+│   └── docs/         # Documentation (you are here)
+│
+└── packages/
+    ├── api/          # tRPC routers and procedures
+    ├── auth/         # Authentication logic
+    ├── db/           # Database schemas and queries
+    └── config/       # Shared TypeScript configs
+```
+
+### Local Development
+
+```bash
+# Install dependencies
+bun install
+
+# Start all dev servers
+bun run dev
+
+# Or start individual apps
+bun run dev:web      # Frontend only
+bun run dev:server   # Backend only
+
+# Database commands
+bun run db:push      # Push schema changes
+bun run db:studio    # Open database GUI
+```
+
+## Need Help?
+
+- 📖 **Explore the API Reference** in the sidebar
+- 🐛 **Report Issues** on [GitHub](https://github.com/koko/koko/issues)
+- 💬 **Join the Community** for support and discussions
 
 ---
 
-## Quick Links
-
-- **[API Overview](/api/00-overview/)** - Complete endpoint reference
-- **[Authentication Guide](/api/01-authentication/)** - Secure user management
-- **[Videos API](/api/04-videos/)** - Video upload & processing
-- **[Comments API](/api/05-comments/)** - Real-time collaboration
-
----
-
-## Tech Stack
-
-- **Backend:** tRPC + Hono + Better-Auth
-- **Database:** MongoDB + Prisma ORM
-- **Frontend:** React 19 + TanStack Router + TailwindCSS
-- **Runtime:** Bun (fast TypeScript runtime)
-- **Build:** Turborepo (monorepo orchestration)
+**Ready to dive in?** Start with the [Authentication API](/api/01-authentication/) or explore the [complete API overview](/api/00-overview/).

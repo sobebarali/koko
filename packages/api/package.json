@@ -1,29 +1,29 @@
 {
-  "name": "@koko/api",
-  "exports": {
-    ".": {
-      "default": "./src/index.ts"
-    },
-    "./*": {
-      "default": "./src/*.ts"
-    }
-  },
-  "type": "module",
-  "scripts": {},
-  "devDependencies": {
-    "@koko/config": "workspace:*"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
-  "dependencies": {
-    "@trpc/server": "catalog:",
-    "@trpc/client": "catalog:",
-    "hono": "catalog:",
-    "drizzle-orm": "catalog:",
-    "dotenv": "catalog:",
-    "zod": "^4.1.11",
-    "@koko/auth": "workspace:*",
-    "@koko/db": "workspace:*"
-  }
+	"name": "@koko/api",
+	"exports": {
+		".": {
+			"default": "./src/index.ts"
+		},
+		"./*": {
+			"default": "./src/*.ts"
+		}
+	},
+	"type": "module",
+	"scripts": {},
+	"devDependencies": {
+		"@koko/config": "workspace:*"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	},
+	"dependencies": {
+		"@trpc/server": "catalog:",
+		"@trpc/client": "catalog:",
+		"hono": "catalog:",
+		"drizzle-orm": "catalog:",
+		"dotenv": "catalog:",
+		"zod": "^4.1.11",
+		"@koko/auth": "workspace:*",
+		"@koko/db": "workspace:*"
+	}
 }
