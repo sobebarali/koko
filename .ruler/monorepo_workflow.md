@@ -34,7 +34,7 @@
 
 ```json
 {
-	"name": "novi",
+	"name": "koko",
 	"private": true,
 	"workspaces": ["apps/*", "packages/*"],
 	"scripts": {
@@ -76,9 +76,9 @@ Use `workspace:*` protocol for internal packages:
 {
 	"name": "web",
 	"dependencies": {
-		"@novi/api": "workspace:*",
-		"@novi/auth": "workspace:*",
-		"@novi/db": "workspace:*"
+		"@koko/api": "workspace:*",
+		"@koko/auth": "workspace:*",
+		"@koko/db": "workspace:*"
 	}
 }
 ```
@@ -156,7 +156,7 @@ turbo run check        # Lint and format all
 ```bash
 turbo run dev --filter=web          # Only web app
 turbo run build --filter=server     # Only server app
-turbo run db:push --filter=@artellio/db  # Only db package
+turbo run db:push --filter=@koko/db  # Only db package
 ```
 
 **Multiple workspaces:**
@@ -234,10 +234,11 @@ Dev servers should be persistent:
 ```json
 {
 	"scripts": {
-		"db:push": "prisma db push",
-		"db:generate": "prisma generate",
-		"db:studio": "prisma studio",
-		"build": "prisma generate && tsc"
+		"db:push": "drizzle-kit push",
+		"db:generate": "drizzle-kit generate",
+		"db:studio": "drizzle-kit studio",
+		"db:local": "bun run --watch src/local.ts",
+		"build": "tsc"
 	}
 }
 ```
@@ -253,7 +254,7 @@ bun run dev
 
 This starts:
 - `apps/web` - Frontend dev server (Vite)
-- `apps/server` - Backend dev server (Bun)
+- `apps/server` - Backend dev server (Hono with Bun)
 - `apps/docs` - Docs dev server (Astro)
 
 **Single app:**
@@ -318,7 +319,7 @@ cd packages/my-package
 2. **Initialize `package.json`:**
 ```json
 {
-	"name": "@artellio/my-package",
+	"name": "@koko/my-package",
 	"version": "0.0.0",
 	"private": true,
 	"type": "module",
@@ -339,7 +340,7 @@ cd packages/my-package
 3. **Add `tsconfig.json`:**
 ```json
 {
-	"extends": "@artellio/config/tsconfig.base.json",
+	"extends": "@koko/config/tsconfig.base.json",
 	"compilerOptions": {
 		"outDir": "dist",
 		"rootDir": "src"
@@ -358,7 +359,7 @@ touch src/index.ts
 ```json
 {
 	"dependencies": {
-		"@artellio/my-package": "workspace:*"
+		"@koko/my-package": "workspace:*"
 	}
 }
 ```
@@ -372,7 +373,7 @@ bun run build
 ```
 
 **Build order (via `dependsOn`):**
-1. `packages/db` - Generate Prisma client, compile TypeScript
+1. `packages/db` - Run Drizzle migrations, compile TypeScript
 2. `packages/auth` - Compile TypeScript
 3. `packages/api` - Compile TypeScript
 4. `apps/server` - Bundle with tsdown
@@ -541,12 +542,12 @@ save = true
 disable = false
 
 [install.scopes]
-"@artellio" = { "resolution" = "workspace" }
+"@koko" = { "resolution" = "workspace" }
 ```
 
 **Key behaviors:**
 - `peer = true` - Install peer dependencies
-- `resolution = "workspace"` - Resolve `@artellio/*` packages from workspace
+- `resolution = "workspace"` - Resolve `@koko/*` packages from workspace
 
 ## Troubleshooting
 
@@ -568,8 +569,8 @@ turbo run build --force
 
 **Ensure packages are built:**
 ```bash
-turbo run build --filter=@artellio/db
-turbo run build --filter=@artellio/api
+turbo run build --filter=@koko/db
+turbo run build --filter=@koko/api
 ```
 
 **Restart TypeScript server** in your editor.

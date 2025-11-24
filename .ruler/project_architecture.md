@@ -2,7 +2,7 @@
 
 ## Overview
 
-**Novi** is a managed-first video collaboration platform for creative teams. The project follows a **monorepo architecture** using Turborepo with clear separation between applications and shared packages.
+**Koko** is a managed-first video collaboration platform for creative teams. The project follows a **monorepo architecture** using Turborepo with clear separation between applications and shared packages.
 
 ## Project Purpose
 
@@ -15,7 +15,7 @@ Enable creative teams to review, collaborate, and manage video projects with:
 ## Monorepo Structure
 
 ```
-novi/
+koko/
 ├── apps/                          # Deployable applications
 │   ├── web/                       # Frontend React SPA
 │   ├── server/                    # Backend API server
@@ -43,14 +43,14 @@ novi/
        │            │
        v            v
 ┌──────────┐  ┌──────────┐
-│  @novi/   │  │  @novi/  │
+│  @koko/   │  │  @koko/  │
 │   api     │  │  auth    │
 └─────┬────┘  └────┬─────┘
       │            │
       └─────┬──────┘
             v
       ┌──────────┐
-      │  @novi/  │
+      │  @koko/  │
       │    db    │
       └──────────┘
 
@@ -62,14 +62,14 @@ novi/
        │            │
        v            v
 ┌──────────┐  ┌──────────┐
-│  @novi/   │  │  @novi/  │
+│  @koko/   │  │  @koko/  │
 │   api     │  │  auth    │
 └─────┬────┘  └────┬─────┘
       │            │
       └─────┬──────┘
             v
       ┌──────────┐
-      │  @novi/  │
+      │  @koko/  │
       │    db    │
       └──────────┘
 ```
@@ -112,12 +112,12 @@ apps/web/
 
 ### apps/server - Backend API
 
-**Framework:** Fastify + tRPC
+**Framework:** Hono + tRPC
 
 **Purpose:** API server handling business logic and data operations
 
 **Key Technologies:**
-- Fastify v5.3.3 (HTTP server)
+- Hono (lightweight HTTP server)
 - tRPC v11.5.0 (type-safe API)
 - Better-Auth v1.3.28 (authentication)
 - tsx (development) / tsdown (production bundler)
@@ -205,31 +205,31 @@ packages/auth/
 
 ### packages/db - Database Layer
 
-**Purpose:** Mongoose ORM setup and database models
+**Purpose:** Drizzle ORM setup and database schema
 
 **Exports:**
-- `db` - Mongoose connection instance
-- Model exports (User, Post, etc.)
+- `db` - Drizzle database instance
+- Schema exports (users, sessions, etc.)
 - Type definitions
 
 **Directory Structure:**
 ```
 packages/db/
 ├── src/
-│   ├── index.ts            # Mongoose connection & exports
-│   └── models/             # Mongoose schema models
-│       ├── user.ts         # User model
-│       ├── session.ts      # Session model
-│       └── ...             # Other models
+│   ├── index.ts            # Drizzle connection & exports
+│   └── schema/             # Drizzle schema definitions
+│       ├── auth.ts         # Authentication tables
+│       ├── todo.ts         # Todo tables
+│       └── ...             # Other domain schemas
 └── package.json
 ```
 
-**Database:** MongoDB via Mongoose
+**Database:** SQLite/Turso via Drizzle ORM
 
 **Key Patterns:**
-- Model-based schema organization
+- Schema-based table definitions
 - Type-safe queries with TypeScript
-- Middleware and virtuals
+- Relational queries
 - Schema validation
 
 ### packages/config - Shared Configuration
@@ -243,7 +243,7 @@ packages/db/
 
 ```json
 {
-	"extends": "@novi/config/tsconfig.base.json"
+	"extends": "@koko/config/tsconfig.base.json"
 }
 ```
 
@@ -339,9 +339,9 @@ Internal dependencies use `workspace:*`:
 ```json
 {
 	"dependencies": {
-		"@novi/api": "workspace:*",
-		"@novi/auth": "workspace:*",
-		"@novi/db": "workspace:*"
+		"@koko/api": "workspace:*",
+		"@koko/auth": "workspace:*",
+		"@koko/db": "workspace:*"
 	}
 }
 ```
@@ -371,20 +371,20 @@ Apps reference catalog versions with `catalog:` prefix:
 
 ## Runtime Environment
 
-**Primary Runtime:** Node.js with npm
+**Primary Runtime:** Bun v1.1.38
 
-**Package Manager:** npm@11.3.0
+**Package Manager:** Bun
 
 **Development Tools:**
 - tsx for TypeScript execution in development
 - tsdown for production bundling
 - Turborepo for monorepo orchestration
-- Vitest for testing
+- Drizzle Kit for database migrations
 
 **Environment Variables:**
 
 Required for development:
-- `DATABASE_URL` - MongoDB connection string
+- `DATABASE_URL` - SQLite/Turso connection string
 - `CORS_ORIGIN` - Allowed CORS origins (comma-separated)
 - `VITE_SERVER_URL` - Backend API URL (for frontend)
 
@@ -431,7 +431,7 @@ import { Button } from "../../../components/ui/button";
 
 When adding a new feature:
 
-1. **Create Mongoose models** in `packages/db/src/models/`
+1. **Create Drizzle schemas** in `packages/db/src/schema/`
 2. **Define tRPC router** in `packages/api/src/routers/`
 3. **Build UI components** in `apps/web/src/components/`
 4. **Create routes** in `apps/web/src/routes/`
@@ -440,7 +440,7 @@ When adding a new feature:
 Example: Adding "Projects" feature
 
 ```
-1. packages/db/src/models/project.ts
+1. packages/db/src/schema/project.ts
 2. packages/api/src/routers/project.ts
 3. apps/web/src/components/project-list.tsx
 4. apps/web/src/routes/projects/index.tsx
@@ -463,7 +463,7 @@ Example: Adding "Projects" feature
 └────────────────┘
 
 ┌────────────────┐
-│    MongoDB     │ → Managed Database (Atlas, etc.)
+│ SQLite/Turso   │ → Local SQLite or Turso (managed)
 └────────────────┘
 ```
 
@@ -472,6 +472,6 @@ Example: Adding "Projects" feature
 1. **Code Splitting** - Route-based in TanStack Router
 2. **Tree Shaking** - Vite optimizes bundle size
 3. **Caching** - TanStack Query + Turborepo
-4. **Database Indexes** - Optimized MongoDB queries
+4. **Database Indexes** - Optimized SQLite queries
 5. **CDN Delivery** - Static assets via CDN
 6. **Server Compilation** - tsdown minifies server code

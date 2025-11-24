@@ -3,9 +3,9 @@
 ## Tech Stack
 
 - **API Framework:** tRPC v11.5.0 (end-to-end type-safe APIs)
-- **Server Framework:** Fastify v5.3.3 (fast, low-overhead HTTP server)
+- **Server Framework:** Hono (fast, lightweight HTTP server)
 - **Schema Validation:** Zod v3.24.1
-- **ORM:** Mongoose v8.14.0 with MongoDB
+- **ORM:** Drizzle ORM with SQLite/Turso
 
 ## tRPC Architecture
 
@@ -35,7 +35,9 @@ packages/api/
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "../init";
-import { User } from "@novi/db";
+import { db } from "@koko/db";
+import { users } from "@koko/db/schema";
+import { eq } from "drizzle-orm";
 
 export const userRouter = router({
 	getProfile: protectedProcedure
@@ -43,7 +45,9 @@ export const userRouter = router({
 		.query(async ({ ctx, input }) => {
 			const userId = input.userId ?? ctx.session.user.id;
 
-			const user = await User.findById(userId);
+			const user = await db.query.users.findFirst({
+				where: eq(users.id, userId),
+			});
 
 			if (!user) {
 				throw new TRPCError({
@@ -63,11 +67,11 @@ export const userRouter = router({
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
-			const updated = await User.findByIdAndUpdate(
-				ctx.session.user.id,
-				input,
-				{ new: true }
-			);
+			const [updated] = await db
+				.update(users)
+				.set(input)
+				.where(eq(users.id, ctx.session.user.id))
+				.returning();
 
 			return updated;
 		}),
@@ -96,15 +100,19 @@ export type AppRouter = typeof appRouter;
 Use for **unauthenticated** endpoints (login, signup, public data):
 
 ```typescript
-import { Post } from "@novi/db";
+import { db } from "@koko/db";
+import { posts } from "@koko/db/schema";
+import { eq, desc } from "drizzle-orm";
 
 export const publicRouter = router({
 	getPublicPosts: publicProcedure
 		.input(z.object({ limit: z.number().min(1).max(100).default(10) }))
 		.query(async ({ ctx, input }) => {
-			return Post.find({ published: true })
-				.limit(input.limit)
-				.exec();
+			return db.query.posts.findMany({
+				where: eq(posts.published, true),
+				limit: input.limit,
+				orderBy: [desc(posts.createdAt)],
+			});
 		}),
 });
 ```
@@ -114,7 +122,8 @@ export const publicRouter = router({
 Use for **authenticated** endpoints (requires valid session):
 
 ```typescript
-import { Post } from "@novi/db";
+import { db } from "@koko/db";
+import { posts } from "@koko/db/schema";
 
 export const privateRouter = router({
 	createPost: protectedProcedure
@@ -126,10 +135,15 @@ export const privateRouter = router({
 		)
 		.mutation(async ({ ctx, input }) => {
 			// ctx.session.user is guaranteed to exist
-			return Post.create({
-				...input,
-				authorId: ctx.session.user.id,
-			});
+			const [post] = await db
+				.insert(posts)
+				.values({
+					...input,
+					authorId: ctx.session.user.id,
+				})
+				.returning();
+
+			return post;
 		}),
 });
 ```
@@ -174,18 +188,22 @@ export const updateUserSchema = createUserSchema.partial();
 
 The `ctx` parameter provides:
 
-- `ctx.db` - Mongoose connection instance (optional, models can be imported directly)
+- `ctx.db` - Drizzle database instance
 - `ctx.session` - Current user session (if authenticated)
 - `ctx.headers` - Request headers
 
 **Never mutate context** - treat it as read-only.
 
 ```typescript
-import { User } from "@novi/db";
+import { db } from "@koko/db";
+import { users } from "@koko/db/schema";
+import { eq } from "drizzle-orm";
 
 // Good
 const userId = ctx.session.user.id;
-const user = await User.findById(userId);
+const user = await db.query.users.findFirst({
+	where: eq(users.id, userId),
+});
 
 // Bad
 ctx.session.user.id = "new-id"; // Never modify context
@@ -248,24 +266,31 @@ throw new TRPCError({
 **Query** - For reading data (GET semantics):
 
 ```typescript
-import { User } from "@novi/db";
+import { db } from "@koko/db";
+import { users } from "@koko/db/schema";
+import { eq } from "drizzle-orm";
 
 getUser: protectedProcedure
 	.input(z.object({ id: z.string() }))
 	.query(async ({ ctx, input }) => {
-		return User.findById(input.id);
+		return db.query.users.findFirst({
+			where: eq(users.id, input.id),
+		});
 	}),
 ```
 
 **Mutation** - For writing data (POST/PUT/DELETE semantics):
 
 ```typescript
-import { User } from "@novi/db";
+import { db } from "@koko/db";
+import { users } from "@koko/db/schema";
+import { eq } from "drizzle-orm";
 
 deleteUser: protectedProcedure
 	.input(z.object({ id: z.string() }))
 	.mutation(async ({ ctx, input }) => {
-		return User.findByIdAndDelete(input.id);
+		await db.delete(users).where(eq(users.id, input.id));
+		return { success: true };
 	}),
 ```
 
@@ -274,7 +299,9 @@ deleteUser: protectedProcedure
 Use **cursor-based pagination** for infinite scrolling:
 
 ```typescript
-import { Post } from "@novi/db";
+import { db } from "@koko/db";
+import { posts } from "@koko/db/schema";
+import { gt, desc } from "drizzle-orm";
 
 getPosts: publicProcedure
 	.input(
@@ -284,19 +311,16 @@ getPosts: publicProcedure
 		}),
 	)
 	.query(async ({ ctx, input }) => {
-		const query = input.cursor
-			? { _id: { $gt: input.cursor } }
-			: {};
-
-		const items = await Post.find(query)
-			.limit(input.limit + 1)
-			.sort({ createdAt: -1 })
-			.exec();
+		const items = await db.query.posts.findMany({
+			where: input.cursor ? gt(posts.id, input.cursor) : undefined,
+			limit: input.limit + 1,
+			orderBy: [desc(posts.createdAt)],
+		});
 
 		let nextCursor: string | undefined = undefined;
 		if (items.length > input.limit) {
 			const nextItem = items.pop();
-			nextCursor = nextItem?._id.toString();
+			nextCursor = nextItem?.id;
 		}
 
 		return {
@@ -309,7 +333,9 @@ getPosts: publicProcedure
 Use **offset-based pagination** for page numbers:
 
 ```typescript
-import { User } from "@novi/db";
+import { db } from "@koko/db";
+import { users } from "@koko/db/schema";
+import { count } from "drizzle-orm";
 
 getUsers: publicProcedure
 	.input(
@@ -319,11 +345,14 @@ getUsers: publicProcedure
 		}),
 	)
 	.query(async ({ ctx, input }) => {
-		const skip = (input.page - 1) * input.pageSize;
+		const offset = (input.page - 1) * input.pageSize;
 
-		const [items, total] = await Promise.all([
-			User.find().skip(skip).limit(input.pageSize).exec(),
-			User.countDocuments(),
+		const [items, [{ value: total }]] = await Promise.all([
+			db.query.users.findMany({
+				limit: input.pageSize,
+				offset,
+			}),
+			db.select({ value: count() }).from(users),
 		]);
 
 		return {
@@ -336,49 +365,51 @@ getUsers: publicProcedure
 	}),
 ```
 
-## Fastify Server Setup
+## Hono Server Setup
 
-The tRPC API is mounted on a Fastify server in `apps/server/`:
+The tRPC API is mounted on a Hono server in `apps/server/`:
 
 ```typescript
 // apps/server/src/index.ts
-import Fastify from "fastify";
-import cors from "@fastify/cors";
-import { fastifyTRPCPlugin } from "@trpc/server/adapters/fastify";
-import { appRouter, createContext } from "@novi/api";
+import { serve } from "@hono/node-server";
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { trpcServer } from "@hono/trpc-server";
+import { appRouter, createContext } from "@koko/api";
 
-const fastify = Fastify({
-	logger: true,
-});
+const app = new Hono();
 
 // CORS configuration
-await fastify.register(cors, {
-	origin: process.env.CORS_ORIGIN?.split(",") || ["http://localhost:3001"],
-	credentials: true,
-});
+app.use(
+	"/*",
+	cors({
+		origin: process.env.CORS_ORIGIN?.split(",") || ["http://localhost:3001"],
+		credentials: true,
+	})
+);
 
 // tRPC endpoint
-await fastify.register(fastifyTRPCPlugin, {
-	prefix: "/trpc",
-	trpcOptions: {
+app.use(
+	"/trpc/*",
+	trpcServer({
 		router: appRouter,
 		createContext,
-	},
-});
+	})
+);
 
 // Health check
-fastify.get("/health", async (request, reply) => {
-	return { status: "ok" };
+app.get("/health", (c) => {
+	return c.json({ status: "ok" });
 });
 
 // Start server
-try {
-	await fastify.listen({ port: 3000 });
-	console.log("Server running on http://localhost:3000");
-} catch (err) {
-	fastify.log.error(err);
-	process.exit(1);
-}
+const port = 3000;
+console.log(`Server running on http://localhost:${port}`);
+
+serve({
+	fetch: app.fetch,
+	port,
+});
 ```
 
 ### CORS Configuration
@@ -401,7 +432,7 @@ The tRPC client is configured in `apps/web/src/lib/trpc.ts`:
 
 ```typescript
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
-import type { AppRouter } from "@novi/api";
+import type { AppRouter } from "@koko/api";
 
 export const trpc = createTRPCClient<AppRouter>({
 	links: [

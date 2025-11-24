@@ -2,25 +2,26 @@
 
 ## Database Stack
 
-- **Database:** MongoDB (NoSQL document database)
-- **ORM:** Mongoose v8.14.0
-- **Models Location:** `packages/db/src/models/`
+- **Database:** SQLite/Turso (libSQL)
+- **ORM:** Drizzle ORM
+- **Schema Location:** `packages/db/src/schema/`
 - **Connection Export:** `packages/db/src/index.ts`
 
-## Mongoose Configuration
+## Drizzle Configuration
 
 ### Project Structure
 
-The project uses a **model-based organization** for better maintainability:
+The project uses a **schema-based organization** for better maintainability:
 
 ```
 packages/db/
 ├── src/
-│   ├── index.ts           # Mongoose connection & exports
-│   └── models/            # Mongoose schema models
-│       ├── auth.model.ts  # Authentication models
-│       ├── user.model.ts  # User-related models
-│       └── ...            # Additional domain models
+│   ├── index.ts           # Drizzle connection & exports
+│   └── schema/            # Drizzle schema definitions
+│       ├── auth.ts        # Authentication tables
+│       ├── todo.ts        # Todo tables
+│       └── ...            # Additional domain schemas
+├── drizzle.config.ts      # Drizzle Kit configuration
 └── package.json
 ```
 
@@ -29,113 +30,107 @@ packages/db/
 **`packages/db/src/index.ts`:**
 
 ```typescript
-import mongoose from "mongoose";
+import { drizzle } from "drizzle-orm/libsql";
+import { createClient } from "@libsql/client";
 
-await mongoose.connect(process.env.DATABASE_URL || "").catch((error) => {
-	console.log("Error connecting to database:", error);
+const client = createClient({
+	url: process.env.DATABASE_URL || "",
+	authToken: process.env.DATABASE_AUTH_TOKEN,
 });
 
-const client = mongoose.connection.getClient().db("myDB");
-
-export { client };
+export const db = drizzle({ client });
 ```
 
 **Connection Configuration:**
-- Environment variable `DATABASE_URL` contains MongoDB connection string
-- Connection happens at module load (top-level await)
-- Error handling for connection failures
-- Database client exported for advanced operations
+- Environment variable `DATABASE_URL` contains SQLite/Turso connection string
+- Optional `DATABASE_AUTH_TOKEN` for Turso authentication
+- Connection happens at module load
+- Database instance exported for queries
 
-### Model Organization
+### Schema Organization
 
-Group related models in separate files by domain:
+Group related tables in separate files by domain:
 
-**Authentication Models (`auth.model.ts`):**
-- User
-- Session
-- Account
-- Verification
+**Authentication Schemas (`auth.ts`):**
+- user
+- session
+- account
+- verification
 
-**Application Models (`user.model.ts`, `post.model.ts`, etc.):**
-- Domain-specific models
+**Application Schemas (`todo.ts`, `post.ts`, etc.):**
+- Domain-specific tables
 
 ## Schema Patterns
 
-### Basic Model Definition
+### Basic Table Definition
 
 ```typescript
-import mongoose from "mongoose";
+import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { sql } from "drizzle-orm";
 
-const { Schema, model } = mongoose;
-
-const userSchema = new Schema(
-	{
-		_id: { type: String }, // Custom string ID (Better-Auth compatibility)
-		name: { type: String, required: true },
-		email: { type: String, required: true, unique: true },
-		emailVerified: { type: Boolean, default: false },
-		image: { type: String },
-		createdAt: { type: Date, default: Date.now },
-		updatedAt: { type: Date, default: Date.now },
-	},
-	{
-		collection: "user",
-		timestamps: true // Automatically manage createdAt/updatedAt
-	}
-);
-
-export const User = model("User", userSchema);
+export const user = sqliteTable("user", {
+	id: text("id").primaryKey(),
+	name: text("name").notNull(),
+	email: text("email").notNull().unique(),
+	emailVerified: integer("email_verified", { mode: "boolean" })
+		.default(false)
+		.notNull(),
+	image: text("image"),
+	createdAt: integer("created_at", { mode: "timestamp_ms" })
+		.default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+		.notNull(),
+	updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+		.default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+		.$onUpdate(() => new Date())
+		.notNull(),
+});
 ```
 
-### Field Types
+### Column Types
 
-**Common MongoDB field types:**
+**Common SQLite column types in Drizzle:**
 
 ```typescript
-const exampleSchema = new Schema({
-	// String types
-	name: { type: String, required: true },
-	email: { type: String, required: true, unique: true },
-	slug: { type: String, unique: true, sparse: true },
+import { sqliteTable, text, integer, real, blob } from "drizzle-orm/sqlite-core";
+import { sql } from "drizzle-orm";
 
-	// Number types
-	age: { type: Number, min: 0, max: 150 },
-	price: { type: Number, default: 0 },
-	views: { type: Number, default: 0 },
-
-	// Boolean
-	isActive: { type: Boolean, default: true },
-	emailVerified: { type: Boolean, default: false },
-
-	// Date/Time
-	createdAt: { type: Date, default: Date.now },
-	updatedAt: { type: Date, default: Date.now },
-	publishedAt: { type: Date },
-	expiresAt: { type: Date },
-
-	// ObjectId (for references)
-	userId: { type: Schema.Types.ObjectId, ref: "User" },
-
-	// Custom String ID (for Better-Auth compatibility)
-	customId: { type: String },
-
-	// Arrays
-	tags: [{ type: String }],
-	categoryIds: [{ type: Schema.Types.ObjectId, ref: "Category" }],
-
-	// Mixed/Any
-	metadata: { type: Schema.Types.Mixed },
-	settings: { type: Object, default: {} },
-
-	// Buffer (binary data)
-	avatar: { type: Buffer },
-
-	// Enum (using enum validator)
-	status: {
-		type: String,
-		enum: ["draft", "published", "archived"],
-		default: "draft"
-	},
+export const exampleTable = sqliteTable("example", {
+	// Text types
+	id: text("id").primaryKey(),
+	name: text("name").notNull(),
+	email: text("email").notNull().unique(),
+	slug: text("slug").unique(),
+	
+	// Integer types
+	age: integer("age"),
+	views: integer("views").default(0).notNull(),
+	
+	// Boolean (stored as integer 0/1)
+	isActive: integer("is_active", { mode: "boolean" }).default(true).notNull(),
+	emailVerified: integer("email_verified", { mode: "boolean" }).default(false),
+	
+	// Timestamps (stored as milliseconds)
+	createdAt: integer("created_at", { mode: "timestamp_ms" })
+		.default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+		.notNull(),
+	updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+		.$onUpdate(() => new Date())
+		.notNull(),
+	publishedAt: integer("published_at", { mode: "timestamp_ms" }),
+	
+	// Real (floating point)
+	price: real("price").default(0),
+	rating: real("rating"),
+	
+	// Blob (binary data)
+	avatar: blob("avatar"),
+	
+	// JSON (stored as text)
+	metadata: text("metadata", { mode: "json" }).$type<Record<string, unknown>>(),
+	settings: text("settings", { mode: "json" }).$type<{ theme: string; notifications: boolean }>(),
+	
+	// Enum (using text with check constraint)
+	status: text("status", { enum: ["draft", "published", "archived"] }).default("draft").notNull(),
 });
 ```
 
@@ -144,670 +139,746 @@ const exampleSchema = new Schema({
 **Add indexes for queried fields:**
 
 ```typescript
-const postSchema = new Schema({
-	title: { type: String, required: true },
-	slug: { type: String, unique: true },
-	authorId: { type: Schema.Types.ObjectId, ref: "User" },
-	categoryId: { type: Schema.Types.ObjectId, ref: "Category" },
-	publishedAt: { type: Date },
-	createdAt: { type: Date, default: Date.now },
-});
+import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
 
-// Single field indexes
-postSchema.index({ slug: 1 }); // 1 for ascending, -1 for descending
-postSchema.index({ authorId: 1 });
-postSchema.index({ createdAt: -1 });
-postSchema.index({ publishedAt: -1 });
-
-// Compound indexes
-postSchema.index({ authorId: 1, publishedAt: -1 });
-postSchema.index({ categoryId: 1, createdAt: -1 });
-
-// Text index for search
-postSchema.index({ title: "text", content: "text" });
-
-// Unique compound index
-postSchema.index({ userId: 1, projectId: 1 }, { unique: true });
-
-// Sparse index (only indexes documents that have the field)
-postSchema.index({ slug: 1 }, { unique: true, sparse: true });
-```
-
-### Schema Options
-
-```typescript
-const postSchema = new Schema(
+export const post = sqliteTable(
+	"post",
 	{
-		title: { type: String, required: true },
-		content: { type: String },
+		id: integer("id").primaryKey({ autoIncrement: true }),
+		title: text("title").notNull(),
+		slug: text("slug").unique().notNull(),
+		authorId: text("author_id").notNull(),
+		categoryId: integer("category_id"),
+		publishedAt: integer("published_at", { mode: "timestamp_ms" }),
+		createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
 	},
-	{
-		// Collection name (overrides default pluralization)
-		collection: "post",
-
-		// Automatic timestamps (createdAt, updatedAt)
-		timestamps: true,
-
-		// Version key (__v)
-		versionKey: false, // Set to false to remove __v field
-
-		// Strict mode (reject fields not in schema)
-		strict: true,
-
-		// toJSON and toObject options
-		toJSON: {
-			virtuals: true, // Include virtual properties
-			transform: (doc, ret) => {
-				delete ret.__v;
-				return ret;
-			},
-		},
-	}
+	(table) => [
+		// Single field indexes
+		index("post_slug_idx").on(table.slug),
+		index("post_author_idx").on(table.authorId),
+		index("post_created_idx").on(table.createdAt),
+		index("post_published_idx").on(table.publishedAt),
+		
+		// Compound indexes
+		index("post_author_published_idx").on(table.authorId, table.publishedAt),
+		index("post_category_created_idx").on(table.categoryId, table.createdAt),
+		
+		// Unique compound index
+		index("post_user_project_idx").on(table.authorId, table.categoryId).unique(),
+	]
 );
 ```
 
-### Relationships (References)
+### Foreign Keys & References
+
+```typescript
+import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
+
+export const user = sqliteTable("user", {
+	id: text("id").primaryKey(),
+	name: text("name").notNull(),
+	email: text("email").notNull().unique(),
+});
+
+export const post = sqliteTable(
+	"post",
+	{
+		id: integer("id").primaryKey({ autoIncrement: true }),
+		title: text("title").notNull(),
+		content: text("content"),
+		authorId: text("author_id")
+			.notNull()
+			.references(() => user.id, { onDelete: "cascade" }),
+	},
+	(table) => [index("post_author_idx").on(table.authorId)]
+);
+```
+
+**Reference Options:**
+- `onDelete: "cascade"` - Delete posts when user is deleted
+- `onDelete: "set null"` - Set authorId to null when user is deleted
+- `onDelete: "restrict"` - Prevent user deletion if posts exist
+- `onUpdate: "cascade"` - Update references when user.id changes
+
+### Relationships (Relations)
+
+Drizzle uses a separate `relations()` function to define relationships:
 
 #### One-to-Many
 
 ```typescript
-// User model
-const userSchema = new Schema({
-	_id: { type: String },
-	name: { type: String, required: true },
-	email: { type: String, required: true, unique: true },
+import { relations } from "drizzle-orm";
+import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+
+export const user = sqliteTable("user", {
+	id: text("id").primaryKey(),
+	name: text("name").notNull(),
+	email: text("email").notNull(),
 });
 
-export const User = model("User", userSchema);
-
-// Post model (many posts belong to one user)
-const postSchema = new Schema({
-	title: { type: String, required: true },
-	content: { type: String },
-	authorId: { type: String, ref: "User", required: true },
+export const post = sqliteTable("post", {
+	id: integer("id").primaryKey({ autoIncrement: true }),
+	title: text("title").notNull(),
+	content: text("content"),
+	authorId: text("author_id")
+		.notNull()
+		.references(() => user.id, { onDelete: "cascade" }),
 });
 
-postSchema.index({ authorId: 1 });
+// Define relations
+export const userRelations = relations(user, ({ many }) => ({
+	posts: many(post),
+}));
 
-export const Post = model("Post", postSchema);
+export const postRelations = relations(post, ({ one }) => ({
+	author: one(user, {
+		fields: [post.authorId],
+		references: [user.id],
+	}),
+}));
 
-// Usage with population
-const post = await Post.findById(postId).populate("authorId");
-console.log(post.authorId.name); // Access populated user data
+// Usage with relational queries
+import { db } from "@koko/db";
+
+const userWithPosts = await db.query.user.findFirst({
+	where: eq(user.id, userId),
+	with: {
+		posts: true,
+	},
+});
 ```
 
 #### One-to-One
 
 ```typescript
-// User model
-const userSchema = new Schema({
-	_id: { type: String },
-	name: { type: String, required: true },
-	email: { type: String, required: true },
+export const user = sqliteTable("user", {
+	id: text("id").primaryKey(),
+	name: text("name").notNull(),
+	email: text("email").notNull(),
 });
 
-export const User = model("User", userSchema);
-
-// Profile model (one profile per user)
-const profileSchema = new Schema({
-	userId: { type: String, ref: "User", required: true, unique: true },
-	bio: { type: String },
-	avatar: { type: String },
-	website: { type: String },
+export const profile = sqliteTable("profile", {
+	id: integer("id").primaryKey({ autoIncrement: true }),
+	userId: text("user_id")
+		.notNull()
+		.unique()
+		.references(() => user.id, { onDelete: "cascade" }),
+	bio: text("bio"),
+	avatar: text("avatar"),
+	website: text("website"),
 });
 
-profileSchema.index({ userId: 1 }, { unique: true });
+export const userRelations = relations(user, ({ one }) => ({
+	profile: one(profile, {
+		fields: [user.id],
+		references: [profile.userId],
+	}),
+}));
 
-export const Profile = model("Profile", profileSchema);
+export const profileRelations = relations(profile, ({ one }) => ({
+	user: one(user, {
+		fields: [profile.userId],
+		references: [user.id],
+	}),
+}));
 ```
 
 #### Many-to-Many
 
-**Using references array:**
+**Using join table:**
 
 ```typescript
-// User model
-const userSchema = new Schema({
-	_id: { type: String },
-	name: { type: String, required: true },
-	projectIds: [{ type: Schema.Types.ObjectId, ref: "Project" }],
+export const user = sqliteTable("user", {
+	id: text("id").primaryKey(),
+	name: text("name").notNull(),
 });
 
-export const User = model("User", userSchema);
-
-// Project model
-const projectSchema = new Schema({
-	name: { type: String, required: true },
-	memberIds: [{ type: String, ref: "User" }],
+export const project = sqliteTable("project", {
+	id: integer("id").primaryKey({ autoIncrement: true }),
+	name: text("name").notNull(),
 });
 
-export const Project = model("Project", projectSchema);
+export const membership = sqliteTable("membership", {
+	id: integer("id").primaryKey({ autoIncrement: true }),
+	userId: text("user_id")
+		.notNull()
+		.references(() => user.id, { onDelete: "cascade" }),
+	projectId: integer("project_id")
+		.notNull()
+		.references(() => project.id, { onDelete: "cascade" }),
+	role: text("role", { enum: ["owner", "admin", "member"] }).default("member").notNull(),
+	joinedAt: integer("joined_at", { mode: "timestamp_ms" }).notNull(),
+});
+
+export const userRelations = relations(user, ({ many }) => ({
+	memberships: many(membership),
+}));
+
+export const projectRelations = relations(project, ({ many }) => ({
+	memberships: many(membership),
+}));
+
+export const membershipRelations = relations(membership, ({ one }) => ({
+	user: one(user, {
+		fields: [membership.userId],
+		references: [user.id],
+	}),
+	project: one(project, {
+		fields: [membership.projectId],
+		references: [project.id],
+	}),
+}));
 
 // Usage
-const user = await User.findById(userId).populate("projectIds");
+const userProjects = await db.query.user.findFirst({
+	where: eq(user.id, userId),
+	with: {
+		memberships: {
+			with: {
+				project: true,
+			},
+		},
+	},
+});
 ```
 
-**Using join collection (recommended for additional metadata):**
-
-```typescript
-// Membership model (join table)
-const membershipSchema = new Schema({
-	userId: { type: String, ref: "User", required: true },
-	projectId: { type: Schema.Types.ObjectId, ref: "Project", required: true },
-	role: { type: String, enum: ["owner", "admin", "member"], default: "member" },
-	joinedAt: { type: Date, default: Date.now },
-});
-
-membershipSchema.index({ userId: 1, projectId: 1 }, { unique: true });
-membershipSchema.index({ userId: 1 });
-membershipSchema.index({ projectId: 1 });
-
-export const Membership = model("Membership", membershipSchema);
-
-// Usage
-const memberships = await Membership.find({ userId })
-	.populate("projectId")
-	.exec();
-```
-
-### Virtuals
-
-Virtual properties are computed values not stored in MongoDB:
-
-```typescript
-const userSchema = new Schema({
-	firstName: { type: String },
-	lastName: { type: String },
-});
-
-// Virtual property
-userSchema.virtual("fullName").get(function() {
-	return `${this.firstName} ${this.lastName}`;
-});
-
-// Virtual setter
-userSchema.virtual("fullName").set(function(value) {
-	const parts = value.split(" ");
-	this.firstName = parts[0];
-	this.lastName = parts[1];
-});
-
-// Include virtuals in toJSON
-userSchema.set("toJSON", { virtuals: true });
-
-export const User = model("User", userSchema);
-
-// Usage
-const user = new User({ firstName: "John", lastName: "Doe" });
-console.log(user.fullName); // "John Doe"
-```
-
-### Middleware (Hooks)
-
-Mongoose middleware allows you to run logic before/after certain operations:
-
-```typescript
-const userSchema = new Schema({
-	email: { type: String, required: true },
-	password: { type: String, required: true },
-	updatedAt: { type: Date },
-});
-
-// Pre-save hook
-userSchema.pre("save", async function(next) {
-	// Hash password before saving
-	if (this.isModified("password")) {
-		this.password = await bcrypt.hash(this.password, 10);
-	}
-
-	// Update timestamp
-	this.updatedAt = new Date();
-
-	next();
-});
-
-// Post-save hook
-userSchema.post("save", function(doc, next) {
-	console.log("User saved:", doc._id);
-	next();
-});
-
-// Pre-remove hook
-userSchema.pre("remove", async function(next) {
-	// Clean up related documents
-	await Post.deleteMany({ authorId: this._id });
-	next();
-});
-
-export const User = model("User", userSchema);
-```
-
-### Methods (Instance Methods)
-
-Add custom methods to document instances:
-
-```typescript
-const userSchema = new Schema({
-	email: { type: String, required: true },
-	password: { type: String, required: true },
-});
-
-// Instance method
-userSchema.methods.verifyPassword = async function(password: string): Promise<boolean> {
-	return bcrypt.compare(password, this.password);
-};
-
-userSchema.methods.generateAuthToken = function(): string {
-	return jwt.sign({ userId: this._id }, process.env.JWT_SECRET || "");
-};
-
-export const User = model("User", userSchema);
-
-// Usage
-const user = await User.findOne({ email });
-const isValid = await user.verifyPassword(password);
-if (isValid) {
-	const token = user.generateAuthToken();
-}
-```
-
-### Statics (Model Methods)
-
-Add custom methods to the model itself:
-
-```typescript
-const userSchema = new Schema({
-	email: { type: String, required: true },
-	name: { type: String, required: true },
-});
-
-// Static method
-userSchema.statics.findByEmail = function(email: string) {
-	return this.findOne({ email: email.toLowerCase() });
-};
-
-userSchema.statics.createWithDefaults = function(userData: { email: string; name: string }) {
-	return this.create({
-		...userData,
-		emailVerified: false,
-		createdAt: new Date(),
-	});
-};
-
-export const User = model("User", userSchema);
-
-// Usage
-const user = await User.findByEmail("user@example.com");
-const newUser = await User.createWithDefaults({ email: "new@example.com", name: "New User" });
-```
-
-## Mongoose Client Usage
+## Drizzle Query API
 
 ### CRUD Operations
 
 #### Create
 
 ```typescript
-import { User } from "@novi/db";
+import { db } from "@koko/db";
+import { user } from "@koko/db/schema";
 
-// Single document
-const user = await User.create({
-	name: "John Doe",
-	email: "john@example.com",
-	emailVerified: false,
-});
+// Single insert
+const [newUser] = await db
+	.insert(user)
+	.values({
+		id: crypto.randomUUID(),
+		name: "John Doe",
+		email: "john@example.com",
+		emailVerified: false,
+	})
+	.returning();
 
-// Multiple documents
-const users = await User.insertMany([
-	{ name: "User 1", email: "user1@example.com" },
-	{ name: "User 2", email: "user2@example.com" },
-]);
+// Multiple inserts
+const users = await db
+	.insert(user)
+	.values([
+		{ id: "1", name: "User 1", email: "user1@example.com" },
+		{ id: "2", name: "User 2", email: "user2@example.com" },
+	])
+	.returning();
 
-// Using new + save (triggers middleware)
-const user = new User({
-	name: "Jane Doe",
-	email: "jane@example.com",
-});
-await user.save();
+// Insert with default values
+const [user] = await db
+	.insert(user)
+	.values({
+		id: crypto.randomUUID(),
+		name: "Jane Doe",
+		email: "jane@example.com",
+	})
+	.returning();
 ```
 
 #### Read
 
 ```typescript
-import { User, Post } from "@novi/db";
+import { db } from "@koko/db";
+import { user, post } from "@koko/db/schema";
+import { eq, and, or, like, gt, desc } from "drizzle-orm";
 
-// Find by ID
-const user = await User.findById(userId);
+// Find all
+const users = await db.select().from(user);
 
-// Find one
-const user = await User.findOne({ email: "user@example.com" });
+// Find with condition
+const verifiedUsers = await db
+	.select()
+	.from(user)
+	.where(eq(user.emailVerified, true));
 
-// Find many
-const users = await User.find({ emailVerified: true });
+// Find with multiple conditions
+const posts = await db
+	.select()
+	.from(post)
+	.where(
+		and(
+			eq(post.authorId, userId),
+			eq(post.published, true)
+		)
+	)
+	.orderBy(desc(post.createdAt))
+	.limit(10);
 
-// Find with conditions
-const posts = await Post.find({
-	authorId: userId,
-	published: true,
-})
-	.sort({ createdAt: -1 })
-	.limit(10)
-	.select("title content createdAt") // Only select specific fields
-	.exec();
+// Select specific columns
+const userEmails = await db
+	.select({
+		email: user.email,
+		name: user.name,
+	})
+	.from(user);
 
 // Count
-const count = await User.countDocuments({ emailVerified: true });
+const [{ count }] = await db
+	.select({ count: sql<number>`count(*)` })
+	.from(user)
+	.where(eq(user.emailVerified, true));
 
 // Exists
-const exists = await User.exists({ email: "user@example.com" });
+const userExists = await db.query.user.findFirst({
+	where: eq(user.email, "user@example.com"),
+	columns: { id: true },
+});
+```
 
-// Find with population
-const post = await Post.findById(postId)
-	.populate("authorId", "name email") // Populate specific fields
-	.exec();
+#### Relational Queries
 
-// Multiple populations
-const post = await Post.findById(postId)
-	.populate("authorId")
-	.populate("categoryId")
-	.exec();
+```typescript
+import { db } from "@koko/db";
+import { user } from "@koko/db/schema";
+import { eq } from "drizzle-orm";
+
+// Query with relations
+const userWithPosts = await db.query.user.findFirst({
+	where: eq(user.id, userId),
+	with: {
+		posts: true,
+		profile: true,
+	},
+});
+
+// Query with nested relations
+const userWithData = await db.query.user.findFirst({
+	where: eq(user.id, userId),
+	with: {
+		posts: {
+			with: {
+				comments: true,
+			},
+		},
+	},
+});
+
+// Query with specific columns and relations
+const userPartial = await db.query.user.findFirst({
+	where: eq(user.id, userId),
+	columns: {
+		name: true,
+		email: true,
+	},
+	with: {
+		posts: {
+			columns: {
+				title: true,
+				createdAt: true,
+			},
+		},
+	},
+});
 ```
 
 #### Update
 
 ```typescript
-import { User, Post } from "@novi/db";
+import { db } from "@koko/db";
+import { user, post } from "@koko/db/schema";
+import { eq } from "drizzle-orm";
 
-// Find and update (returns updated document)
-const user = await User.findByIdAndUpdate(
-	userId,
-	{ name: "New Name", emailVerified: true },
-	{ new: true } // Return updated document
-);
+// Update with returning
+const [updatedUser] = await db
+	.update(user)
+	.set({ name: "New Name", emailVerified: true })
+	.where(eq(user.id, userId))
+	.returning();
 
-// Update one
-const result = await User.updateOne(
-	{ _id: userId },
-	{ $set: { emailVerified: true } }
-);
+// Update multiple rows
+await db
+	.update(post)
+	.set({ published: false })
+	.where(eq(post.authorId, userId));
 
-// Update many
-const result = await Post.updateMany(
-	{ authorId: userId },
-	{ $set: { published: false } }
-);
+// Partial update
+await db
+	.update(user)
+	.set({ emailVerified: true })
+	.where(eq(user.id, userId));
 
-// Increment/decrement
-const post = await Post.findByIdAndUpdate(
-	postId,
-	{ $inc: { views: 1 } }, // Increment views by 1
-	{ new: true }
-);
-
-// Array operations
-const user = await User.findByIdAndUpdate(
-	userId,
-	{ $push: { projectIds: newProjectId } }, // Add to array
-	{ new: true }
-);
-
-const user = await User.findByIdAndUpdate(
-	userId,
-	{ $pull: { projectIds: projectId } }, // Remove from array
-	{ new: true }
-);
+// Update with SQL
+await db
+	.update(post)
+	.set({ views: sql`${post.views} + 1` })
+	.where(eq(post.id, postId));
 ```
 
 #### Delete
 
 ```typescript
-import { User, Post } from "@novi/db";
+import { db } from "@koko/db";
+import { user, post } from "@koko/db/schema";
+import { eq } from "drizzle-orm";
 
-// Find and delete (returns deleted document)
-const deleted = await User.findByIdAndDelete(userId);
+// Delete with returning
+const [deleted] = await db
+	.delete(user)
+	.where(eq(user.id, userId))
+	.returning();
 
-// Delete one
-const result = await User.deleteOne({ _id: userId });
+// Delete multiple rows
+await db
+	.delete(post)
+	.where(eq(post.authorId, userId));
 
-// Delete many
-const result = await Post.deleteMany({ authorId: userId });
-
-// Using remove (triggers middleware)
-const user = await User.findById(userId);
-await user.remove(); // Calls pre/post remove hooks
+// Delete all (use with caution)
+await db.delete(post);
 ```
 
 ### Filtering & Querying
 
 ```typescript
-import { Post } from "@novi/db";
+import { db } from "@koko/db";
+import { post } from "@koko/db/schema";
+import { eq, ne, gt, gte, lt, lte, like, inArray, and, or, not, isNull, isNotNull } from "drizzle-orm";
 
-// Basic filters
-const posts = await Post.find({
-	title: "Hello World", // Exact match
-	published: true,
-	views: { $gte: 100 }, // Greater than or equal
-	createdAt: { $lt: new Date() }, // Less than
-	authorId: { $in: [id1, id2, id3] }, // In array
-	tags: { $elemMatch: { $eq: "typescript" } }, // Array contains
-});
+// Comparison operators
+const posts1 = await db.select().from(post).where(eq(post.id, 1));
+const posts2 = await db.select().from(post).where(ne(post.status, "archived"));
+const posts3 = await db.select().from(post).where(gt(post.views, 100));
+const posts4 = await db.select().from(post).where(gte(post.views, 100));
+const posts5 = await db.select().from(post).where(lt(post.views, 1000));
+const posts6 = await db.select().from(post).where(lte(post.views, 1000));
 
-// AND conditions (default)
-const posts = await Post.find({
-	published: true,
-	authorId: userId,
-});
+// LIKE operator
+const searchResults = await db
+	.select()
+	.from(post)
+	.where(like(post.title, "%typescript%"));
+
+// IN operator
+const postsByIds = await db
+	.select()
+	.from(post)
+	.where(inArray(post.id, [1, 2, 3, 4, 5]));
+
+// AND conditions
+const filteredPosts = await db
+	.select()
+	.from(post)
+	.where(
+		and(
+			eq(post.published, true),
+			eq(post.authorId, userId)
+		)
+	);
 
 // OR conditions
-const posts = await Post.find({
-	$or: [
-		{ title: /typescript/i },
-		{ content: /typescript/i },
-	],
-});
+const posts = await db
+	.select()
+	.from(post)
+	.where(
+		or(
+			like(post.title, "%typescript%"),
+			like(post.content, "%typescript%")
+		)
+	);
 
 // NOT conditions
-const posts = await Post.find({
-	status: { $ne: "archived" },
-});
+const unpublished = await db
+	.select()
+	.from(post)
+	.where(not(eq(post.published, true)));
+
+// NULL checks
+const withoutImage = await db
+	.select()
+	.from(user)
+	.where(isNull(user.image));
+
+const withImage = await db
+	.select()
+	.from(user)
+	.where(isNotNull(user.image));
 
 // Complex nested conditions
-const posts = await Post.find({
-	$and: [
-		{ published: true },
-		{
-			$or: [
-				{ featured: true },
-				{ views: { $gte: 1000 } },
-			],
-		},
-	],
-});
-
-// Regular expressions
-const posts = await Post.find({
-	title: /^Hello/i, // Starts with "Hello" (case insensitive)
-});
-
-// Text search (requires text index)
-const posts = await Post.find({
-	$text: { $search: "typescript tutorial" },
-});
+const complexQuery = await db
+	.select()
+	.from(post)
+	.where(
+		and(
+			eq(post.published, true),
+			or(
+				eq(post.featured, true),
+				gte(post.views, 1000)
+			)
+		)
+	);
 ```
 
-### Query Operators
+### Pagination
+
+**Offset-based pagination:**
 
 ```typescript
-// Comparison
-{ age: { $eq: 25 } }      // Equal
-{ age: { $ne: 25 } }      // Not equal
-{ age: { $gt: 25 } }      // Greater than
-{ age: { $gte: 25 } }     // Greater than or equal
-{ age: { $lt: 25 } }      // Less than
-{ age: { $lte: 25 } }     // Less than or equal
-{ age: { $in: [20, 25, 30] } }    // In array
-{ age: { $nin: [20, 25, 30] } }   // Not in array
+import { db } from "@koko/db";
+import { post } from "@koko/db/schema";
+import { count } from "drizzle-orm";
 
-// Logical
-{ $and: [{ age: { $gt: 20 } }, { age: { $lt: 30 } }] }
-{ $or: [{ age: { $lt: 20 } }, { age: { $gt: 30 } }] }
-{ $not: { age: { $gte: 25 } } }
-{ $nor: [{ age: { $lt: 20 } }, { age: { $gt: 30 } }] }
+const page = 1;
+const pageSize = 20;
+const offset = (page - 1) * pageSize;
 
-// Element
-{ field: { $exists: true } }    // Field exists
-{ field: { $type: "string" } }  // Field type
+const [items, [{ value: total }]] = await Promise.all([
+	db.select().from(post).limit(pageSize).offset(offset),
+	db.select({ value: count() }).from(post),
+]);
 
-// Array
-{ tags: { $all: ["js", "ts"] } }        // Contains all
-{ tags: { $elemMatch: { $gte: 80 } } }  // Element matches
-{ tags: { $size: 3 } }                  // Array size
+const result = {
+	items,
+	total,
+	page,
+	pageSize,
+	totalPages: Math.ceil(total / pageSize),
+};
+```
+
+**Cursor-based pagination:**
+
+```typescript
+import { db } from "@koko/db";
+import { post } from "@koko/db/schema";
+import { gt, desc } from "drizzle-orm";
+
+const limit = 20;
+const cursor = "last-post-id"; // optional
+
+const items = await db
+	.select()
+	.from(post)
+	.where(cursor ? gt(post.id, cursor) : undefined)
+	.orderBy(desc(post.createdAt))
+	.limit(limit + 1);
+
+let nextCursor: string | undefined = undefined;
+if (items.length > limit) {
+	const nextItem = items.pop();
+	nextCursor = nextItem?.id;
+}
+
+const result = {
+	items,
+	nextCursor,
+};
 ```
 
 ### Transactions
 
-Use sessions for multi-document transactions:
-
 ```typescript
-import mongoose from "mongoose";
-import { User, Post } from "@novi/db";
+import { db } from "@koko/db";
+import { user, post } from "@koko/db/schema";
 
-const session = await mongoose.startSession();
-session.startTransaction();
-
-try {
+await db.transaction(async (tx) => {
 	// Create user
-	const user = await User.create(
-		[{ name: "John", email: "john@example.com" }],
-		{ session }
-	);
+	const [newUser] = await tx
+		.insert(user)
+		.values({
+			id: crypto.randomUUID(),
+			name: "John",
+			email: "john@example.com",
+		})
+		.returning();
 
 	// Create post for user
-	await Post.create(
-		[{ title: "First Post", authorId: user[0]._id }],
-		{ session }
-	);
+	await tx
+		.insert(post)
+		.values({
+			title: "First Post",
+			authorId: newUser.id,
+		});
 
-	// Commit transaction
-	await session.commitTransaction();
-	console.log("Transaction committed");
-} catch (error) {
-	// Rollback on error
-	await session.abortTransaction();
-	console.error("Transaction aborted:", error);
-} finally {
-	session.endSession();
-}
+	// If any operation fails, entire transaction is rolled back
+});
+```
+
+## Migrations
+
+### Drizzle Kit Configuration
+
+**`drizzle.config.ts`:**
+
+```typescript
+import { defineConfig } from "drizzle-kit";
+
+export default defineConfig({
+	dialect: "sqlite",
+	schema: "./src/schema/*",
+	out: "./drizzle",
+	dbCredentials: {
+		url: process.env.DATABASE_URL || "",
+	},
+});
+```
+
+### Migration Commands
+
+```bash
+# Generate migration files
+bun run db:generate
+
+# Push schema changes directly to database (dev only)
+bun run db:push
+
+# Apply migrations
+bun run db:migrate
+
+# Open Drizzle Studio (database GUI)
+bun run db:studio
+
+# Start local SQLite database
+cd packages/db && bun run db:local
+```
+
+### Schema Changes
+
+**Adding a new field:**
+
+```typescript
+// Just add to schema
+export const user = sqliteTable("user", {
+	// ...existing fields
+	bio: text("bio"), // New optional field
+});
+```
+
+Then run:
+```bash
+bun run db:generate  # Generate migration
+bun run db:push      # Apply to database
+```
+
+**Removing a field:**
+
+```typescript
+// Remove from schema
+export const user = sqliteTable("user", {
+	// ...removed old field
+});
+```
+
+Then run:
+```bash
+bun run db:generate
+bun run db:push
+```
+
+**Renaming a field:**
+
+This requires manual migration:
+
+```sql
+-- In migration file
+ALTER TABLE user RENAME COLUMN old_name TO new_name;
 ```
 
 ## Performance Best Practices
 
-### 1. Use `select` to fetch only needed fields
+### 1. Use prepared statements
 
 ```typescript
-// Good - Only fetch needed fields
-const users = await User.find()
-	.select("name email")
-	.exec();
+import { db } from "@koko/db";
+import { user } from "@koko/db/schema";
+import { eq } from "drizzle-orm";
 
-// Bad - Fetches all fields
-const users = await User.find();
+const prepared = db
+	.select()
+	.from(user)
+	.where(eq(user.id, sql.placeholder("id")))
+	.prepare();
+
+// Reuse prepared statement
+const user1 = await prepared.execute({ id: "user-1" });
+const user2 = await prepared.execute({ id: "user-2" });
 ```
 
-### 2. Add indexes for filtered/sorted fields
+### 2. Select only needed columns
+
+```typescript
+// Good - Only fetch needed columns
+const users = await db
+	.select({
+		name: user.name,
+		email: user.email,
+	})
+	.from(user);
+
+// Bad - Fetches all columns
+const users = await db.select().from(user);
+```
+
+### 3. Add indexes for filtered/sorted fields
 
 ```typescript
 // Add indexes in schema
-postSchema.index({ authorId: 1, createdAt: -1 });
-postSchema.index({ publishedAt: -1 });
+export const post = sqliteTable(
+	"post",
+	{
+		authorId: text("author_id").notNull(),
+		createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
+	},
+	(table) => [
+		index("post_author_idx").on(table.authorId),
+		index("post_created_idx").on(table.createdAt),
+		index("post_author_created_idx").on(table.authorId, table.createdAt),
+	]
+);
 ```
 
-### 3. Use lean() for read-only queries
+### 4. Use transactions for multi-step operations
 
 ```typescript
-// Good - Returns plain JavaScript objects (faster)
-const posts = await Post.find().lean().exec();
-
-// Bad - Returns Mongoose documents (slower, but has methods)
-const posts = await Post.find().exec();
+await db.transaction(async (tx) => {
+	// Multiple related operations
+	// All succeed or all fail
+});
 ```
 
-### 4. Use pagination
-
-```typescript
-// Offset-based (simpler, slower for large datasets)
-const posts = await Post.find()
-	.skip((page - 1) * limit)
-	.limit(limit)
-	.exec();
-
-// Cursor-based (better for large datasets)
-const posts = await Post.find({ _id: { $gt: lastId } })
-	.limit(limit)
-	.exec();
-```
-
-### 5. Use population wisely
-
-```typescript
-// Good - Only populate needed fields
-const post = await Post.findById(postId)
-	.populate("authorId", "name email")
-	.exec();
-
-// Bad - Populates all fields
-const post = await Post.findById(postId)
-	.populate("authorId")
-	.exec();
-```
-
-### 6. Batch operations
+### 5. Batch operations
 
 ```typescript
 // Good - Single query
-const posts = await Post.find({
-	_id: { $in: postIds },
-});
+const posts = await db
+	.select()
+	.from(post)
+	.where(inArray(post.id, postIds));
 
 // Bad - Multiple queries
 const posts = await Promise.all(
-	postIds.map((id) => Post.findById(id))
+	postIds.map((id) => db.select().from(post).where(eq(post.id, id)))
 );
 ```
 
 ## Error Handling
 
 ```typescript
-import { User } from "@novi/db";
+import { db } from "@koko/db";
+import { user } from "@koko/db/schema";
 import { TRPCError } from "@trpc/server";
 
 try {
-	const user = await User.create({
-		email: "user@example.com",
-		name: "John",
-	});
+	const [newUser] = await db
+		.insert(user)
+		.values({
+			id: crypto.randomUUID(),
+			email: "user@example.com",
+			name: "John",
+		})
+		.returning();
 } catch (error) {
-	// Duplicate key error (unique constraint)
-	if (error.code === 11000) {
+	// SQLite constraint violation (unique, foreign key, etc.)
+	if (error.code === "SQLITE_CONSTRAINT") {
 		throw new TRPCError({
 			code: "CONFLICT",
 			message: "Email already exists",
-		});
-	}
-
-	// Validation error
-	if (error.name === "ValidationError") {
-		throw new TRPCError({
-			code: "BAD_REQUEST",
-			message: error.message,
-		});
-	}
-
-	// Cast error (invalid ObjectId)
-	if (error.name === "CastError") {
-		throw new TRPCError({
-			code: "BAD_REQUEST",
-			message: "Invalid ID format",
 		});
 	}
 
@@ -820,155 +891,48 @@ try {
 }
 ```
 
-**Common Mongoose error codes:**
-- `11000` - Duplicate key error (unique constraint violation)
-- `ValidationError` - Schema validation failed
-- `CastError` - Type casting failed (e.g., invalid ObjectId)
-- `DocumentNotFoundError` - Document not found
-
 ## Type Safety
 
 ### TypeScript Integration
 
+Drizzle provides full type safety out of the box:
+
 ```typescript
-import mongoose, { type Document, type Model } from "mongoose";
+import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 
-const { Schema, model } = mongoose;
-
-// Define TypeScript interface
-interface IUser {
-	_id: string;
-	name: string;
-	email: string;
-	emailVerified: boolean;
-	createdAt: Date;
-	updatedAt: Date;
-}
-
-// Define methods interface
-interface IUserMethods {
-	verifyPassword(password: string): Promise<boolean>;
-}
-
-// Define statics interface
-interface IUserModel extends Model<IUser, object, IUserMethods> {
-	findByEmail(email: string): Promise<(Document<unknown, object, IUser> & IUser & IUserMethods) | null>;
-}
-
-// Define schema
-const userSchema = new Schema<IUser, IUserModel, IUserMethods>({
-	_id: { type: String },
-	name: { type: String, required: true },
-	email: { type: String, required: true, unique: true },
-	emailVerified: { type: Boolean, default: false },
-	createdAt: { type: Date, default: Date.now },
-	updatedAt: { type: Date, default: Date.now },
+export const user = sqliteTable("user", {
+	id: text("id").primaryKey(),
+	name: text("name").notNull(),
+	email: text("email").notNull(),
+	age: integer("age"),
 });
 
-// Add instance method
-userSchema.methods.verifyPassword = async function(password: string): Promise<boolean> {
-	// Implementation
-	return true;
-};
-
-// Add static method
-userSchema.statics.findByEmail = function(email: string) {
-	return this.findOne({ email: email.toLowerCase() });
-};
-
-export const User = model<IUser, IUserModel>("User", userSchema);
+// Infer types from schema
+export type User = typeof user.$inferSelect;
+export type InsertUser = typeof user.$inferInsert;
 
 // Usage - Full type safety
-const user = await User.findByEmail("user@example.com");
-if (user) {
-	const isValid = await user.verifyPassword("password");
-}
-```
+const newUser: InsertUser = {
+	id: crypto.randomUUID(),
+	name: "John",
+	email: "john@example.com",
+	// age is optional
+};
 
-## Migration Strategies
-
-### Schema Changes
-
-Unlike Prisma, Mongoose doesn't have a formal migration system. Schema changes are applied at runtime:
-
-**Adding a new field:**
-```typescript
-// Just add to schema - existing documents won't have it
-const userSchema = new Schema({
-	// ...existing fields
-	newField: { type: String }, // New optional field
-});
-```
-
-**Removing a field:**
-```typescript
-// Remove from schema - old data remains in DB until updated
-const userSchema = new Schema({
-	// ...removed old field
-});
-
-// Optional: Clean up old data
-await User.updateMany({}, { $unset: { oldField: "" } });
-```
-
-**Renaming a field:**
-```typescript
-// Migration script
-await User.updateMany(
-	{},
-	{ $rename: { oldName: "newName" } }
-);
-```
-
-**Changing field type:**
-```typescript
-// Manual migration required
-const users = await User.find();
-for (const user of users) {
-	user.age = Number(user.age); // Convert string to number
-	await user.save();
-}
-```
-
-### Database Seeding
-
-```typescript
-import { User, Post } from "@novi/db";
-
-async function seed() {
-	// Clear existing data
-	await User.deleteMany({});
-	await Post.deleteMany({});
-
-	// Create users
-	const users = await User.insertMany([
-		{ name: "User 1", email: "user1@example.com", emailVerified: true },
-		{ name: "User 2", email: "user2@example.com", emailVerified: false },
-	]);
-
-	// Create posts
-	await Post.insertMany([
-		{ title: "Post 1", authorId: users[0]._id, published: true },
-		{ title: "Post 2", authorId: users[1]._id, published: false },
-	]);
-
-	console.log("Database seeded");
-}
-
-seed().catch(console.error);
+const [created]: User[] = await db.insert(user).values(newUser).returning();
 ```
 
 ## Best Practices
 
-1. **Always use schemas** - Define schemas for all models
+1. **Always use schemas** - Define schemas for all tables
 2. **Add indexes** - Index fields used in queries
-3. **Use TypeScript** - Define interfaces for type safety
-4. **Validate data** - Use schema validators and Zod
-5. **Handle errors** - Catch and handle Mongoose errors
-6. **Use lean() for reads** - Better performance for read-only operations
-7. **Use select()** - Only fetch needed fields
-8. **Use transactions** - For multi-document operations
-9. **Add middleware** - For hooks like password hashing
+3. **Use TypeScript** - Leverage type inference
+4. **Validate data** - Use Zod for input validation
+5. **Handle errors** - Catch and handle database errors
+6. **Use transactions** - For multi-step operations
+7. **Select only needed columns** - Better performance
+8. **Use prepared statements** - For repeated queries
+9. **Add foreign key constraints** - Maintain data integrity
 10. **Monitor queries** - Log slow queries in development
 
 ---

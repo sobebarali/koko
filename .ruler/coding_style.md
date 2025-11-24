@@ -3,7 +3,7 @@
 ## Language & Runtime
 
 - **Primary Language:** TypeScript v5.8.2
-- **Runtime:** Bun v1.3.1 (use Bun-specific APIs when beneficial)
+- **Runtime:** Bun v1.1.38
 - **Module System:** ESNext with bundler module resolution
 - **Target:** ESNext for modern JavaScript features
 
