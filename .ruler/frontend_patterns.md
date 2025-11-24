@@ -77,7 +77,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import type { User } from "@novi/db";
+import type { User } from "@koko/db";
 
 // 2. Type definitions
 interface UserListProps {

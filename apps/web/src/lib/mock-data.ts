@@ -1,5 +1,5 @@
 /**
- * Mock Data for Novi Dashboard
+ * Mock Data for Koko Dashboard
  * This file contains organized mock data for development and testing
  * TODO: Replace with actual API calls using tRPC
  */
@@ -189,7 +189,7 @@ export const mockTeamMembers: TeamMember[] = [
 	{
 		id: "user-001",
 		name: "Sarah Chen",
-		email: "sarah.chen@novi.com",
+		email: "sarah.chen@koko.com",
 		avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
 		role: "Reviewer",
 		isOnline: true,
@@ -198,7 +198,7 @@ export const mockTeamMembers: TeamMember[] = [
 	{
 		id: "user-002",
 		name: "James Wilson",
-		email: "james.wilson@novi.com",
+		email: "james.wilson@koko.com",
 		avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=James",
 		role: "Admin",
 		isOnline: true,
@@ -207,7 +207,7 @@ export const mockTeamMembers: TeamMember[] = [
 	{
 		id: "user-003",
 		name: "Alex Kumar",
-		email: "alex.kumar@novi.com",
+		email: "alex.kumar@koko.com",
 		avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
 		role: "Reviewer",
 		isOnline: true,
@@ -216,7 +216,7 @@ export const mockTeamMembers: TeamMember[] = [
 	{
 		id: "user-004",
 		name: "Rachel Thompson",
-		email: "rachel.thompson@novi.com",
+		email: "rachel.thompson@koko.com",
 		avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Rachel",
 		role: "Reviewer",
 		isOnline: false,
@@ -225,7 +225,7 @@ export const mockTeamMembers: TeamMember[] = [
 	{
 		id: "user-005",
 		name: "Marcus Rodriguez",
-		email: "marcus.rodriguez@novi.com",
+		email: "marcus.rodriguez@koko.com",
 		avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Marcus",
 		role: "Creator",
 		isOnline: true,
@@ -234,7 +234,7 @@ export const mockTeamMembers: TeamMember[] = [
 	{
 		id: "user-006",
 		name: "Emily Zhang",
-		email: "emily.zhang@novi.com",
+		email: "emily.zhang@koko.com",
 		avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emily",
 		role: "Creator",
 		isOnline: true,
@@ -243,7 +243,7 @@ export const mockTeamMembers: TeamMember[] = [
 	{
 		id: "user-007",
 		name: "Olivia Martinez",
-		email: "olivia.martinez@novi.com",
+		email: "olivia.martinez@koko.com",
 		avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Olivia",
 		role: "Creator",
 		isOnline: false,
@@ -252,7 +252,7 @@ export const mockTeamMembers: TeamMember[] = [
 	{
 		id: "user-008",
 		name: "David Lee",
-		email: "david.lee@novi.com",
+		email: "david.lee@koko.com",
 		avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=David",
 		role: "Viewer",
 		isOnline: false,

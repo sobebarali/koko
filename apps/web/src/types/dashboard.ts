@@ -1,5 +1,5 @@
 /**
- * Dashboard Types for Novi Video Collaboration Platform
+ * Dashboard Types for Koko Video Collaboration Platform
  * Defines all data structures used in the dashboard interface
  */
 

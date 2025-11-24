@@ -1,4 +1,4 @@
-import type { auth } from "@novi/auth";
+import type { auth } from "@koko/auth";
 import { inferAdditionalFields } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 

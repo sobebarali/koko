@@ -507,7 +507,7 @@ function UserProfile() {
 6. **Audit logs** - Track sensitive operations
 
 ```typescript
-import { Post } from "@novi/db";
+import { Post } from "@koko/db";
 
 // Good - Permission check
 deletePost: protectedProcedure
