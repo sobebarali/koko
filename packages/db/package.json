@@ -1,5 +1,6 @@
 {
 	"name": "@koko/db",
+	"version": "0.0.0",
 	"type": "module",
 	"exports": {
 		".": {
@@ -18,16 +19,16 @@
 	},
 	"devDependencies": {
 		"drizzle-kit": "^0.31.2",
-		"@koko/config": "workspace:*"
+		"@koko/config": "*"
 	},
 	"peerDependencies": {
 		"typescript": "^5"
 	},
 	"dependencies": {
-		"drizzle-orm": "catalog:",
-		"@libsql/client": "catalog:",
-		"libsql": "catalog:",
-		"dotenv": "catalog:",
+		"drizzle-orm": "^0.44.2",
+		"@libsql/client": "^0.15.12",
+		"libsql": "^0.5.22",
+		"dotenv": "^17.2.2",
 		"zod": "^4.1.11"
 	}
 }

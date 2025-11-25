@@ -1,4 +1,7 @@
+import { db } from "@koko/db";
+import { user } from "@koko/db/schema/auth";
 import { TRPCError } from "@trpc/server";
+import { eq } from "drizzle-orm";
 import {
 	AVATAR_MIME_MAP,
 	type AvatarMimeType,
@@ -53,6 +56,9 @@ export async function uploadAvatar({
 
 		const uploadUrl = `${normalizedEndpoint}/${storageZone}/${objectKey}`;
 		const avatarUrl = `${normalizedCdnBase}/${objectKey}`;
+
+		// Save avatar URL to user's image field in database
+		await db.update(user).set({ image: avatarUrl }).where(eq(user.id, userId));
 
 		return {
 			uploadUrl,

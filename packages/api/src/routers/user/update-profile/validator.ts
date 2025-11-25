@@ -7,7 +7,7 @@ export const updateProfileInput = z
 		title: z.string().max(100).optional(),
 		company: z.string().max(100).optional(),
 		location: z.string().max(100).optional(),
-		website: z.string().url().optional(),
+		website: z.string().url().or(z.literal("")).optional(),
 	})
 	.refine(
 		(input) => Object.values(input).some((value) => value !== undefined),

@@ -1,5 +1,6 @@
 {
 	"name": "@koko/api",
+	"version": "0.0.0",
 	"exports": {
 		".": {
 			"default": "./src/index.ts"
@@ -14,20 +15,20 @@
 		"test:watch": "vitest"
 	},
 	"devDependencies": {
-		"@koko/config": "workspace:*",
+		"@koko/config": "*",
 		"vitest": "^4.0.13"
 	},
 	"peerDependencies": {
 		"typescript": "^5"
 	},
 	"dependencies": {
-		"@trpc/server": "catalog:",
-		"@trpc/client": "catalog:",
-		"hono": "catalog:",
-		"drizzle-orm": "catalog:",
-		"dotenv": "catalog:",
+		"@trpc/server": "^11.5.0",
+		"@trpc/client": "^11.5.0",
+		"hono": "^4.8.2",
+		"drizzle-orm": "^0.44.2",
+		"dotenv": "^17.2.2",
 		"zod": "^4.1.11",
-		"@koko/auth": "workspace:*",
-		"@koko/db": "workspace:*"
+		"@koko/auth": "*",
+		"@koko/db": "*"
 	}
 }

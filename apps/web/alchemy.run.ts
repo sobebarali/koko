@@ -12,7 +12,7 @@ export const web = await Vite("web", {
 		VITE_SERVER_URL: process.env.VITE_SERVER_URL || "",
 	},
 	dev: {
-		command: "bun run dev",
+		command: "npm run dev",
 	},
 });
 

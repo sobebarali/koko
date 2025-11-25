@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import {
 	BadgeCheck,
 	Bell,
@@ -82,9 +83,11 @@ export function NavUser({
 						</DropdownMenuGroup>
 						<DropdownMenuSeparator />
 						<DropdownMenuGroup>
-							<DropdownMenuItem>
-								<BadgeCheck />
-								Account
+							<DropdownMenuItem asChild>
+								<Link to="/settings/account">
+									<BadgeCheck />
+									Account
+								</Link>
 							</DropdownMenuItem>
 							<DropdownMenuItem>
 								<CreditCard />

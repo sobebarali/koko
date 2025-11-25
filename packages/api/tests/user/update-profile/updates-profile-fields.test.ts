@@ -33,11 +33,13 @@ it("updates provided profile fields", async () => {
 	const result = await caller.user.updateProfile({
 		name: "  Jane Doe ",
 		bio: "Updated bio",
+		website: "https://sobebar.online/",
 	});
 
 	expect(result).toEqual({ user: updatedProfile });
 	expect(setMock).toHaveBeenCalledWith({
 		name: "Jane Doe",
 		bio: "Updated bio",
+		website: "https://sobebar.online/",
 	});
 });
