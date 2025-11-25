@@ -2,7 +2,7 @@
 # See https://okigu.com/ruler for documentation.
 
 # Default agents to run when --agents is not specified
-default_agents = ["opencode", "codex"]
+default_agents = ["opencode", "codex", "claude"]
 
 # --- Global MCP Server Configuration ---
 [mcp]
@@ -16,13 +16,27 @@ merge_strategy = "merge"
 command = "npx"
 args = ["-y", "@upstash/context7-mcp"]
 
+[mcp_servers.sequentialThinking]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-sequential-thinking"]   
+
+[mcp_servers.serena]
+command = "uvx"
+args = [
+  "--from",
+  "git+https://github.com/oraios/serena",
+  "serena",
+  "start-mcp-server",
+  "--context",
+  "ide-assistant",
+  "--project",
+  "{cwd}"
+]
 
 
 [mcp_servers.shadcn]
 command = "npx"
 args = ["shadcn@latest", "mcp"]
-
-
 
 
 
