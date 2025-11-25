@@ -37,11 +37,13 @@ import {
 	SidebarProvider,
 	SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { VideoCard } from "@/components/video-card";
 import {
 	useArchiveProject,
 	useDeleteProject,
 	useProject,
 } from "@/hooks/use-projects";
+import { useDeleteVideo, useVideos } from "@/hooks/use-videos";
 import { authClient } from "@/lib/auth-client";
 
 export const Route = createFileRoute("/projects/$id")({
@@ -66,6 +68,11 @@ function ProjectDetailPage() {
 	const { project, isLoading, error } = useProject({ id });
 	const { archiveProject, unarchiveProject, isArchiving } = useArchiveProject();
 	const { deleteProject, isDeleting } = useDeleteProject();
+	const { videos, isLoading: isLoadingVideos } = useVideos({
+		projectId: id,
+		limit: 4,
+	});
+	const { deleteVideo } = useDeleteVideo();
 
 	const userData = {
 		name: session.data?.user.name || "User",
@@ -266,14 +273,37 @@ function ProjectDetailPage() {
 									<CardHeader>
 										<div className="flex items-center justify-between">
 											<CardTitle>Videos</CardTitle>
-											<Button size="sm">
-												<IconUpload className="mr-2 size-4" />
-												Upload Video
-											</Button>
+											<div className="flex items-center gap-2">
+												{videos.length > 0 && (
+													<Link to="/projects/$id/videos" params={{ id }}>
+														<Button variant="outline" size="sm">
+															View All
+														</Button>
+													</Link>
+												)}
+												<Link to="/projects/$id/videos" params={{ id }}>
+													<Button size="sm">
+														<IconUpload className="mr-2 size-4" />
+														Upload Video
+													</Button>
+												</Link>
+											</div>
 										</div>
 									</CardHeader>
 									<CardContent>
-										{project.videoCount === 0 ? (
+										{isLoadingVideos ? (
+											<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+												{[1, 2, 3, 4].map((i) => (
+													<Card key={i} className="overflow-hidden">
+														<div className="aspect-video animate-pulse bg-muted" />
+														<CardHeader className="space-y-2 p-3">
+															<div className="h-4 w-3/4 animate-pulse rounded bg-muted" />
+															<div className="h-3 w-1/2 animate-pulse rounded bg-muted" />
+														</CardHeader>
+													</Card>
+												))}
+											</div>
+										) : videos.length === 0 ? (
 											<div className="flex flex-col items-center justify-center py-8 text-center">
 												<p className="mb-2 text-muted-foreground">
 													No videos yet
@@ -283,9 +313,16 @@ function ProjectDetailPage() {
 												</p>
 											</div>
 										) : (
-											<p className="text-muted-foreground">
-												Video list coming soon...
-											</p>
+											<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+												{videos.map((video) => (
+													<VideoCard
+														key={video.id}
+														video={video}
+														projectId={id}
+														onDelete={(v) => deleteVideo(v.id)}
+													/>
+												))}
+											</div>
 										)}
 									</CardContent>
 								</Card>

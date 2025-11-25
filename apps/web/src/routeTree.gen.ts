@@ -17,7 +17,9 @@ import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
 import { Route as SettingsAccountRouteImport } from './routes/settings/account'
 import { Route as ProjectsNewRouteImport } from './routes/projects/new'
 import { Route as ProjectsIdRouteImport } from './routes/projects/$id'
+import { Route as ProjectsIdVideosRouteImport } from './routes/projects/$id.videos'
 import { Route as ProjectsIdEditRouteImport } from './routes/projects/$id.edit'
+import { Route as ProjectsIdVideosVideoIdRouteImport } from './routes/projects/$id.videos.$videoId'
 
 const SuccessRoute = SuccessRouteImport.update({
   id: '/success',
@@ -59,10 +61,20 @@ const ProjectsIdRoute = ProjectsIdRouteImport.update({
   path: '/projects/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProjectsIdVideosRoute = ProjectsIdVideosRouteImport.update({
+  id: '/videos',
+  path: '/videos',
+  getParentRoute: () => ProjectsIdRoute,
+} as any)
 const ProjectsIdEditRoute = ProjectsIdEditRouteImport.update({
   id: '/edit',
   path: '/edit',
   getParentRoute: () => ProjectsIdRoute,
+} as any)
+const ProjectsIdVideosVideoIdRoute = ProjectsIdVideosVideoIdRouteImport.update({
+  id: '/$videoId',
+  path: '/$videoId',
+  getParentRoute: () => ProjectsIdVideosRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -75,6 +87,8 @@ export interface FileRoutesByFullPath {
   '/settings/account': typeof SettingsAccountRoute
   '/projects': typeof ProjectsIndexRoute
   '/projects/$id/edit': typeof ProjectsIdEditRoute
+  '/projects/$id/videos': typeof ProjectsIdVideosRouteWithChildren
+  '/projects/$id/videos/$videoId': typeof ProjectsIdVideosVideoIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,6 +100,8 @@ export interface FileRoutesByTo {
   '/settings/account': typeof SettingsAccountRoute
   '/projects': typeof ProjectsIndexRoute
   '/projects/$id/edit': typeof ProjectsIdEditRoute
+  '/projects/$id/videos': typeof ProjectsIdVideosRouteWithChildren
+  '/projects/$id/videos/$videoId': typeof ProjectsIdVideosVideoIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +114,8 @@ export interface FileRoutesById {
   '/settings/account': typeof SettingsAccountRoute
   '/projects/': typeof ProjectsIndexRoute
   '/projects/$id/edit': typeof ProjectsIdEditRoute
+  '/projects/$id/videos': typeof ProjectsIdVideosRouteWithChildren
+  '/projects/$id/videos/$videoId': typeof ProjectsIdVideosVideoIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +129,8 @@ export interface FileRouteTypes {
     | '/settings/account'
     | '/projects'
     | '/projects/$id/edit'
+    | '/projects/$id/videos'
+    | '/projects/$id/videos/$videoId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,6 +142,8 @@ export interface FileRouteTypes {
     | '/settings/account'
     | '/projects'
     | '/projects/$id/edit'
+    | '/projects/$id/videos'
+    | '/projects/$id/videos/$videoId'
   id:
     | '__root__'
     | '/'
@@ -133,6 +155,8 @@ export interface FileRouteTypes {
     | '/settings/account'
     | '/projects/'
     | '/projects/$id/edit'
+    | '/projects/$id/videos'
+    | '/projects/$id/videos/$videoId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -204,6 +228,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/projects/$id/videos': {
+      id: '/projects/$id/videos'
+      path: '/videos'
+      fullPath: '/projects/$id/videos'
+      preLoaderRoute: typeof ProjectsIdVideosRouteImport
+      parentRoute: typeof ProjectsIdRoute
+    }
     '/projects/$id/edit': {
       id: '/projects/$id/edit'
       path: '/edit'
@@ -211,15 +242,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectsIdEditRouteImport
       parentRoute: typeof ProjectsIdRoute
     }
+    '/projects/$id/videos/$videoId': {
+      id: '/projects/$id/videos/$videoId'
+      path: '/$videoId'
+      fullPath: '/projects/$id/videos/$videoId'
+      preLoaderRoute: typeof ProjectsIdVideosVideoIdRouteImport
+      parentRoute: typeof ProjectsIdVideosRoute
+    }
   }
 }
 
+interface ProjectsIdVideosRouteChildren {
+  ProjectsIdVideosVideoIdRoute: typeof ProjectsIdVideosVideoIdRoute
+}
+
+const ProjectsIdVideosRouteChildren: ProjectsIdVideosRouteChildren = {
+  ProjectsIdVideosVideoIdRoute: ProjectsIdVideosVideoIdRoute,
+}
+
+const ProjectsIdVideosRouteWithChildren =
+  ProjectsIdVideosRoute._addFileChildren(ProjectsIdVideosRouteChildren)
+
 interface ProjectsIdRouteChildren {
   ProjectsIdEditRoute: typeof ProjectsIdEditRoute
+  ProjectsIdVideosRoute: typeof ProjectsIdVideosRouteWithChildren
 }
 
 const ProjectsIdRouteChildren: ProjectsIdRouteChildren = {
   ProjectsIdEditRoute: ProjectsIdEditRoute,
+  ProjectsIdVideosRoute: ProjectsIdVideosRouteWithChildren,
 }
 
 const ProjectsIdRouteWithChildren = ProjectsIdRoute._addFileChildren(
