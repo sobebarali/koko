@@ -9,9 +9,13 @@
 		}
 	},
 	"type": "module",
-	"scripts": {},
+	"scripts": {
+		"test": "vitest run",
+		"test:watch": "vitest"
+	},
 	"devDependencies": {
-		"@koko/config": "workspace:*"
+		"@koko/config": "workspace:*",
+		"vitest": "^4.0.13"
 	},
 	"peerDependencies": {
 		"typescript": "^5"

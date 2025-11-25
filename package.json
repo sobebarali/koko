@@ -31,6 +31,8 @@
 		"dev:web": "turbo -F web dev",
 		"dev:server": "turbo -F server dev",
 		"dev:docs": "turbo -F docs dev",
+		"test:api": "turbo run test --filter=@koko/api",
+		"test:api:watch": "turbo run test --filter=@koko/api -- --watch",
 		"db:push": "turbo -F @koko/db db:push",
 		"db:studio": "turbo -F @koko/db db:studio",
 		"db:generate": "turbo -F @koko/db db:generate",
