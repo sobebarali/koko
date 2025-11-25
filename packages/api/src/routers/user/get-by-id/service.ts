@@ -3,7 +3,7 @@ import { user } from "@koko/db/schema/auth";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { publicProfileSelect } from "../constants";
-import type { GetByIdOutput } from "../types/get-by-id";
+import type { GetByIdOutput } from "./type";
 
 export async function getById({ id }: { id: string }): Promise<GetByIdOutput> {
 	try {

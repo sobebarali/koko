@@ -3,7 +3,7 @@ import { user } from "@koko/db/schema/auth";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { privateProfileSelect } from "../constants";
-import type { GetProfileOutput } from "../types/get-profile";
+import type { GetProfileOutput } from "./type";
 
 export async function getProfile({
 	userId,

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { AVATAR_MAX_FILE_SIZE } from "../types/upload-avatar";
+import { AVATAR_MAX_FILE_SIZE } from "./type";
 
 export const avatarUploadInput = z.object({
 	fileName: z.string().min(1).max(255),

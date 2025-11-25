@@ -1,5 +1,5 @@
 import type { z } from "zod";
-import type { avatarUploadInput } from "../validators/upload-avatar";
+import type { avatarUploadInput } from "./validator";
 
 export const AVATAR_MAX_FILE_SIZE = 5 * 1024 * 1024;
 

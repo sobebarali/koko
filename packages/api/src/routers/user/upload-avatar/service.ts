@@ -3,7 +3,7 @@ import {
 	AVATAR_MIME_MAP,
 	type AvatarMimeType,
 	type AvatarUploadOutput,
-} from "../types/upload-avatar";
+} from "./type";
 
 function sanitizeFileName({ fileName }: { fileName: string }): string {
 	return (

@@ -1,11 +1,11 @@
 import { protectedProcedure, router } from "../../index";
-import { getById } from "./services/get-by-id";
-import { getProfile } from "./services/get-profile";
-import { updateProfile } from "./services/update-profile";
-import { uploadAvatar } from "./services/upload-avatar";
-import { getByIdInput } from "./validators/get-by-id";
-import { updateProfileInput } from "./validators/update-profile";
-import { avatarUploadInput } from "./validators/upload-avatar";
+import { getById } from "./get-by-id/service";
+import { getByIdInput } from "./get-by-id/validator";
+import { getProfile } from "./get-profile/service";
+import { updateProfile } from "./update-profile/service";
+import { updateProfileInput } from "./update-profile/validator";
+import { uploadAvatar } from "./upload-avatar/service";
+import { avatarUploadInput } from "./upload-avatar/validator";
 
 export const userRouter = router({
 	getProfile: protectedProcedure.query(async ({ ctx }) => {
