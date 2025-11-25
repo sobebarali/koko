@@ -29,7 +29,7 @@ koko/
 | Backend | Hono, tRPC v11, Better-Auth |
 | Database | SQLite/Turso via Drizzle ORM |
 | Build | Turborepo, Vite, tsdown |
-| Runtime | Bun v1.1.38 |
+| Runtime | Node.js 22.x + npm 10.9 |
 
 ## Dependency Graph
 
@@ -44,12 +44,12 @@ apps/server ─┬──> @koko/api ──┬──> @koko/db
 ## Key Commands
 
 ```bash
-bun run dev              # Start all dev servers
-bun run dev:web          # Frontend only
-bun run dev:server       # Backend only
-bun run build            # Production build
-bun run check            # Lint & format
-bun run check-types      # TypeScript check
+npm run dev              # Start all dev servers
+npm run dev:web          # Frontend only
+npm run dev:server       # Backend only
+npm run build            # Production build
+npm run check            # Lint & format
+npm run check-types      # TypeScript check
 ```
 
 ## Turborepo Tasks
@@ -103,7 +103,7 @@ Reference with `"react": "catalog:"` in workspace package.json.
 ## Troubleshooting
 
 ```bash
-rm -rf node_modules && rm bun.lockb && bun install  # Dependency issues
-turbo run build --force                              # Rebuild all
-rm -rf .turbo && turbo run build --force            # Clear cache
+rm -rf node_modules && npm install                  # Dependency issues
+turbo run build --force                             # Rebuild all
+rm -rf .turbo && turbo run build --force           # Clear cache
 ```

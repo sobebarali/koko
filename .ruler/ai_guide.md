@@ -70,8 +70,8 @@ For new features:
 
 Before marking complete:
 
-- [ ] `bun run check` passes (lint/format)
-- [ ] `bun run check-types` passes
+- [ ] `npm run check` passes (lint/format)
+- [ ] `npm run check-types` passes
 - [ ] No `any` types
 - [ ] Input validation with Zod
 - [ ] Permission checks on mutations

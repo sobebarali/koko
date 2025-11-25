@@ -50,8 +50,8 @@ function getUser({ id }) { ... }                  // No types
 - **Trailing commas:** All
 
 ```bash
-bun run check       # Format + lint
-bun run check-types # TypeScript check
+npm run check       # Format + lint
+npm run check-types # TypeScript check
 ```
 
 ## Pre-commit Hooks
@@ -150,8 +150,8 @@ vitest --coverage
 ## Checklist
 
 ### Before Commit
-- [ ] `bun run check` passes
-- [ ] `bun run check-types` passes
+- [ ] `npm run check` passes
+- [ ] `npm run check-types` passes
 - [ ] No `console.log` in production code
 - [ ] No `any` types
 

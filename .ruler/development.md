@@ -173,9 +173,9 @@ return { items, nextCursor };
 
 ### Commands
 ```bash
-bun run db:push      # Push schema to DB
-bun run db:generate  # Generate migrations
-bun run db:studio    # Open Drizzle Studio
+npm run db:push      # Push schema to DB
+npm run db:generate  # Generate migrations
+npm run db:studio    # Open Drizzle Studio
 ```
 
 ---
