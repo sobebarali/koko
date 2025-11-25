@@ -24,7 +24,6 @@ import {
 	SidebarMenuItem,
 	SidebarRail,
 } from "@/components/ui/sidebar";
-import { mockProjects } from "@/lib/mock-data";
 
 // Koko branding in header
 function KokoLogo() {
@@ -70,6 +69,21 @@ const navMainData = [
 			{
 				title: "Activity",
 				url: "/dashboard/activity",
+			},
+		],
+	},
+	{
+		title: "Projects",
+		url: "/projects",
+		icon: Folder,
+		items: [
+			{
+				title: "All Projects",
+				url: "/projects",
+			},
+			{
+				title: "Create New",
+				url: "/projects/new",
 			},
 		],
 	},
@@ -159,13 +173,6 @@ const navMainData = [
 	},
 ];
 
-// Get recent projects (first 5 from mock data)
-const recentProjects = mockProjects.slice(0, 5).map((project) => ({
-	name: project.projectName,
-	url: `/projects/${project.id}`,
-	icon: Folder,
-}));
-
 // User data (will be replaced with actual session data in route)
 const defaultUserData = {
 	name: "User",
@@ -175,6 +182,7 @@ const defaultUserData = {
 
 export function AppSidebar({
 	user = defaultUserData,
+	recentProjects = [],
 	...props
 }: React.ComponentProps<typeof Sidebar> & {
 	user?: {
@@ -182,7 +190,15 @@ export function AppSidebar({
 		email: string;
 		avatar: string;
 	};
+	recentProjects?: Array<{ id: string; name: string }>;
 }) {
+	// Convert to sidebar format
+	const projectsForNav = recentProjects.slice(0, 5).map((project) => ({
+		name: project.name,
+		url: `/projects/${project.id}`,
+		icon: Folder,
+	}));
+
 	return (
 		<Sidebar collapsible="icon" {...props}>
 			<SidebarHeader>
@@ -190,7 +206,7 @@ export function AppSidebar({
 			</SidebarHeader>
 			<SidebarContent>
 				<NavMain items={navMainData} />
-				<NavProjects projects={recentProjects} />
+				<NavProjects projects={projectsForNav} />
 			</SidebarContent>
 			<SidebarFooter>
 				<NavUser user={user} />

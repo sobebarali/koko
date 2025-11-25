@@ -1,5 +1,5 @@
 import { IconPlus, IconUpload } from "@tabler/icons-react";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { AppSidebar } from "@/components/app-sidebar";
 import { ChartAreaInteractive } from "@/components/chart-area-interactive";
 import { SectionCards } from "@/components/section-cards";
@@ -11,8 +11,13 @@ import {
 	SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { VideoProjectsTable } from "@/components/video-projects-table";
+import { type Project, useProjects } from "@/hooks/use-projects";
 import { authClient } from "@/lib/auth-client";
-import { mockChartData, mockMetrics, mockProjects } from "@/lib/mock-data";
+import type {
+	ChartDataPoint,
+	DashboardMetrics,
+	VideoProject,
+} from "@/types/dashboard";
 
 export const Route = createFileRoute("/dashboard")({
 	component: RouteComponent,
@@ -24,13 +29,43 @@ export const Route = createFileRoute("/dashboard")({
 				throw: true,
 			});
 		}
-		const { data: customerState } = await authClient.customer.state();
+		// @ts-expect-error - customer plugin may not be configured
+		const { data: customerState } = (await authClient.customer?.state?.()) ?? {
+			data: null,
+		};
 		return { session, customerState };
 	},
 });
 
+// Helper function to adapt API Project to VideoProject format for the table
+function adaptProjectToVideoProject(project: Project): VideoProject {
+	return {
+		id: project.id,
+		projectName: project.name,
+		videoTitle: project.name,
+		thumbnail: project.thumbnail || "/placeholder.svg",
+		status: "In Progress",
+		assignedTo: "—",
+		assignedToAvatar: "/placeholder.svg",
+		uploadedBy: "—",
+		uploadedByAvatar: "/placeholder.svg",
+		dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+		priority: "Medium",
+		duration: "—",
+		resolution: "—",
+		commentsCount: project.commentCount,
+		annotationsCount: 0,
+		uploadDate: project.createdAt,
+		tags: [],
+	};
+}
+
+// Placeholder chart data (empty for now)
+const placeholderChartData: ChartDataPoint[] = [];
+
 function RouteComponent() {
 	const { session, customerState } = Route.useRouteContext();
+	const { projects } = useProjects({ status: "active" });
 
 	const hasProSubscription =
 		(customerState?.activeSubscriptions?.length ?? 0) > 0;
@@ -52,9 +87,42 @@ function RouteComponent() {
 			`https://api.dicebear.com/7.x/avataaars/svg?seed=${session.data?.user.name || "User"}`,
 	};
 
+	// Placeholder metrics computed from real project data
+	const dashboardMetrics: DashboardMetrics = {
+		activeProjects: {
+			count: projects.length,
+			trend: 0,
+			trendDirection: "neutral",
+		},
+		pendingReviews: {
+			count: 0,
+			urgent: 0,
+			trend: 0,
+			trendDirection: "neutral",
+		},
+		totalComments: {
+			count: projects.reduce((sum, p) => sum + p.commentCount, 0),
+			recent: 0,
+			trend: 0,
+			trendDirection: "neutral",
+		},
+		teamMembersActive: {
+			count: 0,
+			online: 0,
+			trend: 0,
+			trendDirection: "neutral",
+		},
+	};
+
+	// Adapt real projects for the VideoProjectsTable
+	const tableProjects = projects.map(adaptProjectToVideoProject);
+
+	// Recent projects for sidebar
+	const recentProjects = projects.slice(0, 5);
+
 	return (
 		<SidebarProvider>
-			<AppSidebar user={userData} />
+			<AppSidebar user={userData} recentProjects={recentProjects} />
 			<SidebarInset>
 				<div className="@container/main flex min-h-screen flex-col">
 					{/* Header with sidebar trigger */}
@@ -68,17 +136,19 @@ function RouteComponent() {
 										Welcome back, {session.data?.user.name || "there"}!
 									</h1>
 									<p className="text-muted-foreground text-sm">
-										{currentDate} • {mockMetrics.pendingReviews.count} videos
-										pending review
+										{currentDate} • {dashboardMetrics.pendingReviews.count}{" "}
+										videos pending review
 									</p>
 								</div>
 
 								<div className="flex flex-wrap gap-2">
-									<Button variant="outline" size="sm">
-										<IconPlus className="mr-2 size-4" />
-										<span className="hidden sm:inline">New Project</span>
+									<Button variant="outline" size="sm" asChild>
+										<Link to="/projects/new">
+											<IconPlus className="mr-2 size-4" />
+											<span className="hidden sm:inline">New Project</span>
+										</Link>
 									</Button>
-									<Button size="sm">
+									<Button size="sm" disabled title="Coming soon">
 										<IconUpload className="mr-2 size-4" />
 										<span className="hidden sm:inline">Upload Video</span>
 									</Button>
@@ -99,9 +169,13 @@ function RouteComponent() {
 									size="sm"
 									variant="link"
 									className="h-auto p-0 text-xs"
-									onClick={async () =>
-										await authClient.checkout({ slug: "pro" })
-									}
+									onClick={async () => {
+										// @ts-expect-error - checkout plugin may not be configured
+										if (authClient.checkout) {
+											// @ts-expect-error - checkout plugin may not be configured
+											await authClient.checkout({ slug: "pro" });
+										}
+									}}
 								>
 									Upgrade to Pro →
 								</Button>
@@ -111,7 +185,13 @@ function RouteComponent() {
 									size="sm"
 									variant="link"
 									className="h-auto p-0 text-xs"
-									onClick={async () => await authClient.customer.portal()}
+									onClick={async () => {
+										// @ts-expect-error - customer plugin may not be configured
+										if (authClient.customer?.portal) {
+											// @ts-expect-error - customer plugin may not be configured
+											await authClient.customer.portal();
+										}
+									}}
 								>
 									Manage Subscription
 								</Button>
@@ -123,12 +203,12 @@ function RouteComponent() {
 					<div className="flex-1 space-y-6 p-4 pb-8 lg:p-6">
 						{/* KPI Metrics Cards */}
 						<section aria-label="Dashboard metrics">
-							<SectionCards metrics={mockMetrics} />
+							<SectionCards metrics={dashboardMetrics} />
 						</section>
 
 						{/* Review Activity Chart */}
 						<section aria-label="Review activity chart">
-							<ChartAreaInteractive data={mockChartData} />
+							<ChartAreaInteractive data={placeholderChartData} />
 						</section>
 
 						{/* Video Projects Table */}
@@ -144,7 +224,7 @@ function RouteComponent() {
 								</div>
 							</div>
 
-							<VideoProjectsTable projects={mockProjects} />
+							<VideoProjectsTable projects={tableProjects} />
 						</section>
 					</div>
 				</div>
