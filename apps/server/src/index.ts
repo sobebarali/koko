@@ -1,15 +1,17 @@
 import "dotenv/config";
 import { trpcServer } from "@hono/trpc-server";
 import { createContext } from "@koko/api/context";
+import { getLogger, requestLoggingMiddleware } from "@koko/api/lib/logger";
 import { appRouter } from "@koko/api/routers/index";
 import { auth } from "@koko/auth";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { logger } from "hono/logger";
 
 const app = new Hono();
 
-app.use(logger());
+// Request logging with traceId (replaces basic logger())
+app.use(requestLoggingMiddleware());
+
 app.use(
 	"/*",
 	cors({
@@ -27,7 +29,12 @@ app.use(
 	trpcServer({
 		router: appRouter,
 		createContext: (_opts, context) => {
-			return createContext({ context });
+			// Pass traceId and logger from Hono context
+			return createContext({
+				context,
+				traceId: context.get("traceId"),
+				logger: context.get("logger"),
+			});
 		},
 	}),
 );
@@ -40,7 +47,12 @@ app.get("/", (c) => {
 import { serve } from "@hono/node-server";
 
 const port = Number(process.env.PORT) || 3000;
-console.log(`Server is running on http://localhost:${port}`);
+const logger = getLogger();
+logger.info(
+	{ port, event: "server_start" },
+	`Server is running on http://localhost:${port}`,
+);
+
 serve({
 	fetch: app.fetch,
 	port,

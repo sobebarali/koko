@@ -9,17 +9,23 @@ import { avatarUploadInput } from "./upload-avatar/validator";
 
 export const userRouter = router({
 	getProfile: protectedProcedure.query(async ({ ctx }) => {
-		return getProfile({ userId: ctx.session.user.id });
+		return getProfile({ userId: ctx.session.user.id, logger: ctx.logger });
 	}),
 
-	getById: protectedProcedure.input(getByIdInput).query(async ({ input }) => {
-		return getById({ id: input.id });
-	}),
+	getById: protectedProcedure
+		.input(getByIdInput)
+		.query(async ({ ctx, input }) => {
+			return getById({ id: input.id, logger: ctx.logger });
+		}),
 
 	updateProfile: protectedProcedure
 		.input(updateProfileInput)
 		.mutation(async ({ ctx, input }) => {
-			return updateProfile({ userId: ctx.session.user.id, ...input });
+			return updateProfile({
+				userId: ctx.session.user.id,
+				logger: ctx.logger,
+				...input,
+			});
 		}),
 
 	uploadAvatar: protectedProcedure
@@ -29,6 +35,7 @@ export const userRouter = router({
 				userId: ctx.session.user.id,
 				fileName: input.fileName,
 				mimeType: input.mimeType,
+				logger: ctx.logger,
 			});
 		}),
 });
