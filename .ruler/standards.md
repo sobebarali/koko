@@ -11,6 +11,7 @@
 ### Type Rules
 - **Never use `any`** - Use `unknown` instead
 - **Explicit return types** for all functions
+- **Object destructured params** - All functions use `{ param }: { param: Type }` syntax
 - **Inline types** for function params (not separate interfaces)
 - **Interfaces only** for React props extending React types
 - **Use `as const`** for literal types
@@ -18,9 +19,11 @@
 ```typescript
 // Good
 function getUser({ id }: { id: string }): Promise<User> { ... }
+function createPost({ title, authorId }: { title: string; authorId: string }): Promise<Post> { ... }
 const routes = ["/", "/about"] as const;
 
 // Bad
+function getUser(id: string) { ... }              // No destructuring
 function getUser(params: GetUserParams) { ... }  // Separate interface
 function getUser({ id }) { ... }                  // No types
 ```
