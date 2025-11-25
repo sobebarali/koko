@@ -1,0 +1,4 @@
+{
+	"vitest.enable": true,
+	"vitest.packagePath": "./node_modules/vitest"
+}

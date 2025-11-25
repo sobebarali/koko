@@ -31,8 +31,8 @@
 		"dev:web": "turbo -F web dev",
 		"dev:server": "turbo -F server dev",
 		"dev:docs": "turbo -F docs dev",
-		"test:api": "turbo run test --filter=@koko/api",
-		"test:api:watch": "turbo run test --filter=@koko/api -- --watch",
+		"test": "turbo run test --filter=@koko/api",
+		"test:watch": "turbo run test --filter=@koko/api -- --watch",
 		"db:push": "turbo -F @koko/db db:push",
 		"db:studio": "turbo -F @koko/db db:studio",
 		"db:generate": "turbo -F @koko/db db:generate",
@@ -48,7 +48,8 @@
 		"husky": "^9.1.7",
 		"lint-staged": "^16.1.2",
 		"@types/bun": "^1.2.6",
-		"@cloudflare/workers-types": "^4.20250822.0"
+		"@cloudflare/workers-types": "^4.20250822.0",
+		"vitest": "^4.0.13"
 	},
 	"lint-staged": {
 		"*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}": [

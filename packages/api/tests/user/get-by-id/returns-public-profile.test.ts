@@ -28,5 +28,7 @@ it("returns a public profile for getById", async () => {
 
 	const result = await caller.user.getById({ id: "other_user" });
 
+	console.log(result);
+
 	expect(result).toEqual({ user: publicProfile });
 });
