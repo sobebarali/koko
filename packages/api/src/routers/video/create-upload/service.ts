@@ -137,42 +137,46 @@ export async function createUpload({
 		const signatureData = `${libraryId}${apiKey}${expirationTime}${bunnyVideo.guid}`;
 		const signature = createHash("sha256").update(signatureData).digest("hex");
 
-		// 6. Insert video record in database
+		// 6. Insert video record and increment counter in a transaction
 		const videoId = crypto.randomUUID();
-		const [newVideo] = await db
-			.insert(video)
-			.values({
-				id: videoId,
-				projectId,
-				uploadedBy: userId,
-				bunnyVideoId: bunnyVideo.guid,
-				bunnyLibraryId: libraryId,
-				title,
-				description: description ?? null,
-				tags: tags ?? [],
-				originalFileName: fileName,
-				fileSize,
-				mimeType,
-				status: "uploading",
-			})
-			.returning({
-				id: video.id,
-				bunnyVideoId: video.bunnyVideoId,
-				status: video.status,
-			});
+		const newVideo = await db.transaction(async (tx) => {
+			const [insertedVideo] = await tx
+				.insert(video)
+				.values({
+					id: videoId,
+					projectId,
+					uploadedBy: userId,
+					bunnyVideoId: bunnyVideo.guid,
+					bunnyLibraryId: libraryId,
+					title,
+					description: description ?? null,
+					tags: tags ?? [],
+					originalFileName: fileName,
+					fileSize,
+					mimeType,
+					status: "uploading",
+				})
+				.returning({
+					id: video.id,
+					bunnyVideoId: video.bunnyVideoId,
+					status: video.status,
+				});
 
-		if (!newVideo) {
-			throw new TRPCError({
-				code: "INTERNAL_SERVER_ERROR",
-				message: "Failed to create video record.",
-			});
-		}
+			if (!insertedVideo) {
+				throw new TRPCError({
+					code: "INTERNAL_SERVER_ERROR",
+					message: "Failed to create video record.",
+				});
+			}
 
-		// Increment project video count
-		await db
-			.update(project)
-			.set({ videoCount: sql`${project.videoCount} + 1` })
-			.where(eq(project.id, projectId));
+			// Increment project video count atomically
+			await tx
+				.update(project)
+				.set({ videoCount: sql`${project.videoCount} + 1` })
+				.where(eq(project.id, projectId));
+
+			return insertedVideo;
+		});
 
 		logger.info(
 			{

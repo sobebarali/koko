@@ -1,7 +1,7 @@
 import { db } from "@koko/db";
 import { project, projectMember } from "@koko/db/schema/project";
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull } from "drizzle-orm";
 import type { Logger } from "../../../lib/logger/types";
 import { projectListSelect } from "../constants";
 import type { GetAllOutput, ProjectListItem } from "./type";
@@ -39,7 +39,13 @@ export async function getAll({
 		const ownedProjects = await db
 			.select(projectListSelect)
 			.from(project)
-			.where(and(eq(project.status, status), eq(project.ownerId, userId)))
+			.where(
+				and(
+					eq(project.status, status),
+					eq(project.ownerId, userId),
+					isNull(project.deletedAt),
+				),
+			)
 			.orderBy(desc(project.createdAt));
 
 		const memberProjects =
@@ -51,6 +57,7 @@ export async function getAll({
 							and(
 								eq(project.status, status),
 								inArray(project.id, memberProjectIds),
+								isNull(project.deletedAt),
 							),
 						)
 						.orderBy(desc(project.createdAt))

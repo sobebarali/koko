@@ -5,6 +5,7 @@ type MutableDb = {
 	select: (...args: unknown[]) => unknown;
 	update: (...args: unknown[]) => unknown;
 	insert: (...args: unknown[]) => unknown;
+	transaction: (...args: unknown[]) => unknown;
 };
 
 const mutableDb = db as unknown as MutableDb;
@@ -114,10 +115,30 @@ export function mockUpdateSimple(): {
 	return { updateMock };
 }
 
+/**
+ * Mock for db.transaction - passes a mock tx object to the callback
+ * that has update/insert methods using the currently mocked implementations
+ */
+export function mockTransaction(): {
+	transactionMock: ReturnType<typeof vi.fn>;
+} {
+	const transactionMock = vi.fn().mockImplementation(async (callback) => {
+		// Create a tx object that uses the current mocked db methods
+		const tx = {
+			update: mutableDb.update,
+			insert: mutableDb.insert,
+		};
+		return callback(tx);
+	});
+	mutableDb.transaction = transactionMock;
+	return { transactionMock };
+}
+
 export function resetDbMocks(): void {
 	mockSelectOnce([]);
 	mockUpdateOnce([]);
 	mockInsertReturning([]);
+	mockTransaction();
 }
 
 const envKeys = [

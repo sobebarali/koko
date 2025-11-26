@@ -139,9 +139,17 @@ export function useCreateUpload(): {
 		}) => {
 			return trpcClient.video.createUpload.mutate(input);
 		},
-		onSuccess: (_, variables) => {
+		onSuccess: () => {
+			// Invalidate all video.getAll queries regardless of params
 			queryClient.invalidateQueries({
-				queryKey: [["video", "getAll"], { projectId: variables.projectId }],
+				queryKey: [["video", "getAll"]],
+			});
+			// Also invalidate project queries to update videoCount
+			queryClient.invalidateQueries({
+				queryKey: [["project", "getById"]],
+			});
+			queryClient.invalidateQueries({
+				queryKey: [["project", "getAll"]],
 			});
 		},
 		onError: (error) => {
@@ -213,6 +221,13 @@ export function useDeleteVideo(): {
 		onSuccess: () => {
 			queryClient.invalidateQueries({
 				queryKey: [["video", "getAll"]],
+			});
+			// Also invalidate project queries to update videoCount
+			queryClient.invalidateQueries({
+				queryKey: [["project", "getById"]],
+			});
+			queryClient.invalidateQueries({
+				queryKey: [["project", "getAll"]],
 			});
 			toast.success("Video deleted successfully");
 		},

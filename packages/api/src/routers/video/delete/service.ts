@@ -98,17 +98,21 @@ export async function deleteVideo({
 			}
 		}
 
-		// 4. Soft delete
-		await db
-			.update(video)
-			.set({ deletedAt: new Date() })
-			.where(eq(video.id, id));
+		// 4. Soft delete and decrement counter in a transaction
+		await db.transaction(async (tx) => {
+			await tx
+				.update(video)
+				.set({ deletedAt: new Date() })
+				.where(eq(video.id, id));
 
-		// 5. Decrement project video count
-		await db
-			.update(project)
-			.set({ videoCount: sql`MAX(${project.videoCount} - 1, 0)` })
-			.where(eq(project.id, videoData.projectId));
+			// Decrement project video count atomically
+			await tx
+				.update(project)
+				.set({
+					videoCount: sql`CASE WHEN ${project.videoCount} > 0 THEN ${project.videoCount} - 1 ELSE 0 END`,
+				})
+				.where(eq(project.id, videoData.projectId));
+		});
 
 		logger.info(
 			{ event: "delete_video_success", videoId: id, userId },

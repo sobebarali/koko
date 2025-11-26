@@ -186,6 +186,20 @@ export async function handleBunnyWebhook({
 		return { success: false, message: "Video not found" };
 	}
 
+	// Skip updates for videos already in final states (idempotency)
+	if (existingVideo.status === "ready" || existingVideo.status === "failed") {
+		logger.debug(
+			{
+				event: "bunny_webhook_final_state",
+				videoId: existingVideo.id,
+				currentStatus: existingVideo.status,
+				incomingStatus: Status,
+			},
+			"Video already in final state, skipping update",
+		);
+		return { success: true, message: "Video already in final state" };
+	}
+
 	// Handle status updates
 	switch (Status) {
 		case BunnyStatus.QUEUED:
@@ -218,26 +232,38 @@ export async function handleBunnyWebhook({
 				logger,
 			});
 
-			const updateData: {
-				status: "ready";
-				duration?: number;
-				width?: number;
-				height?: number;
-				fps?: number;
-				thumbnailUrl?: string;
-				streamingUrl?: string;
-			} = { status: "ready" };
+			// If metadata fetch fails, mark video as failed
+			if (!metadata) {
+				await db
+					.update(video)
+					.set({
+						status: "failed",
+						errorMessage: "Failed to fetch video metadata after encoding",
+					})
+					.where(eq(video.bunnyVideoId, VideoGuid));
 
-			if (metadata) {
-				updateData.duration = Math.round(metadata.length);
-				updateData.width = metadata.width;
-				updateData.height = metadata.height;
-				updateData.fps = Math.round(metadata.framerate);
-				if (cdnHostname) {
-					updateData.thumbnailUrl = `https://${cdnHostname}/${VideoGuid}/${metadata.thumbnailFileName || "thumbnail.jpg"}`;
-				}
-				updateData.streamingUrl = `https://iframe.mediadelivery.net/embed/${libraryId}/${VideoGuid}`;
+				logger.error(
+					{
+						event: "bunny_webhook_metadata_failed",
+						videoId: existingVideo.id,
+						videoGuid: VideoGuid,
+					},
+					"Failed to fetch metadata, marking video as failed",
+				);
+				return { success: false, message: "Failed to fetch video metadata" };
 			}
+
+			const updateData = {
+				status: "ready" as const,
+				duration: Math.round(metadata.length),
+				width: metadata.width,
+				height: metadata.height,
+				fps: Math.round(metadata.framerate),
+				thumbnailUrl: cdnHostname
+					? `https://${cdnHostname}/${VideoGuid}/${metadata.thumbnailFileName || "thumbnail.jpg"}`
+					: undefined,
+				streamingUrl: `https://iframe.mediadelivery.net/embed/${libraryId}/${VideoGuid}`,
+			};
 
 			await db
 				.update(video)
@@ -250,9 +276,7 @@ export async function handleBunnyWebhook({
 					videoId: existingVideo.id,
 					videoGuid: VideoGuid,
 					duration: updateData.duration,
-					resolution: metadata
-						? `${metadata.width}x${metadata.height}`
-						: "unknown",
+					resolution: `${metadata.width}x${metadata.height}`,
 				},
 				"Video is ready",
 			);
@@ -261,11 +285,26 @@ export async function handleBunnyWebhook({
 
 		case BunnyStatus.FAILED:
 		case BunnyStatus.PRESIGNED_UPLOAD_FAILED: {
+			// Try to fetch metadata to get actual error message
+			const metadata = await fetchBunnyVideoMetadata({
+				videoGuid: VideoGuid,
+				libraryId,
+				apiKey,
+				logger,
+			});
+
+			// Extract error message from transcoding messages if available
+			const errorMessage =
+				metadata?.transcodingMessages?.[0]?.message ||
+				(Status === BunnyStatus.PRESIGNED_UPLOAD_FAILED
+					? "Video upload failed"
+					: "Video encoding failed");
+
 			await db
 				.update(video)
 				.set({
 					status: "failed",
-					errorMessage: "Video encoding failed",
+					errorMessage,
 				})
 				.where(eq(video.bunnyVideoId, VideoGuid));
 
@@ -274,6 +313,7 @@ export async function handleBunnyWebhook({
 					event: "bunny_webhook_failed",
 					videoId: existingVideo.id,
 					videoGuid: VideoGuid,
+					errorMessage,
 				},
 				"Video encoding failed",
 			);
