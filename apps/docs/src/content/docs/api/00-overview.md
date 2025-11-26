@@ -438,6 +438,12 @@ const user = await trpc.user.getProfile.query();
 **Focus:** Enterprise readiness + automation  
 **Goal:** Compete with established players (Frame.io, etc.)
 
+### Extended Domains (Competitive Parity)
+**Additional Endpoints:** +80+ endpoints across 10 new domains  
+**Domains:** Guest Access, Approvals, Folders, Exports, Integrations, Playlists, Comparisons, Templates, Presence (real-time), AI Features  
+**Focus:** Feature parity with Frame.io, Vimeo Review, and other competitors  
+**Goal:** Full-featured video collaboration platform
+
 ---
 
 ## 🔧 Common Patterns
@@ -767,6 +773,18 @@ Explore detailed documentation for each API domain:
 - [🔗 Webhooks API](./12-webhooks) - Integrations
 - [🛡️ Compliance API](./19-compliance) - GDPR, SOC2, audit logs
 
+### Extended Domains (Competitive Feature Parity)
+- [🔑 Guest Access API](./20-guest-access) - External review links, guest permissions
+- [✅ Approvals API](./21-approvals) - Review workflows, approval chains, sign-off management
+- [📂 Folders API](./22-folders) - Hierarchical organization within projects
+- [📥 Exports API](./23-exports) - Download and export videos, assets, project data
+- [🔌 Integrations API](./24-integrations) - Third-party service connections (Slack, Asana, etc.)
+- [🎬 Playlists API](./25-playlists) - Video collections and presentations
+- [🔀 Comparisons API](./26-comparisons) - Side-by-side version comparison
+- [📋 Templates API](./27-templates) - Reusable project, folder, and workflow templates
+- [👥 Presence API](./28-presence) - Real-time collaboration, live cursors, sync
+- [🤖 AI Features API](./29-ai) - Transcription, scene detection, smart search
+
 ---
 
 ## 🚀 Getting Started
@@ -868,5 +886,5 @@ const comment = await trpc.comment.create.mutate({
 
 ---
 
-**Last Updated:** November 22, 2025  
+**Last Updated:** November 26, 2025  
 **API Version:** 1.0.0 (MVP)
