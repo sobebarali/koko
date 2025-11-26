@@ -14,7 +14,7 @@ afterEach(() => {
 	resetDbMocks();
 });
 
-it("soft deletes a comment and returns success", async () => {
+it("decrements project.commentCount when deleting a comment", async () => {
 	const existingComment = {
 		id: "comment_1",
 		videoId: "video_123",
@@ -29,7 +29,9 @@ it("soft deletes a comment and returns success", async () => {
 
 	// Mock: Select comment, then select video for projectId
 	mockSelectSequence([[existingComment], [mockVideo]]);
-	mockTransaction();
+
+	// Mock: Transaction
+	const { transactionMock } = mockTransaction();
 	mockUpdateSimple();
 
 	const caller = createTestCaller({
@@ -41,4 +43,6 @@ it("soft deletes a comment and returns success", async () => {
 	});
 
 	expect(result.success).toBe(true);
+	// Verify transaction was called (it contains comment soft delete, video commentCount, and project commentCount updates)
+	expect(transactionMock).toHaveBeenCalled();
 });

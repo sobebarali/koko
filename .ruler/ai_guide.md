@@ -53,6 +53,36 @@ For new features:
 3. **Minimal changes** - Only modify what's necessary
 4. **Update related code** - Keep everything in sync
 
+## Connected Dependencies
+
+When building or modifying code, always identify and update connected pieces:
+
+### API Changes
+When creating or modifying an API endpoint:
+1. **Identify connections** - Find APIs that:
+   - Call this API internally
+   - Are called by this API
+   - Share the same data models
+2. **Check for cascading updates** - If your change affects:
+   - Input schema → Update all callers
+   - Output schema → Update all consumers
+   - Database schema → Update all related queries
+3. **Update connected APIs** - Make necessary changes to maintain consistency
+
+### Frontend Changes
+When creating or modifying frontend code:
+1. **Identify connections** - Find components that:
+   - Consume the same API/data
+   - Share state or props
+   - Are parent/child relationships
+2. **Check for cascading updates** - If your change affects:
+   - API response shape → Update all consuming components
+   - Shared types → Update all usages
+   - Query keys → Update invalidation patterns
+3. **Update connected components** - Make necessary changes to maintain consistency
+
+**Always ask:** "What else depends on this? What will break if I change this?"
+
 ## Communication
 
 **Ask questions when:**

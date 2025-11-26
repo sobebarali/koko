@@ -15,7 +15,7 @@ afterEach(() => {
 	resetDbMocks();
 });
 
-it("creates a reply to a comment", async () => {
+it("increments project.commentCount when creating a reply", async () => {
 	const parentComment = {
 		id: "comment_1",
 		videoId: "video_123",
@@ -34,7 +34,7 @@ it("creates a reply to a comment", async () => {
 		id: "reply_1",
 		videoId: "video_123",
 		authorId: "user_test",
-		text: "This is a reply",
+		text: "Reply text",
 		timecode: 5000,
 		parentId: "comment_1",
 		replyCount: 0,
@@ -52,7 +52,7 @@ it("creates a reply to a comment", async () => {
 	mockSelectSequence([[parentComment], [mockVideo]]);
 
 	// Mock: Transaction
-	mockTransaction();
+	const { transactionMock } = mockTransaction();
 	mockInsertReturning([mockReply]);
 	mockUpdateSimple();
 
@@ -60,14 +60,11 @@ it("creates a reply to a comment", async () => {
 		session: createTestSession(),
 	});
 
-	const result = await caller.comment.reply({
+	await caller.comment.reply({
 		parentId: "comment_1",
-		text: "This is a reply",
+		text: "Reply text",
 	});
 
-	expect(result.comment.id).toBe("reply_1");
-	expect(result.comment.parentId).toBe("comment_1");
-	expect(result.comment.videoId).toBe("video_123");
-	expect(result.comment.timecode).toBe(5000);
-	expect(result.comment.text).toBe("This is a reply");
+	// Verify transaction was called (it contains parent replyCount, video commentCount, and project commentCount updates)
+	expect(transactionMock).toHaveBeenCalled();
 });

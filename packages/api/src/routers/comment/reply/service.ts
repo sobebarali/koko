@@ -1,5 +1,6 @@
 import { db } from "@koko/db";
 import { comment } from "@koko/db/schema/comment";
+import { project } from "@koko/db/schema/project";
 import { video } from "@koko/db/schema/video";
 import { TRPCError } from "@trpc/server";
 import { eq, sql } from "drizzle-orm";
@@ -59,9 +60,23 @@ export async function replyToComment({
 			});
 		}
 
+		// Fetch video to get projectId
+		const [existingVideo] = await db
+			.select({ id: video.id, projectId: video.projectId })
+			.from(video)
+			.where(eq(video.id, parentComment.videoId))
+			.limit(1);
+
+		if (!existingVideo) {
+			throw new TRPCError({
+				code: "NOT_FOUND",
+				message: "Video not found",
+			});
+		}
+
 		const replyId = crypto.randomUUID();
 
-		// Use transaction to insert reply, increment parent replyCount, and video commentCount
+		// Use transaction to insert reply, increment parent replyCount, and video/project commentCount
 		const [newReply] = await db.transaction(async (tx) => {
 			const [insertedReply] = await tx
 				.insert(comment)
@@ -91,6 +106,14 @@ export async function replyToComment({
 					commentCount: sql`${video.commentCount} + 1`,
 				})
 				.where(eq(video.id, parentComment.videoId));
+
+			// Increment project's commentCount
+			await tx
+				.update(project)
+				.set({
+					commentCount: sql`${project.commentCount} + 1`,
+				})
+				.where(eq(project.id, existingVideo.projectId));
 
 			return [insertedReply];
 		});

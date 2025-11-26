@@ -1,5 +1,6 @@
 import { db } from "@koko/db";
 import { comment } from "@koko/db/schema/comment";
+import { project } from "@koko/db/schema/project";
 import { video } from "@koko/db/schema/video";
 import { TRPCError } from "@trpc/server";
 import { eq, sql } from "drizzle-orm";
@@ -55,7 +56,21 @@ export async function deleteComment({
 			});
 		}
 
-		// Use transaction to soft delete and decrement video commentCount
+		// Fetch video to get projectId
+		const [existingVideo] = await db
+			.select({ id: video.id, projectId: video.projectId })
+			.from(video)
+			.where(eq(video.id, existingComment.videoId))
+			.limit(1);
+
+		if (!existingVideo) {
+			throw new TRPCError({
+				code: "NOT_FOUND",
+				message: "Video not found",
+			});
+		}
+
+		// Use transaction to soft delete and decrement video/project commentCount
 		await db.transaction(async (tx) => {
 			// Soft delete the comment
 			await tx
@@ -65,13 +80,21 @@ export async function deleteComment({
 				})
 				.where(eq(comment.id, id));
 
-			// Decrement video's commentCount
+			// Decrement video's commentCount (ensure it doesn't go below 0)
 			await tx
 				.update(video)
 				.set({
-					commentCount: sql`${video.commentCount} - 1`,
+					commentCount: sql`MAX(0, ${video.commentCount} - 1)`,
 				})
 				.where(eq(video.id, existingComment.videoId));
+
+			// Decrement project's commentCount (ensure it doesn't go below 0)
+			await tx
+				.update(project)
+				.set({
+					commentCount: sql`MAX(0, ${project.commentCount} - 1)`,
+				})
+				.where(eq(project.id, existingVideo.projectId));
 		});
 
 		logger.info(
