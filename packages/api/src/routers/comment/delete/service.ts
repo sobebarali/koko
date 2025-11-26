@@ -1,0 +1,104 @@
+import { db } from "@koko/db";
+import { comment } from "@koko/db/schema/comment";
+import { video } from "@koko/db/schema/video";
+import { TRPCError } from "@trpc/server";
+import { eq, sql } from "drizzle-orm";
+import type { Logger } from "../../../lib/logger/types";
+import type { DeleteCommentInput, DeleteCommentOutput } from "./type";
+
+export async function deleteComment({
+	userId,
+	id,
+	logger,
+}: {
+	userId: string;
+	logger: Logger;
+} & DeleteCommentInput): Promise<DeleteCommentOutput> {
+	logger.debug(
+		{ event: "delete_comment_start", userId, commentId: id },
+		"Deleting comment",
+	);
+
+	try {
+		// Fetch existing comment
+		const [existingComment] = await db
+			.select({
+				id: comment.id,
+				videoId: comment.videoId,
+				authorId: comment.authorId,
+				deletedAt: comment.deletedAt,
+			})
+			.from(comment)
+			.where(eq(comment.id, id))
+			.limit(1);
+
+		if (!existingComment) {
+			throw new TRPCError({
+				code: "NOT_FOUND",
+				message: "Comment not found",
+			});
+		}
+
+		// Check if comment is already soft-deleted
+		if (existingComment.deletedAt !== null) {
+			throw new TRPCError({
+				code: "NOT_FOUND",
+				message: "Comment not found",
+			});
+		}
+
+		// Check if user is the author
+		if (existingComment.authorId !== userId) {
+			throw new TRPCError({
+				code: "FORBIDDEN",
+				message: "You can only delete your own comments",
+			});
+		}
+
+		// Use transaction to soft delete and decrement video commentCount
+		await db.transaction(async (tx) => {
+			// Soft delete the comment
+			await tx
+				.update(comment)
+				.set({
+					deletedAt: new Date(),
+				})
+				.where(eq(comment.id, id));
+
+			// Decrement video's commentCount
+			await tx
+				.update(video)
+				.set({
+					commentCount: sql`${video.commentCount} - 1`,
+				})
+				.where(eq(video.id, existingComment.videoId));
+		});
+
+		logger.info(
+			{ event: "delete_comment_success", userId, commentId: id },
+			"Comment soft deleted successfully",
+		);
+
+		return { success: true };
+	} catch (error) {
+		if (error instanceof TRPCError) {
+			throw error;
+		}
+		logger.error(
+			{
+				event: "delete_comment_error",
+				userId,
+				commentId: id,
+				error:
+					error instanceof Error
+						? { message: error.message, stack: error.stack }
+						: error,
+			},
+			"Failed to delete comment",
+		);
+		throw new TRPCError({
+			code: "INTERNAL_SERVER_ERROR",
+			message: "Failed to delete comment",
+		});
+	}
+}

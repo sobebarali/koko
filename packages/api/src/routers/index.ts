@@ -1,4 +1,5 @@
 import { protectedProcedure, publicProcedure, router } from "../index";
+import { commentRouter } from "./comment";
 import { projectRouter } from "./project";
 import { todoRouter } from "./todo";
 import { userRouter } from "./user";
@@ -14,6 +15,7 @@ export const appRouter = router({
 			user: ctx.session.user,
 		};
 	}),
+	comment: commentRouter,
 	project: projectRouter,
 	todo: todoRouter,
 	user: userRouter,

@@ -6,6 +6,7 @@ import {
 	IconEye,
 	IconFile,
 	IconLoader2,
+	IconMessageCircle,
 	IconTrash,
 } from "@tabler/icons-react";
 import {
@@ -16,6 +17,7 @@ import {
 } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
+import { CommentList } from "@/components/comment-list";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -87,10 +89,13 @@ function VideoDetailPage() {
 	const { id, videoId } = Route.useParams();
 	const navigate = useNavigate();
 	const [isEditing, setIsEditing] = useState(false);
+	const [showComments, setShowComments] = useState(true);
 
 	const { project } = useProject({ id });
 	const { video, isLoading, error } = useVideo({ id: videoId });
 	const { deleteVideo, isDeleting } = useDeleteVideo();
+
+	const currentUserId = session.data?.user.id || "";
 
 	const userData = {
 		name: session.data?.user.name || "User",
@@ -153,170 +158,187 @@ function VideoDetailPage() {
 									</Button>
 								</div>
 							)}
+
+							<Button
+								variant={showComments ? "default" : "outline"}
+								size="sm"
+								onClick={() => setShowComments(!showComments)}
+							>
+								<IconMessageCircle className="mr-2 size-4" />
+								Comments
+							</Button>
 						</div>
 					</header>
 
-					<div className="flex-1 p-4 pb-8 lg:p-6">
-						{isLoading ? (
-							<div className="flex items-center justify-center py-16">
-								<IconLoader2 className="size-8 animate-spin text-muted-foreground" />
-							</div>
-						) : error ? (
-							<Card className="flex flex-col items-center justify-center py-16">
-								<CardTitle className="mb-2 text-destructive">
-									Error loading video
-								</CardTitle>
-								<CardDescription>
-									{(error as Error)?.message || "Something went wrong"}
-								</CardDescription>
-								<Link
-									to="/projects/$id/videos"
-									params={{ id }}
-									className="mt-4"
-								>
-									<Button variant="outline">Back to Videos</Button>
-								</Link>
-							</Card>
-						) : video ? (
-							<div className="mx-auto max-w-5xl space-y-6">
-								{video.status === "ready" ? (
-									<VideoPlayer videoId={video.id} title={video.title} />
-								) : (
-									<div className="flex aspect-video items-center justify-center rounded-lg bg-muted">
-										<div className="text-center">
-											<Badge variant={getStatusVariant(video.status)}>
-												{video.status}
-											</Badge>
-											<p className="mt-2 text-muted-foreground text-sm">
-												{video.status === "processing" &&
-													`Processing: ${video.processingProgress ?? 0}%`}
-												{video.status === "uploading" &&
-													"Upload in progress..."}
-												{video.status === "failed" &&
-													(video.errorMessage || "Processing failed")}
-											</p>
-										</div>
-									</div>
-								)}
-
-								<div className="space-y-4">
-									<div className="flex items-start justify-between gap-4">
-										<div>
-											<h1 className="font-bold text-2xl tracking-tight">
-												{video.title}
-											</h1>
-											{video.description && (
-												<p className="mt-2 text-muted-foreground">
-													{video.description}
-												</p>
-											)}
-										</div>
-									</div>
-
-									{video.tags && video.tags.length > 0 && (
-										<div className="flex flex-wrap gap-2">
-											{video.tags.map((tag) => (
-												<Badge key={tag} variant="secondary">
-													{tag}
+					<div className="flex flex-1 overflow-hidden">
+						<div className="flex-1 overflow-auto p-4 pb-8 lg:p-6">
+							{isLoading ? (
+								<div className="flex items-center justify-center py-16">
+									<IconLoader2 className="size-8 animate-spin text-muted-foreground" />
+								</div>
+							) : error ? (
+								<Card className="flex flex-col items-center justify-center py-16">
+									<CardTitle className="mb-2 text-destructive">
+										Error loading video
+									</CardTitle>
+									<CardDescription>
+										{(error as Error)?.message || "Something went wrong"}
+									</CardDescription>
+									<Link
+										to="/projects/$id/videos"
+										params={{ id }}
+										className="mt-4"
+									>
+										<Button variant="outline">Back to Videos</Button>
+									</Link>
+								</Card>
+							) : video ? (
+								<div className="mx-auto max-w-5xl space-y-6">
+									{video.status === "ready" ? (
+										<VideoPlayer videoId={video.id} title={video.title} />
+									) : (
+										<div className="flex aspect-video items-center justify-center rounded-lg bg-muted">
+											<div className="text-center">
+												<Badge variant={getStatusVariant(video.status)}>
+													{video.status}
 												</Badge>
-											))}
+												<p className="mt-2 text-muted-foreground text-sm">
+													{video.status === "processing" &&
+														`Processing: ${video.processingProgress ?? 0}%`}
+													{video.status === "uploading" &&
+														"Upload in progress..."}
+													{video.status === "failed" &&
+														(video.errorMessage || "Processing failed")}
+												</p>
+											</div>
 										</div>
 									)}
 
-									<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-										<Card>
-											<CardContent className="flex items-center gap-3 p-4">
-												<IconEye className="size-5 text-muted-foreground" />
-												<div>
-													<p className="font-medium text-sm">Views</p>
-													<p className="text-muted-foreground text-xl">
-														{video.viewCount}
+									<div className="space-y-4">
+										<div className="flex items-start justify-between gap-4">
+											<div>
+												<h1 className="font-bold text-2xl tracking-tight">
+													{video.title}
+												</h1>
+												{video.description && (
+													<p className="mt-2 text-muted-foreground">
+														{video.description}
 													</p>
-												</div>
-											</CardContent>
-										</Card>
+												)}
+											</div>
+										</div>
 
-										{video.duration !== null && (
+										{video.tags && video.tags.length > 0 && (
+											<div className="flex flex-wrap gap-2">
+												{video.tags.map((tag) => (
+													<Badge key={tag} variant="secondary">
+														{tag}
+													</Badge>
+												))}
+											</div>
+										)}
+
+										<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 											<Card>
 												<CardContent className="flex items-center gap-3 p-4">
-													<IconClock className="size-5 text-muted-foreground" />
+													<IconEye className="size-5 text-muted-foreground" />
 													<div>
-														<p className="font-medium text-sm">Duration</p>
+														<p className="font-medium text-sm">Views</p>
 														<p className="text-muted-foreground text-xl">
-															{formatDuration(video.duration)}
+															{video.viewCount}
 														</p>
 													</div>
 												</CardContent>
 											</Card>
+
+											{video.duration !== null && (
+												<Card>
+													<CardContent className="flex items-center gap-3 p-4">
+														<IconClock className="size-5 text-muted-foreground" />
+														<div>
+															<p className="font-medium text-sm">Duration</p>
+															<p className="text-muted-foreground text-xl">
+																{formatDuration(video.duration)}
+															</p>
+														</div>
+													</CardContent>
+												</Card>
+											)}
+
+											<Card>
+												<CardContent className="flex items-center gap-3 p-4">
+													<IconFile className="size-5 text-muted-foreground" />
+													<div>
+														<p className="font-medium text-sm">Size</p>
+														<p className="text-muted-foreground text-xl">
+															{formatFileSize(video.fileSize)}
+														</p>
+													</div>
+												</CardContent>
+											</Card>
+
+											<Card>
+												<CardContent className="flex items-center gap-3 p-4">
+													<IconCalendar className="size-5 text-muted-foreground" />
+													<div>
+														<p className="font-medium text-sm">Uploaded</p>
+														<p className="text-muted-foreground text-xl">
+															{new Date(video.createdAt).toLocaleDateString()}
+														</p>
+													</div>
+												</CardContent>
+											</Card>
+										</div>
+
+										{(video.width || video.height || video.fps) && (
+											<Card>
+												<CardHeader>
+													<CardTitle className="text-base">
+														Technical Details
+													</CardTitle>
+												</CardHeader>
+												<CardContent className="grid gap-2 text-sm">
+													{video.width && video.height && (
+														<div className="flex justify-between">
+															<span className="text-muted-foreground">
+																Resolution
+															</span>
+															<span>
+																{video.width} x {video.height}
+															</span>
+														</div>
+													)}
+													{video.fps && (
+														<div className="flex justify-between">
+															<span className="text-muted-foreground">
+																Frame Rate
+															</span>
+															<span>{video.fps} fps</span>
+														</div>
+													)}
+													<div className="flex justify-between">
+														<span className="text-muted-foreground">
+															Original File
+														</span>
+														<span>{video.originalFileName}</span>
+													</div>
+													<div className="flex justify-between">
+														<span className="text-muted-foreground">Type</span>
+														<span>{video.mimeType}</span>
+													</div>
+												</CardContent>
+											</Card>
 										)}
-
-										<Card>
-											<CardContent className="flex items-center gap-3 p-4">
-												<IconFile className="size-5 text-muted-foreground" />
-												<div>
-													<p className="font-medium text-sm">Size</p>
-													<p className="text-muted-foreground text-xl">
-														{formatFileSize(video.fileSize)}
-													</p>
-												</div>
-											</CardContent>
-										</Card>
-
-										<Card>
-											<CardContent className="flex items-center gap-3 p-4">
-												<IconCalendar className="size-5 text-muted-foreground" />
-												<div>
-													<p className="font-medium text-sm">Uploaded</p>
-													<p className="text-muted-foreground text-xl">
-														{new Date(video.createdAt).toLocaleDateString()}
-													</p>
-												</div>
-											</CardContent>
-										</Card>
 									</div>
-
-									{(video.width || video.height || video.fps) && (
-										<Card>
-											<CardHeader>
-												<CardTitle className="text-base">
-													Technical Details
-												</CardTitle>
-											</CardHeader>
-											<CardContent className="grid gap-2 text-sm">
-												{video.width && video.height && (
-													<div className="flex justify-between">
-														<span className="text-muted-foreground">
-															Resolution
-														</span>
-														<span>
-															{video.width} x {video.height}
-														</span>
-													</div>
-												)}
-												{video.fps && (
-													<div className="flex justify-between">
-														<span className="text-muted-foreground">
-															Frame Rate
-														</span>
-														<span>{video.fps} fps</span>
-													</div>
-												)}
-												<div className="flex justify-between">
-													<span className="text-muted-foreground">
-														Original File
-													</span>
-													<span>{video.originalFileName}</span>
-												</div>
-												<div className="flex justify-between">
-													<span className="text-muted-foreground">Type</span>
-													<span>{video.mimeType}</span>
-												</div>
-											</CardContent>
-										</Card>
-									)}
 								</div>
+							) : null}
+						</div>
+
+						{showComments && video && (
+							<div className="hidden w-96 shrink-0 border-l bg-background lg:block">
+								<CommentList videoId={videoId} currentUserId={currentUserId} />
 							</div>
-						) : null}
+						)}
 					</div>
 				</div>
 
