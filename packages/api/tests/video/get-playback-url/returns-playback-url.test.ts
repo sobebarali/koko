@@ -14,7 +14,8 @@ it("returns playback URL when video is ready", async () => {
 		id: "video_123",
 		projectId: "project_123",
 		status: "ready",
-		streamingUrl: "https://stream.bunny.net/123/playlist.m3u8",
+		bunnyVideoId: "bunny_video_abc",
+		bunnyLibraryId: "bunny_lib_xyz",
 		thumbnailUrl: "https://thumb.bunny.net/123.jpg",
 		project: { ownerId: "user_test" },
 	};
@@ -27,7 +28,9 @@ it("returns playback URL when video is ready", async () => {
 
 	const result = await caller.video.getPlaybackUrl({ id: "video_123" });
 
-	expect(result.playbackUrl).toBe("https://stream.bunny.net/123/playlist.m3u8");
+	expect(result.playbackUrl).toBe(
+		"https://iframe.mediadelivery.net/embed/bunny_lib_xyz/bunny_video_abc",
+	);
 	expect(result.thumbnailUrl).toBe("https://thumb.bunny.net/123.jpg");
 });
 
@@ -36,7 +39,8 @@ it("throws BAD_REQUEST when video is not ready", async () => {
 		id: "video_123",
 		projectId: "project_123",
 		status: "processing",
-		streamingUrl: null,
+		bunnyVideoId: "bunny_video_abc",
+		bunnyLibraryId: "bunny_lib_xyz",
 		thumbnailUrl: null,
 		project: { ownerId: "user_test" },
 	};

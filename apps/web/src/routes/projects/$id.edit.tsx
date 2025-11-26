@@ -67,7 +67,7 @@ function EditProjectPage() {
 
 	return (
 		<SidebarProvider>
-			<AppSidebar user={userData} />
+			<AppSidebar user={userData} projectId={id} />
 			<SidebarInset>
 				<div className="@container/main flex min-h-screen flex-col">
 					<header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

@@ -103,7 +103,10 @@ function VideoDetailPage() {
 	const handleDelete = async () => {
 		if (confirm("Are you sure you want to delete this video?")) {
 			await deleteVideo(videoId);
-			navigate({ to: "/projects/$id/videos", params: { id } });
+			navigate({
+				to: "/projects/$id/videos",
+				params: { id },
+			});
 		}
 	};
 
@@ -111,7 +114,7 @@ function VideoDetailPage() {
 
 	return (
 		<SidebarProvider>
-			<AppSidebar user={userData} />
+			<AppSidebar user={userData} projectId={id} />
 			<SidebarInset>
 				<div className="@container/main flex min-h-screen flex-col">
 					<header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -176,12 +179,8 @@ function VideoDetailPage() {
 							</Card>
 						) : video ? (
 							<div className="mx-auto max-w-5xl space-y-6">
-								{video.status === "ready" && video.bunnyLibraryId ? (
-									<VideoPlayer
-										libraryId={video.bunnyLibraryId}
-										videoId={video.bunnyVideoId}
-										title={video.title}
-									/>
+								{video.status === "ready" ? (
+									<VideoPlayer videoId={video.id} title={video.title} />
 								) : (
 									<div className="flex aspect-video items-center justify-center rounded-lg bg-muted">
 										<div className="text-center">

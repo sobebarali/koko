@@ -27,7 +27,8 @@ export async function getPlaybackUrl({
 				id: video.id,
 				projectId: video.projectId,
 				status: video.status,
-				streamingUrl: video.streamingUrl,
+				bunnyVideoId: video.bunnyVideoId,
+				bunnyLibraryId: video.bunnyLibraryId,
 				thumbnailUrl: video.thumbnailUrl,
 				project: {
 					ownerId: project.ownerId,
@@ -103,17 +104,8 @@ export async function getPlaybackUrl({
 			});
 		}
 
-		// 4. Check if streaming URL exists
-		if (!videoData.streamingUrl) {
-			logger.error(
-				{ event: "get_playback_url_missing", videoId: id },
-				"Video has no streaming URL",
-			);
-			throw new TRPCError({
-				code: "INTERNAL_SERVER_ERROR",
-				message: "Video playback URL is not available",
-			});
-		}
+		// 4. Construct the embed URL from Bunny IDs
+		const embedUrl = `https://iframe.mediadelivery.net/embed/${videoData.bunnyLibraryId}/${videoData.bunnyVideoId}`;
 
 		logger.debug(
 			{ event: "get_playback_url_success", videoId: id, userId },
@@ -121,7 +113,7 @@ export async function getPlaybackUrl({
 		);
 
 		return {
-			playbackUrl: videoData.streamingUrl,
+			playbackUrl: embedUrl,
 			thumbnailUrl: videoData.thumbnailUrl,
 		};
 	} catch (error) {

@@ -14,6 +14,7 @@ import {
 	redirect,
 	useNavigate,
 } from "@tanstack/react-router";
+import { useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,7 @@ import {
 	SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { VideoCard } from "@/components/video-card";
+import { VideoUpload } from "@/components/video-upload";
 import {
 	useArchiveProject,
 	useDeleteProject,
@@ -64,6 +66,7 @@ function ProjectDetailPage() {
 	const { session } = Route.useRouteContext();
 	const { id } = Route.useParams();
 	const navigate = useNavigate();
+	const [isUploadOpen, setIsUploadOpen] = useState(false);
 
 	const { project, isLoading, error } = useProject({ id });
 	const { archiveProject, unarchiveProject, isArchiving } = useArchiveProject();
@@ -99,7 +102,7 @@ function ProjectDetailPage() {
 
 	return (
 		<SidebarProvider>
-			<AppSidebar user={userData} />
+			<AppSidebar user={userData} projectId={id} />
 			<SidebarInset>
 				<div className="@container/main flex min-h-screen flex-col">
 					<header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -281,12 +284,10 @@ function ProjectDetailPage() {
 														</Button>
 													</Link>
 												)}
-												<Link to="/projects/$id/videos" params={{ id }}>
-													<Button size="sm">
-														<IconUpload className="mr-2 size-4" />
-														Upload Video
-													</Button>
-												</Link>
+												<Button size="sm" onClick={() => setIsUploadOpen(true)}>
+													<IconUpload className="mr-2 size-4" />
+													Upload Video
+												</Button>
 											</div>
 										</div>
 									</CardHeader>
@@ -331,6 +332,30 @@ function ProjectDetailPage() {
 					</div>
 				</div>
 			</SidebarInset>
+
+			{isUploadOpen && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+					<Card className="w-full max-w-lg">
+						<CardHeader>
+							<CardTitle>Upload Video</CardTitle>
+							<CardDescription>Upload a video to this project</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<VideoUpload
+								projectId={id}
+								onSuccess={(videoId) => {
+									setIsUploadOpen(false);
+									navigate({
+										to: "/projects/$id/videos/$videoId",
+										params: { id, videoId },
+									});
+								}}
+								onCancel={() => setIsUploadOpen(false)}
+							/>
+						</CardContent>
+					</Card>
+				</div>
+			)}
 		</SidebarProvider>
 	);
 }

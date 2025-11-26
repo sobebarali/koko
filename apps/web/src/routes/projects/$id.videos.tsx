@@ -3,13 +3,23 @@ import {
 	IconLoader2,
 	IconSearch,
 	IconUpload,
-	IconX,
 } from "@tabler/icons-react";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import {
+	createFileRoute,
+	Link,
+	redirect,
+	useNavigate,
+} from "@tanstack/react-router";
 import { useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -45,9 +55,10 @@ export const Route = createFileRoute("/projects/$id/videos")({
 function ProjectVideosPage() {
 	const { session } = Route.useRouteContext();
 	const { id } = Route.useParams();
+	const navigate = useNavigate();
 	const [searchQuery, setSearchQuery] = useState("");
 	const [statusFilter, setStatusFilter] = useState<VideoStatus | "all">("all");
-	const [showUpload, setShowUpload] = useState(false);
+	const [isUploadOpen, setIsUploadOpen] = useState(false);
 
 	const { project, isLoading: isLoadingProject } = useProject({ id });
 	const { videos, isLoading: isLoadingVideos } = useVideos({
@@ -71,7 +82,7 @@ function ProjectVideosPage() {
 
 	return (
 		<SidebarProvider>
-			<AppSidebar user={userData} />
+			<AppSidebar user={userData} projectId={id} />
 			<SidebarInset>
 				<div className="@container/main flex min-h-screen flex-col">
 					<header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -88,7 +99,7 @@ function ProjectVideosPage() {
 
 							<div className="flex-1" />
 
-							<Button onClick={() => setShowUpload(true)}>
+							<Button onClick={() => setIsUploadOpen(true)}>
 								<IconUpload className="mr-2 size-4" />
 								Upload Video
 							</Button>
@@ -149,39 +160,37 @@ function ProjectVideosPage() {
 									}
 									showUploadButton={!searchQuery}
 									onDelete={(video) => deleteVideo(video.id)}
-									onUpload={() => setShowUpload(true)}
+									onUploadClick={() => setIsUploadOpen(true)}
 								/>
 							</div>
 						)}
 					</div>
 				</div>
-
-				{showUpload && (
-					<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-						<Card className="w-full max-w-lg">
-							<CardHeader className="flex flex-row items-center justify-between">
-								<CardTitle>Upload Video</CardTitle>
-								<Button
-									variant="ghost"
-									size="icon"
-									onClick={() => setShowUpload(false)}
-								>
-									<IconX className="size-4" />
-								</Button>
-							</CardHeader>
-							<CardContent>
-								<VideoUpload
-									projectId={id}
-									onSuccess={() => {
-										setShowUpload(false);
-									}}
-									onCancel={() => setShowUpload(false)}
-								/>
-							</CardContent>
-						</Card>
-					</div>
-				)}
 			</SidebarInset>
+
+			{isUploadOpen && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+					<Card className="w-full max-w-lg">
+						<CardHeader>
+							<CardTitle>Upload Video</CardTitle>
+							<CardDescription>Upload a video to this project</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<VideoUpload
+								projectId={id}
+								onSuccess={(videoId) => {
+									setIsUploadOpen(false);
+									navigate({
+										to: "/projects/$id/videos/$videoId",
+										params: { id, videoId },
+									});
+								}}
+								onCancel={() => setIsUploadOpen(false)}
+							/>
+						</CardContent>
+					</Card>
+				</div>
+			)}
 		</SidebarProvider>
 	);
 }

@@ -79,6 +79,7 @@ export function VideoCard({
 			<Link
 				to="/projects/$id/videos/$videoId"
 				params={{ id: projectId, videoId: video.id }}
+				search={{ upload: false }}
 			>
 				<div className="relative aspect-video bg-muted">
 					{video.thumbnailUrl ? (
@@ -123,6 +124,7 @@ export function VideoCard({
 					<Link
 						to="/projects/$id/videos/$videoId"
 						params={{ id: projectId, videoId: video.id }}
+						search={{ upload: false }}
 						className="flex-1 hover:underline"
 					>
 						<CardTitle className="line-clamp-2 text-sm">

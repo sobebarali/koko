@@ -1,5 +1,4 @@
 import { IconUpload, IconVideo } from "@tabler/icons-react";
-import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { VideoListItem } from "@/hooks/use-videos";
@@ -13,7 +12,7 @@ interface VideoGridProps {
 	showUploadButton?: boolean;
 	onEdit?: (video: VideoListItem) => void;
 	onDelete?: (video: VideoListItem) => void;
-	onUpload?: () => void;
+	onUploadClick?: () => void;
 }
 
 function VideoSkeleton() {
@@ -36,7 +35,7 @@ export function VideoGrid({
 	showUploadButton = true,
 	onEdit,
 	onDelete,
-	onUpload,
+	onUploadClick,
 }: VideoGridProps) {
 	if (isLoading) {
 		return (
@@ -59,19 +58,11 @@ export function VideoGrid({
 					<p className="mb-4 text-muted-foreground text-sm">
 						Upload your first video to get started
 					</p>
-					{showUploadButton && onUpload && (
-						<Button onClick={onUpload}>
+					{showUploadButton && onUploadClick && (
+						<Button onClick={onUploadClick}>
 							<IconUpload className="mr-2 size-4" />
 							Upload Video
 						</Button>
-					)}
-					{showUploadButton && !onUpload && (
-						<Link to="/projects/$id/videos" params={{ id: projectId }}>
-							<Button>
-								<IconUpload className="mr-2 size-4" />
-								Upload Video
-							</Button>
-						</Link>
 					)}
 				</CardContent>
 			</Card>

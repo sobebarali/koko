@@ -50,128 +50,136 @@ function KokoLogo() {
 	);
 }
 
-// Video collaboration navigation data
-const navMainData = [
-	{
-		title: "Dashboard",
-		url: "/dashboard",
-		icon: LayoutDashboard,
-		isActive: true,
-		items: [
-			{
-				title: "Overview",
-				url: "/dashboard",
-			},
-			{
-				title: "Analytics",
-				url: "/dashboard/analytics",
-			},
-			{
-				title: "Activity",
-				url: "/dashboard/activity",
-			},
-		],
-	},
-	{
-		title: "Projects",
-		url: "/projects",
-		icon: Folder,
-		items: [
-			{
-				title: "All Projects",
-				url: "/projects",
-			},
-			{
-				title: "Create New",
-				url: "/projects/new",
-			},
-		],
-	},
-	{
-		title: "Videos",
-		url: "/videos",
-		icon: Film,
-		items: [
-			{
-				title: "All Videos",
-				url: "/videos",
-			},
-			{
-				title: "Recent Uploads",
-				url: "/videos/recent",
-			},
-			{
-				title: "Favorites",
-				url: "/videos/favorites",
-			},
-			{
-				title: "Archived",
-				url: "/videos/archived",
-			},
-		],
-	},
-	{
-		title: "Reviews",
-		url: "/reviews",
-		icon: CheckSquare,
-		items: [
-			{
-				title: "Pending",
-				url: "/reviews/pending",
-			},
-			{
-				title: "Completed",
-				url: "/reviews/completed",
-			},
-			{
-				title: "Assigned to Me",
-				url: "/reviews/assigned",
-			},
-		],
-	},
-	{
-		title: "Comments",
-		url: "/comments",
-		icon: MessageSquare,
-		items: [
-			{
-				title: "All Comments",
-				url: "/comments",
-			},
-			{
-				title: "Mentions",
-				url: "/comments/mentions",
-			},
-			{
-				title: "Unresolved",
-				url: "/comments/unresolved",
-			},
-		],
-	},
-	{
-		title: "Settings",
-		url: "/settings",
-		icon: Settings,
-		items: [
-			{
-				title: "Account",
-				url: "/settings/account",
-			},
-			{
-				title: "Team",
-				url: "/settings/team",
-			},
-			{
-				title: "Preferences",
-				url: "/settings/preferences",
-			},
-			{
-				title: "Integrations",
-				url: "/settings/integrations",
-			},
-		],
-	},
-];
+// Base navigation data (without project-scoped items)
+const getNavMainData = (projectId?: string) => {
+	const baseNav = [
+		{
+			title: "Dashboard",
+			url: "/dashboard",
+			icon: LayoutDashboard,
+			isActive: true,
+			items: [
+				{
+					title: "Overview",
+					url: "/dashboard",
+				},
+				{
+					title: "Analytics",
+					url: "/dashboard/analytics",
+				},
+				{
+					title: "Activity",
+					url: "/dashboard/activity",
+				},
+			],
+		},
+		{
+			title: "Projects",
+			url: "/projects",
+			icon: Folder,
+			items: [
+				{
+					title: "All Projects",
+					url: "/projects",
+				},
+				{
+					title: "Create New",
+					url: "/projects/new",
+				},
+			],
+		},
+	];
+
+	// Add project-scoped Videos section when inside a project
+	if (projectId) {
+		baseNav.push({
+			title: "Videos",
+			url: `/projects/${projectId}/videos`,
+			icon: Film,
+			isActive: false,
+			items: [
+				{
+					title: "All Videos",
+					url: `/projects/${projectId}/videos`,
+				},
+				{
+					title: "Upload Video",
+					url: `/projects/${projectId}/videos/upload`,
+				},
+			],
+		});
+	}
+
+	// Add remaining nav items
+	baseNav.push(
+		{
+			title: "Reviews",
+			url: "/reviews",
+			icon: CheckSquare,
+			isActive: false,
+			items: [
+				{
+					title: "Pending",
+					url: "/reviews/pending",
+				},
+				{
+					title: "Completed",
+					url: "/reviews/completed",
+				},
+				{
+					title: "Assigned to Me",
+					url: "/reviews/assigned",
+				},
+			],
+		},
+		{
+			title: "Comments",
+			url: "/comments",
+			icon: MessageSquare,
+			isActive: false,
+			items: [
+				{
+					title: "All Comments",
+					url: "/comments",
+				},
+				{
+					title: "Mentions",
+					url: "/comments/mentions",
+				},
+				{
+					title: "Unresolved",
+					url: "/comments/unresolved",
+				},
+			],
+		},
+		{
+			title: "Settings",
+			url: "/settings",
+			icon: Settings,
+			isActive: false,
+			items: [
+				{
+					title: "Account",
+					url: "/settings/account",
+				},
+				{
+					title: "Team",
+					url: "/settings/team",
+				},
+				{
+					title: "Preferences",
+					url: "/settings/preferences",
+				},
+				{
+					title: "Integrations",
+					url: "/settings/integrations",
+				},
+			],
+		},
+	);
+
+	return baseNav;
+};
 
 // User data (will be replaced with actual session data in route)
 const defaultUserData = {
@@ -183,6 +191,7 @@ const defaultUserData = {
 export function AppSidebar({
 	user = defaultUserData,
 	recentProjects = [],
+	projectId,
 	...props
 }: React.ComponentProps<typeof Sidebar> & {
 	user?: {
@@ -191,6 +200,7 @@ export function AppSidebar({
 		avatar: string;
 	};
 	recentProjects?: Array<{ id: string; name: string }>;
+	projectId?: string;
 }) {
 	// Convert to sidebar format
 	const projectsForNav = recentProjects.slice(0, 5).map((project) => ({
@@ -198,6 +208,9 @@ export function AppSidebar({
 		url: `/projects/${project.id}`,
 		icon: Folder,
 	}));
+
+	// Get nav data with optional project context
+	const navMainData = getNavMainData(projectId);
 
 	return (
 		<Sidebar collapsible="icon" {...props}>
