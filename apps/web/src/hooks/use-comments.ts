@@ -93,10 +93,13 @@ export function useCreateComment(): {
 		},
 		onSuccess: (_, variables) => {
 			queryClient.invalidateQueries({
-				queryKey: [["comment", "getAll"]],
+				queryKey: [
+					["comment", "getAll"],
+					{ input: { videoId: variables.videoId } },
+				],
 			});
 			queryClient.invalidateQueries({
-				queryKey: [["video", "getById"], { id: variables.videoId }],
+				queryKey: [["video", "getById"], { input: { id: variables.videoId } }],
 			});
 			toast.success("Comment added");
 		},
@@ -132,9 +135,12 @@ export function useReplyToComment(): {
 		}) => {
 			return trpcClient.comment.reply.mutate(input);
 		},
-		onSuccess: () => {
+		onSuccess: (result) => {
 			queryClient.invalidateQueries({
-				queryKey: [["comment", "getAll"]],
+				queryKey: [
+					["comment", "getAll"],
+					{ input: { videoId: result.comment.videoId } },
+				],
 			});
 			toast.success("Reply added");
 		},
@@ -162,9 +168,12 @@ export function useUpdateComment(): {
 		mutationFn: async (input: { id: string; text: string }) => {
 			return trpcClient.comment.update.mutate(input);
 		},
-		onSuccess: () => {
+		onSuccess: (result) => {
 			queryClient.invalidateQueries({
-				queryKey: [["comment", "getAll"]],
+				queryKey: [
+					["comment", "getAll"],
+					{ input: { videoId: result.comment.videoId } },
+				],
 			});
 			toast.success("Comment updated");
 		},
@@ -220,9 +229,12 @@ export function useResolveComment(): {
 		mutationFn: async (input: { id: string; resolved: boolean }) => {
 			return trpcClient.comment.resolve.mutate(input);
 		},
-		onSuccess: (_, variables) => {
+		onSuccess: (result, variables) => {
 			queryClient.invalidateQueries({
-				queryKey: [["comment", "getAll"]],
+				queryKey: [
+					["comment", "getAll"],
+					{ input: { videoId: result.comment.videoId } },
+				],
 			});
 			toast.success(
 				variables.resolved ? "Comment resolved" : "Comment reopened",

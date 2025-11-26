@@ -28,6 +28,7 @@ export async function deleteComment({
 				videoId: comment.videoId,
 				authorId: comment.authorId,
 				deletedAt: comment.deletedAt,
+				parentId: comment.parentId,
 			})
 			.from(comment)
 			.where(eq(comment.id, id))
@@ -79,6 +80,16 @@ export async function deleteComment({
 					deletedAt: new Date(),
 				})
 				.where(eq(comment.id, id));
+
+			// If this is a reply, decrement parent's replyCount
+			if (existingComment.parentId) {
+				await tx
+					.update(comment)
+					.set({
+						replyCount: sql`MAX(0, ${comment.replyCount} - 1)`,
+					})
+					.where(eq(comment.id, existingComment.parentId));
+			}
 
 			// Decrement video's commentCount (ensure it doesn't go below 0)
 			await tx
