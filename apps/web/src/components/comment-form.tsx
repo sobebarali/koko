@@ -1,5 +1,5 @@
 import { IconSend } from "@tabler/icons-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,7 +8,6 @@ import { useCreateComment } from "@/hooks/use-comments";
 interface CommentFormProps {
 	videoId: string;
 	currentTimecode?: number;
-	onTimecodeChange?: (timecode: number) => void;
 }
 
 function parseTimecode(value: string): number {
@@ -31,19 +30,34 @@ function formatTimecodeInput(seconds: number): string {
 export function CommentForm({
 	videoId,
 	currentTimecode = 0,
-	onTimecodeChange,
 }: CommentFormProps) {
 	const [text, setText] = useState("");
 	const [timecodeInput, setTimecodeInput] = useState(
 		formatTimecodeInput(currentTimecode),
 	);
+	const [isManualEdit, setIsManualEdit] = useState(false);
+	const manualEditTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
 	const { createComment, isCreating } = useCreateComment();
 
+	// Sync timecode input with video playback (unless user is manually editing)
+	useEffect(() => {
+		if (!isManualEdit) {
+			setTimecodeInput(formatTimecodeInput(currentTimecode));
+		}
+	}, [currentTimecode, isManualEdit]);
+
 	const handleTimecodeChange = (value: string): void => {
 		setTimecodeInput(value);
-		const seconds = parseTimecode(value);
-		onTimecodeChange?.(seconds);
+		setIsManualEdit(true);
+
+		// Reset manual edit mode after 3 seconds of no changes
+		if (manualEditTimeoutRef.current) {
+			clearTimeout(manualEditTimeoutRef.current);
+		}
+		manualEditTimeoutRef.current = setTimeout(() => {
+			setIsManualEdit(false);
+		}, 3000);
 	};
 
 	const handleSubmit = async (e: React.FormEvent): Promise<void> => {
@@ -58,6 +72,7 @@ export function CommentForm({
 		});
 
 		setText("");
+		setIsManualEdit(false);
 	};
 
 	return (
@@ -71,9 +86,13 @@ export function CommentForm({
 					type="text"
 					value={timecodeInput}
 					onChange={(e) => handleTimecodeChange(e.target.value)}
+					onFocus={() => setIsManualEdit(true)}
 					placeholder="0:00"
 					className="w-20 font-mono text-sm"
 				/>
+				{isManualEdit && (
+					<span className="text-muted-foreground text-xs">(editing)</span>
+				)}
 			</div>
 			<Textarea
 				value={text}

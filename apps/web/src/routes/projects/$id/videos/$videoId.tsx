@@ -15,7 +15,7 @@ import {
 	redirect,
 	useNavigate,
 } from "@tanstack/react-router";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { CommentList } from "@/components/comment-list";
 import { Badge } from "@/components/ui/badge";
@@ -34,7 +34,7 @@ import {
 	SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { VideoEditForm } from "@/components/video-edit-form";
-import { VideoPlayer } from "@/components/video-player";
+import { VideoPlayer, type VideoPlayerHandle } from "@/components/video-player";
 import { useProject } from "@/hooks/use-projects";
 import { useDeleteVideo, useVideo } from "@/hooks/use-videos";
 import { authClient } from "@/lib/auth-client";
@@ -90,12 +90,23 @@ function VideoDetailPage() {
 	const navigate = useNavigate();
 	const [isEditing, setIsEditing] = useState(false);
 	const [showComments, setShowComments] = useState(true);
+	const [currentTimecode, setCurrentTimecode] = useState(0);
+
+	const videoPlayerRef = useRef<VideoPlayerHandle>(null);
 
 	const { project } = useProject({ id });
 	const { video, isLoading, error } = useVideo({ id: videoId });
 	const { deleteVideo, isDeleting } = useDeleteVideo();
 
 	const currentUserId = session.data?.user.id || "";
+
+	const handleTimeUpdate = useCallback((seconds: number) => {
+		setCurrentTimecode(seconds);
+	}, []);
+
+	const handleTimecodeClick = useCallback((timecode: number) => {
+		videoPlayerRef.current?.seekTo(timecode);
+	}, []);
 
 	const userData = {
 		name: session.data?.user.name || "User",
@@ -195,7 +206,12 @@ function VideoDetailPage() {
 							) : video ? (
 								<div className="mx-auto max-w-5xl space-y-6">
 									{video.status === "ready" ? (
-										<VideoPlayer videoId={video.id} title={video.title} />
+										<VideoPlayer
+											ref={videoPlayerRef}
+											videoId={video.id}
+											title={video.title}
+											onTimeUpdate={handleTimeUpdate}
+										/>
 									) : (
 										<div className="flex aspect-video items-center justify-center rounded-lg bg-muted">
 											<div className="text-center">
@@ -336,7 +352,12 @@ function VideoDetailPage() {
 
 						{showComments && video && (
 							<div className="hidden w-96 shrink-0 border-l bg-background lg:block">
-								<CommentList videoId={videoId} currentUserId={currentUserId} />
+								<CommentList
+									videoId={videoId}
+									currentUserId={currentUserId}
+									currentTimecode={currentTimecode}
+									onTimecodeClick={handleTimecodeClick}
+								/>
 							</div>
 						)}
 					</div>
