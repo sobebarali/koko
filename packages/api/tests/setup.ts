@@ -5,6 +5,7 @@ vi.hoisted(() => {
 	// Set a valid test database URL to prevent initialization errors
 	process.env.DATABASE_URL =
 		process.env.DATABASE_URL || "file::memory:?cache=shared";
+	process.env.RESEND_API_KEY = process.env.RESEND_API_KEY || "re_test_api_key";
 });
 
 const mockDb = vi.hoisted(() => {

@@ -17,6 +17,9 @@ import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
 import { Route as SettingsAccountRouteImport } from './routes/settings/account'
 import { Route as ProjectsNewRouteImport } from './routes/projects/new'
 import { Route as ProjectsIdRouteImport } from './routes/projects/$id'
+import { Route as AuthVerifyEmailRouteImport } from './routes/auth/verify-email'
+import { Route as AuthResetPasswordRouteImport } from './routes/auth/reset-password'
+import { Route as AuthForgotPasswordRouteImport } from './routes/auth/forgot-password'
 import { Route as ProjectsIdIndexRouteImport } from './routes/projects/$id/index'
 import { Route as ProjectsIdEditRouteImport } from './routes/projects/$id/edit'
 import { Route as ProjectsIdVideosIndexRouteImport } from './routes/projects/$id/videos/index'
@@ -62,6 +65,21 @@ const ProjectsIdRoute = ProjectsIdRouteImport.update({
   path: '/projects/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthVerifyEmailRoute = AuthVerifyEmailRouteImport.update({
+  id: '/auth/verify-email',
+  path: '/auth/verify-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthResetPasswordRoute = AuthResetPasswordRouteImport.update({
+  id: '/auth/reset-password',
+  path: '/auth/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
+  id: '/auth/forgot-password',
+  path: '/auth/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProjectsIdIndexRoute = ProjectsIdIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -88,6 +106,9 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/success': typeof SuccessRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/projects/$id': typeof ProjectsIdRouteWithChildren
   '/projects/new': typeof ProjectsNewRoute
   '/settings/account': typeof SettingsAccountRoute
@@ -102,6 +123,9 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/success': typeof SuccessRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/projects/new': typeof ProjectsNewRoute
   '/settings/account': typeof SettingsAccountRoute
   '/projects': typeof ProjectsIndexRoute
@@ -116,6 +140,9 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/success': typeof SuccessRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/auth/reset-password': typeof AuthResetPasswordRoute
+  '/auth/verify-email': typeof AuthVerifyEmailRoute
   '/projects/$id': typeof ProjectsIdRouteWithChildren
   '/projects/new': typeof ProjectsNewRoute
   '/settings/account': typeof SettingsAccountRoute
@@ -132,6 +159,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/login'
     | '/success'
+    | '/auth/forgot-password'
+    | '/auth/reset-password'
+    | '/auth/verify-email'
     | '/projects/$id'
     | '/projects/new'
     | '/settings/account'
@@ -146,6 +176,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/login'
     | '/success'
+    | '/auth/forgot-password'
+    | '/auth/reset-password'
+    | '/auth/verify-email'
     | '/projects/new'
     | '/settings/account'
     | '/projects'
@@ -159,6 +192,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/login'
     | '/success'
+    | '/auth/forgot-password'
+    | '/auth/reset-password'
+    | '/auth/verify-email'
     | '/projects/$id'
     | '/projects/new'
     | '/settings/account'
@@ -174,6 +210,9 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
   SuccessRoute: typeof SuccessRoute
+  AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
+  AuthResetPasswordRoute: typeof AuthResetPasswordRoute
+  AuthVerifyEmailRoute: typeof AuthVerifyEmailRoute
   ProjectsIdRoute: typeof ProjectsIdRouteWithChildren
   ProjectsNewRoute: typeof ProjectsNewRoute
   SettingsAccountRoute: typeof SettingsAccountRoute
@@ -238,6 +277,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/verify-email': {
+      id: '/auth/verify-email'
+      path: '/auth/verify-email'
+      fullPath: '/auth/verify-email'
+      preLoaderRoute: typeof AuthVerifyEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/reset-password': {
+      id: '/auth/reset-password'
+      path: '/auth/reset-password'
+      fullPath: '/auth/reset-password'
+      preLoaderRoute: typeof AuthResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/forgot-password': {
+      id: '/auth/forgot-password'
+      path: '/auth/forgot-password'
+      fullPath: '/auth/forgot-password'
+      preLoaderRoute: typeof AuthForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/projects/$id/': {
       id: '/projects/$id/'
       path: '/'
@@ -292,6 +352,9 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
   SuccessRoute: SuccessRoute,
+  AuthForgotPasswordRoute: AuthForgotPasswordRoute,
+  AuthResetPasswordRoute: AuthResetPasswordRoute,
+  AuthVerifyEmailRoute: AuthVerifyEmailRoute,
   ProjectsIdRoute: ProjectsIdRouteWithChildren,
   ProjectsNewRoute: ProjectsNewRoute,
   SettingsAccountRoute: SettingsAccountRoute,

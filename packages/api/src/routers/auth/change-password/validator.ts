@@ -1,0 +1,12 @@
+import { z } from "zod";
+
+export const changePasswordInput = z.object({
+	currentPassword: z.string().min(1, "Current password is required"),
+	newPassword: z
+		.string()
+		.min(8, "Password must be at least 8 characters")
+		.max(72, "Password must be at most 72 characters"),
+	revokeOtherSessions: z.boolean().default(true),
+});
+
+export type ChangePasswordInput = z.infer<typeof changePasswordInput>;

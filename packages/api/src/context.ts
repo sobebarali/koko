@@ -19,11 +19,13 @@ export async function createContext({
 	logger,
 }: CreateContextOptions): Promise<{
 	session: Awaited<ReturnType<typeof auth.api.getSession>>;
+	headers: Headers;
 	traceId: string;
 	logger: Logger;
 }> {
+	const headers = context.req.raw.headers;
 	const session = await auth.api.getSession({
-		headers: context.req.raw.headers,
+		headers,
 	});
 
 	// Use provided traceId/logger or create new ones (for testing or non-Hono contexts)
@@ -40,6 +42,7 @@ export async function createContext({
 
 	return {
 		session,
+		headers,
 		traceId: resolvedTraceId,
 		logger: contextLogger,
 	};

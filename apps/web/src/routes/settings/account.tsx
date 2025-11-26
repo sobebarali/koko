@@ -1,5 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { AppSidebar } from "@/components/app-sidebar";
+import { ChangePasswordForm } from "@/components/change-password-form";
 import Loader from "@/components/loader";
 import { ProfileForm } from "@/components/profile-form";
 import { Separator } from "@/components/ui/separator";
@@ -88,7 +89,7 @@ function RouteComponent(): React.ReactElement {
 
 					{/* Main Content */}
 					<div className="flex-1 p-4 pb-8 lg:p-6">
-						<div className="mx-auto max-w-2xl">
+						<div className="mx-auto max-w-2xl space-y-8">
 							<ProfileForm
 								initialData={{
 									name: profile.name,
@@ -103,6 +104,10 @@ function RouteComponent(): React.ReactElement {
 								onSubmit={updateProfile}
 								isSubmitting={isUpdating}
 							/>
+
+							<Separator />
+
+							<ChangePasswordForm />
 						</div>
 					</div>
 				</div>

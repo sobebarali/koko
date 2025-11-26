@@ -3,6 +3,7 @@ import * as schema from "@koko/db/schema/auth";
 import { checkout, polar, portal } from "@polar-sh/better-auth";
 import { type BetterAuthOptions, betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { sendPasswordResetEmail, sendVerificationEmail } from "./lib/email";
 import { polarClient } from "./lib/payments";
 
 export const auth = betterAuth<BetterAuthOptions>({
@@ -14,6 +15,18 @@ export const auth = betterAuth<BetterAuthOptions>({
 	trustedOrigins: [process.env.CORS_ORIGIN || ""],
 	emailAndPassword: {
 		enabled: true,
+		sendResetPassword: async ({ user, url }) => {
+			await sendPasswordResetEmail({ user, url });
+		},
+		resetPasswordTokenExpiresIn: 3600, // 1 hour
+	},
+	emailVerification: {
+		sendVerificationEmail: async ({ user, url }) => {
+			await sendVerificationEmail({ user, url });
+		},
+		sendOnSignUp: true,
+		autoSignInAfterVerification: true,
+		expiresIn: 3600, // 1 hour
 	},
 	advanced: {
 		defaultCookieAttributes: {

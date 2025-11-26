@@ -7,6 +7,7 @@ const testLogger = createSilentLogger();
 
 const baseContext: Context = {
 	session: null,
+	headers: new Headers(),
 	traceId: generateTraceId(),
 	logger: testLogger,
 };
