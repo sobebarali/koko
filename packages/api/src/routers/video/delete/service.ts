@@ -2,7 +2,7 @@ import { db } from "@koko/db";
 import { project, projectMember } from "@koko/db/schema/project";
 import { video } from "@koko/db/schema/video";
 import { TRPCError } from "@trpc/server";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import type { Logger } from "../../../lib/logger/types";
 import type { DeleteOutput } from "./type";
 
@@ -103,6 +103,12 @@ export async function deleteVideo({
 			.update(video)
 			.set({ deletedAt: new Date() })
 			.where(eq(video.id, id));
+
+		// 5. Decrement project video count
+		await db
+			.update(project)
+			.set({ videoCount: sql`MAX(${project.videoCount} - 1, 0)` })
+			.where(eq(project.id, videoData.projectId));
 
 		logger.info(
 			{ event: "delete_video_success", videoId: id, userId },

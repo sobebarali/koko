@@ -3,7 +3,7 @@ import { db } from "@koko/db";
 import { project, projectMember } from "@koko/db/schema/project";
 import { video } from "@koko/db/schema/video";
 import { TRPCError } from "@trpc/server";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import type { Logger } from "../../../lib/logger/types";
 import type { CreateUploadInput, CreateUploadOutput } from "./type";
 
@@ -167,6 +167,12 @@ export async function createUpload({
 				message: "Failed to create video record.",
 			});
 		}
+
+		// Increment project video count
+		await db
+			.update(project)
+			.set({ videoCount: sql`${project.videoCount} + 1` })
+			.where(eq(project.id, projectId));
 
 		logger.info(
 			{

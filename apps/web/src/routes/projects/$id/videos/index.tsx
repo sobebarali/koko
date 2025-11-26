@@ -4,6 +4,7 @@ import {
 	IconSearch,
 	IconUpload,
 } from "@tabler/icons-react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
 	createFileRoute,
 	Link,
@@ -38,7 +39,7 @@ import {
 } from "@/hooks/use-videos";
 import { authClient } from "@/lib/auth-client";
 
-export const Route = createFileRoute("/projects/$id/videos")({
+export const Route = createFileRoute("/projects/$id/videos/")({
 	component: ProjectVideosPage,
 	beforeLoad: async () => {
 		const session = await authClient.getSession();
@@ -56,6 +57,7 @@ function ProjectVideosPage() {
 	const { session } = Route.useRouteContext();
 	const { id } = Route.useParams();
 	const navigate = useNavigate();
+	const queryClient = useQueryClient();
 	const [searchQuery, setSearchQuery] = useState("");
 	const [statusFilter, setStatusFilter] = useState<VideoStatus | "all">("all");
 	const [isUploadOpen, setIsUploadOpen] = useState(false);
@@ -180,6 +182,9 @@ function ProjectVideosPage() {
 								projectId={id}
 								onSuccess={(videoId) => {
 									setIsUploadOpen(false);
+									queryClient.invalidateQueries({
+										queryKey: [["video", "getAll"]],
+									});
 									navigate({
 										to: "/projects/$id/videos/$videoId",
 										params: { id, videoId },
