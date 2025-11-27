@@ -13,6 +13,9 @@ interface VideoGridProps {
 	onEdit?: (video: VideoListItem) => void;
 	onDelete?: (video: VideoListItem) => void;
 	onUploadClick?: () => void;
+	selectedIds?: string[];
+	onToggleSelect?: (id: string) => void;
+	selectionMode?: boolean;
 }
 
 function VideoSkeleton() {
@@ -36,6 +39,9 @@ export function VideoGrid({
 	onEdit,
 	onDelete,
 	onUploadClick,
+	selectedIds = [],
+	onToggleSelect,
+	selectionMode = false,
 }: VideoGridProps) {
 	if (isLoading) {
 		return (
@@ -78,6 +84,9 @@ export function VideoGrid({
 					projectId={projectId}
 					onEdit={onEdit}
 					onDelete={onDelete}
+					isSelected={selectedIds.includes(video.id)}
+					onToggleSelect={onToggleSelect}
+					selectionMode={selectionMode}
 				/>
 			))}
 		</div>

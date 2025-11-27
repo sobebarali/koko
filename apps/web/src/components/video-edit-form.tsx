@@ -4,8 +4,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { useUpdateVideo, type VideoDetail } from "@/hooks/use-videos";
+import {
+	useAddCaptions,
+	useUpdateThumbnail,
+	useUpdateVideo,
+	type VideoDetail,
+} from "@/hooks/use-videos";
 
 interface VideoEditFormProps {
 	video: VideoDetail;
@@ -25,6 +31,19 @@ export function VideoEditForm({
 	const [errors, setErrors] = useState<Record<string, string>>({});
 
 	const { updateVideo, isUpdating } = useUpdateVideo();
+	const { updateThumbnail, isUpdating: isUpdatingThumbnail } =
+		useUpdateThumbnail();
+	const { addCaptions, isAdding: isAddingCaptions } = useAddCaptions();
+
+	const [thumbnailMode, setThumbnailMode] = useState<"image" | "timestamp">(
+		"timestamp",
+	);
+	const [thumbnailTimestamp, setThumbnailTimestamp] = useState(0);
+	const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+
+	const [captionFile, setCaptionFile] = useState<File | null>(null);
+	const [captionLang, setCaptionLang] = useState("en");
+	const [captionLabel, setCaptionLabel] = useState("English");
 
 	const handleAddTag = () => {
 		const trimmedTag = tagInput.trim();
@@ -77,94 +96,286 @@ export function VideoEditForm({
 		onSuccess?.();
 	};
 
+	const handleThumbnailSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		try {
+			if (thumbnailMode === "timestamp") {
+				await updateThumbnail({
+					id: video.id,
+					mode: "timestamp",
+					timestamp: thumbnailTimestamp,
+				});
+			} else if (thumbnailFile) {
+				const reader = new FileReader();
+				reader.onload = async () => {
+					const base64 = (reader.result as string).split(",")[1];
+					await updateThumbnail({
+						id: video.id,
+						mode: "image",
+						imageBase64: base64,
+					});
+					onSuccess?.();
+				};
+				reader.readAsDataURL(thumbnailFile);
+				return;
+			}
+			onSuccess?.();
+		} catch {
+			// Error handled in hook
+		}
+	};
+
+	const handleCaptionSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!captionFile) return;
+
+		try {
+			const reader = new FileReader();
+			reader.onload = async () => {
+				const content = reader.result as string;
+				await addCaptions({
+					id: video.id,
+					srclang: captionLang,
+					label: captionLabel,
+					captionFile: btoa(content),
+				});
+				onSuccess?.();
+			};
+			reader.readAsText(captionFile);
+		} catch {
+			// Error handled in hook
+		}
+	};
+
 	return (
-		<form onSubmit={handleSubmit} className="space-y-4">
-			<div className="space-y-2">
-				<Label htmlFor="title">
-					Title <span className="text-destructive">*</span>
-				</Label>
-				<Input
-					id="title"
-					value={title}
-					onChange={(e) => setTitle(e.target.value)}
-					placeholder="Video title"
-					maxLength={200}
-				/>
-				{errors.title && (
-					<p className="text-destructive text-sm">{errors.title}</p>
-				)}
-				<p className="text-muted-foreground text-xs">
-					{title.length}/200 characters
-				</p>
-			</div>
+		<Tabs defaultValue="general">
+			<TabsList className="grid w-full grid-cols-3">
+				<TabsTrigger value="general">General</TabsTrigger>
+				<TabsTrigger value="thumbnail">Thumbnail</TabsTrigger>
+				<TabsTrigger value="captions">Captions</TabsTrigger>
+			</TabsList>
 
-			<div className="space-y-2">
-				<Label htmlFor="description">Description</Label>
-				<Textarea
-					id="description"
-					value={description}
-					onChange={(e) => setDescription(e.target.value)}
-					placeholder="Video description (optional)"
-					rows={4}
-					maxLength={2000}
-				/>
-				{errors.description && (
-					<p className="text-destructive text-sm">{errors.description}</p>
-				)}
-				<p className="text-muted-foreground text-xs">
-					{description.length}/2000 characters
-				</p>
-			</div>
-
-			<div className="space-y-2">
-				<Label htmlFor="tags">Tags</Label>
-				<div className="flex gap-2">
-					<Input
-						id="tags"
-						value={tagInput}
-						onChange={(e) => setTagInput(e.target.value)}
-						onKeyDown={handleKeyDown}
-						placeholder="Add a tag and press Enter"
-						maxLength={50}
-						disabled={tags.length >= 10}
-					/>
-					<Button
-						type="button"
-						variant="outline"
-						onClick={handleAddTag}
-						disabled={!tagInput.trim() || tags.length >= 10}
-					>
-						Add
-					</Button>
-				</div>
-				{tags.length > 0 && (
-					<div className="flex flex-wrap gap-2 pt-2">
-						{tags.map((tag) => (
-							<Badge key={tag} variant="secondary" className="gap-1 pr-1">
-								{tag}
-								<button
-									type="button"
-									onClick={() => handleRemoveTag(tag)}
-									className="ml-1 rounded-full p-0.5 hover:bg-muted-foreground/20"
-								>
-									<IconX className="size-3" />
-								</button>
-							</Badge>
-						))}
+			<TabsContent value="general">
+				<form onSubmit={handleSubmit} className="space-y-4 pt-4">
+					<div className="space-y-2">
+						<Label htmlFor="title">
+							Title <span className="text-destructive">*</span>
+						</Label>
+						<Input
+							id="title"
+							value={title}
+							onChange={(e) => setTitle(e.target.value)}
+							placeholder="Video title"
+							maxLength={200}
+						/>
+						{errors.title && (
+							<p className="text-destructive text-sm">{errors.title}</p>
+						)}
+						<p className="text-muted-foreground text-xs">
+							{title.length}/200 characters
+						</p>
 					</div>
-				)}
-				<p className="text-muted-foreground text-xs">{tags.length}/10 tags</p>
-			</div>
 
-			<div className="flex justify-end gap-2 pt-4">
-				<Button type="button" variant="outline" onClick={onCancel}>
-					Cancel
-				</Button>
-				<Button type="submit" disabled={isUpdating}>
-					{isUpdating && <IconLoader2 className="mr-2 size-4 animate-spin" />}
-					Save Changes
-				</Button>
-			</div>
-		</form>
+					<div className="space-y-2">
+						<Label htmlFor="description">Description</Label>
+						<Textarea
+							id="description"
+							value={description}
+							onChange={(e) => setDescription(e.target.value)}
+							placeholder="Video description (optional)"
+							rows={4}
+							maxLength={2000}
+						/>
+						{errors.description && (
+							<p className="text-destructive text-sm">{errors.description}</p>
+						)}
+						<p className="text-muted-foreground text-xs">
+							{description.length}/2000 characters
+						</p>
+					</div>
+
+					<div className="space-y-2">
+						<Label htmlFor="tags">Tags</Label>
+						<div className="flex gap-2">
+							<Input
+								id="tags"
+								value={tagInput}
+								onChange={(e) => setTagInput(e.target.value)}
+								onKeyDown={handleKeyDown}
+								placeholder="Add a tag and press Enter"
+								maxLength={50}
+								disabled={tags.length >= 10}
+							/>
+							<Button
+								type="button"
+								variant="outline"
+								onClick={handleAddTag}
+								disabled={!tagInput.trim() || tags.length >= 10}
+							>
+								Add
+							</Button>
+						</div>
+						{tags.length > 0 && (
+							<div className="flex flex-wrap gap-2 pt-2">
+								{tags.map((tag) => (
+									<Badge key={tag} variant="secondary" className="gap-1 pr-1">
+										{tag}
+										<button
+											type="button"
+											onClick={() => handleRemoveTag(tag)}
+											className="ml-1 rounded-full p-0.5 hover:bg-muted-foreground/20"
+										>
+											<IconX className="size-3" />
+										</button>
+									</Badge>
+								))}
+							</div>
+						)}
+						<p className="text-muted-foreground text-xs">
+							{tags.length}/10 tags
+						</p>
+					</div>
+
+					<div className="flex justify-end gap-2 pt-4">
+						<Button type="button" variant="outline" onClick={onCancel}>
+							Cancel
+						</Button>
+						<Button type="submit" disabled={isUpdating}>
+							{isUpdating && (
+								<IconLoader2 className="mr-2 size-4 animate-spin" />
+							)}
+							Save Changes
+						</Button>
+					</div>
+				</form>
+			</TabsContent>
+
+			<TabsContent value="thumbnail">
+				<form onSubmit={handleThumbnailSubmit} className="space-y-4 pt-4">
+					<div className="space-y-2">
+						<Label>Thumbnail Source</Label>
+						<div className="flex gap-2">
+							<Button
+								type="button"
+								variant={thumbnailMode === "timestamp" ? "default" : "outline"}
+								onClick={() => setThumbnailMode("timestamp")}
+								className="flex-1"
+							>
+								From Video
+							</Button>
+							<Button
+								type="button"
+								variant={thumbnailMode === "image" ? "default" : "outline"}
+								onClick={() => setThumbnailMode("image")}
+								className="flex-1"
+							>
+								Upload Image
+							</Button>
+						</div>
+					</div>
+
+					{thumbnailMode === "timestamp" ? (
+						<div className="space-y-2">
+							<Label htmlFor="timestamp">Timestamp (seconds)</Label>
+							<Input
+								id="timestamp"
+								type="number"
+								min={0}
+								step={0.1}
+								value={thumbnailTimestamp}
+								onChange={(e) =>
+									setThumbnailTimestamp(Number.parseFloat(e.target.value))
+								}
+							/>
+							<p className="text-muted-foreground text-xs">
+								Select a frame from the video to use as thumbnail
+							</p>
+						</div>
+					) : (
+						<div className="space-y-2">
+							<Label htmlFor="thumbnail-file">Image File</Label>
+							<Input
+								id="thumbnail-file"
+								type="file"
+								accept="image/*"
+								onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
+							/>
+							<p className="text-muted-foreground text-xs">
+								Upload a custom image (JPG, PNG)
+							</p>
+						</div>
+					)}
+
+					<div className="flex justify-end gap-2 pt-4">
+						<Button type="button" variant="outline" onClick={onCancel}>
+							Cancel
+						</Button>
+						<Button type="submit" disabled={isUpdatingThumbnail}>
+							{isUpdatingThumbnail && (
+								<IconLoader2 className="mr-2 size-4 animate-spin" />
+							)}
+							Update Thumbnail
+						</Button>
+					</div>
+				</form>
+			</TabsContent>
+
+			<TabsContent value="captions">
+				<form onSubmit={handleCaptionSubmit} className="space-y-4 pt-4">
+					<div className="space-y-2">
+						<Label htmlFor="caption-file">Caption File</Label>
+						<Input
+							id="caption-file"
+							type="file"
+							accept=".vtt,.srt"
+							onChange={(e) => setCaptionFile(e.target.files?.[0] || null)}
+						/>
+						<p className="text-muted-foreground text-xs">
+							Supported formats: VTT, SRT
+						</p>
+					</div>
+
+					<div className="grid grid-cols-2 gap-4">
+						<div className="space-y-2">
+							<Label htmlFor="srclang">Language Code</Label>
+							<Input
+								id="srclang"
+								value={captionLang}
+								onChange={(e) => setCaptionLang(e.target.value)}
+								placeholder="en"
+								maxLength={2}
+							/>
+							<p className="text-muted-foreground text-xs">
+								ISO 639-1 code (e.g., en, es, fr)
+							</p>
+						</div>
+						<div className="space-y-2">
+							<Label htmlFor="label">Label</Label>
+							<Input
+								id="label"
+								value={captionLabel}
+								onChange={(e) => setCaptionLabel(e.target.value)}
+								placeholder="English"
+							/>
+							<p className="text-muted-foreground text-xs">
+								Display name for the caption track
+							</p>
+						</div>
+					</div>
+
+					<div className="flex justify-end gap-2 pt-4">
+						<Button type="button" variant="outline" onClick={onCancel}>
+							Cancel
+						</Button>
+						<Button type="submit" disabled={isAddingCaptions || !captionFile}>
+							{isAddingCaptions && (
+								<IconLoader2 className="mr-2 size-4 animate-spin" />
+							)}
+							Upload Captions
+						</Button>
+					</div>
+				</form>
+			</TabsContent>
+		</Tabs>
 	);
 }

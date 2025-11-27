@@ -261,3 +261,177 @@ export function usePlaybackUrl({ id }: { id: string }): {
 		error,
 	};
 }
+
+export function useUpdateThumbnail(): {
+	updateThumbnail: (data: {
+		id: string;
+		mode: "image" | "timestamp";
+		imageBase64?: string;
+		timestamp?: number;
+	}) => Promise<void>;
+	isUpdating: boolean;
+} {
+	const queryClient = useQueryClient();
+
+	const mutation = useMutation({
+		mutationFn: async (input: {
+			id: string;
+			mode: "image" | "timestamp";
+			imageBase64?: string;
+			timestamp?: number;
+		}) => {
+			return trpcClient.video.updateThumbnail.mutate(input);
+		},
+		onSuccess: (_, variables) => {
+			queryClient.invalidateQueries({
+				queryKey: [["video", "getById"], { id: variables.id }],
+			});
+			queryClient.invalidateQueries({
+				queryKey: [["video", "getAll"]],
+			});
+			toast.success("Thumbnail updated successfully");
+		},
+		onError: (error) => {
+			toast.error(error.message || "Failed to update thumbnail");
+		},
+	});
+
+	return {
+		updateThumbnail: async (data) => {
+			await mutation.mutateAsync(data);
+		},
+		isUpdating: mutation.isPending,
+	};
+}
+
+export function useProcessingStatus({
+	id,
+	enabled = true,
+}: {
+	id: string;
+	enabled?: boolean;
+}): {
+	status: VideoStatus | undefined;
+	progress: number | undefined;
+	isLoading: boolean;
+	error: unknown;
+} {
+	const { data, isLoading, error } = useQuery({
+		...trpc.video.getProcessingStatus.queryOptions({ id }),
+		enabled,
+		refetchInterval: (query) => {
+			const status = query.state.data?.status;
+			if (status === "processing" || status === "uploading") {
+				return 2000; // Poll every 2s while processing
+			}
+			return false;
+		},
+	});
+
+	return {
+		status: data?.status as VideoStatus | undefined,
+		progress: data?.progress ?? undefined,
+		isLoading,
+		error,
+	};
+}
+
+export function useAddCaptions(): {
+	addCaptions: (data: {
+		id: string;
+		srclang: string;
+		label?: string;
+		captionFile: string;
+	}) => Promise<void>;
+	isAdding: boolean;
+} {
+	const queryClient = useQueryClient();
+
+	const mutation = useMutation({
+		mutationFn: async (input: {
+			id: string;
+			srclang: string;
+			label?: string;
+			captionFile: string;
+		}) => {
+			return trpcClient.video.addCaptions.mutate(input);
+		},
+		onSuccess: (_, variables) => {
+			queryClient.invalidateQueries({
+				queryKey: [["video", "getById"], { id: variables.id }],
+			});
+			toast.success("Captions uploaded successfully");
+		},
+		onError: (error) => {
+			toast.error(error.message || "Failed to upload captions");
+		},
+	});
+
+	return {
+		addCaptions: async (data) => {
+			await mutation.mutateAsync(data);
+		},
+		isAdding: mutation.isPending,
+	};
+}
+
+export function useDownloadOriginal(): {
+	getDownloadUrl: (id: string) => Promise<string>;
+	isLoading: boolean;
+} {
+	const queryClient = useQueryClient();
+
+	const mutation = useMutation({
+		mutationFn: async (id: string) => {
+			const result = await queryClient.fetchQuery(
+				trpc.video.downloadOriginal.queryOptions({ id }),
+			);
+			return result.downloadUrl;
+		},
+		onError: (error) => {
+			toast.error(error.message || "Failed to get download URL");
+		},
+	});
+
+	return {
+		getDownloadUrl: async (id) => {
+			return mutation.mutateAsync(id);
+		},
+		isLoading: mutation.isPending,
+	};
+}
+
+export function useBulkDeleteVideos(): {
+	bulkDeleteVideos: (ids: string[]) => Promise<void>;
+	isDeleting: boolean;
+} {
+	const queryClient = useQueryClient();
+
+	const mutation = useMutation({
+		mutationFn: async (ids: string[]) => {
+			return trpcClient.video.bulkDelete.mutate({ ids });
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: [["video", "getAll"]],
+			});
+			queryClient.invalidateQueries({
+				queryKey: [["project", "getById"]],
+			});
+			queryClient.invalidateQueries({
+				queryKey: [["project", "getAll"]],
+			});
+			toast.success("Videos deleted successfully");
+		},
+		onError: (error) => {
+			toast.error(error.message || "Failed to delete videos");
+		},
+	});
+
+	return {
+		bulkDeleteVideos: async (ids) => {
+			await mutation.mutateAsync(ids);
+		},
+		isDeleting: mutation.isPending,
+	};
+}

@@ -232,33 +232,109 @@ throw new Error("Something went wrong");  // Not actionable
 
 ---
 
-## Testing (Vitest)
+## TDD & Testing (Vitest)
 
-**Backend only** - no UI tests
+**Backend only** - Strict Red-Green-Refactor TDD for all API code.
+
+### TDD Workflow
+
+```
+1. RED       Write failing test defining expected behavior
+2. GREEN     Write minimal code to make it pass
+3. REFACTOR  Clean up while tests stay green
+```
+
+**Never write implementation code without a failing test first.**
+
+### What to Test
+
+| Category | Examples |
+|----------|----------|
+| tRPC procedures | Input validation, business logic, response shape |
+| Permissions | Ownership checks, role-based access, FORBIDDEN errors |
+| Database ops | CRUD, transactions, cascade deletes |
+| External APIs | Mocked fetch calls (Bunny CDN, etc.) |
+| Error paths | NOT_FOUND, BAD_REQUEST, UNAUTHORIZED |
+
+### Test File Structure
+
+```
+packages/api/tests/{feature}/{action}/{scenario}.test.ts
+```
+
+Example: `tests/project/create/creates-project-successfully.test.ts`
+
+### Test Pattern
 
 ```typescript
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, beforeAll, afterAll } from "vitest";
+import { createTestDb, cleanupTestDb, type TestDb, type TestClient } from "../utils/test-db";
+import { __setTestDb, __clearTestDb } from "../setup";
+import { createTestUser } from "../utils/test-fixtures";
+import { createTestCaller } from "../utils/testCaller";
+import { createTestSession } from "../utils/testSession";
 
-describe("User router", () => {
-  test("getProfile returns user", async () => {
-    const ctx = await createContext({ session: { user: { id: "1" } } });
-    const caller = appRouter.createCaller(ctx);
-    const result = await caller.user.getProfile();
-    expect(result.id).toBe("1");
+describe("project.create", () => {
+  let db: TestDb;
+  let client: TestClient;
+
+  beforeAll(async () => {
+    ({ db, client } = await createTestDb());
+    __setTestDb(db);
   });
 
-  test("requires auth", async () => {
-    const ctx = await createContext({ session: null });
-    const caller = appRouter.createCaller(ctx);
-    await expect(caller.user.getProfile()).rejects.toThrow("UNAUTHORIZED");
+  afterAll(async () => {
+    __clearTestDb();
+    await cleanupTestDb(client);
+  });
+
+  test("creates project with valid input", async () => {
+    // Arrange
+    const user = await createTestUser(db, { id: "user_1" });
+    const caller = createTestCaller({
+      session: createTestSession({ user: { id: user.id } }),
+    });
+
+    // Act
+    const result = await caller.project.create({ name: "Test Project" });
+
+    // Assert
+    expect(result.name).toBe("Test Project");
+    expect(result.ownerId).toBe(user.id);
+  });
+
+  test("throws UNAUTHORIZED without session", async () => {
+    const caller = createTestCaller({ session: null });
+    await expect(caller.project.create({ name: "Test" }))
+      .rejects.toThrow("UNAUTHORIZED");
   });
 });
 ```
 
+### TDD Checklist
+
+Before implementation:
+- [ ] Write test describing expected behavior
+- [ ] Run test - confirm it **fails** (Red)
+- [ ] Write minimal code to **pass** (Green)
+- [ ] Refactor while tests stay green
+- [ ] Never commit without passing tests
+
+### Test Quality Guidelines
+
+- Test **behavior**, not implementation details
+- One assertion per test when practical
+- Descriptive file names: `throws-forbidden-when-not-owner.test.ts`
+- Always test error paths alongside happy paths
+- Mock external APIs - never make real network calls in tests
+
+### Running Tests
+
 ```bash
-vitest          # Watch mode
-vitest run      # Run once
-vitest --coverage
+npm run test:api        # Run API tests
+vitest                  # Watch mode
+vitest run              # Run once
+vitest run --coverage   # With coverage report
 ```
 
 ---

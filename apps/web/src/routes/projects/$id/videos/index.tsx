@@ -2,6 +2,7 @@ import {
 	IconArrowLeft,
 	IconLoader2,
 	IconSearch,
+	IconTrash,
 	IconUpload,
 } from "@tabler/icons-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -33,6 +34,7 @@ import { VideoGrid } from "@/components/video-grid";
 import { VideoUpload } from "@/components/video-upload";
 import { useProject } from "@/hooks/use-projects";
 import {
+	useBulkDeleteVideos,
 	useDeleteVideo,
 	useVideos,
 	type VideoStatus,
@@ -69,6 +71,26 @@ function ProjectVideosPage() {
 		limit: 50,
 	});
 	const { deleteVideo } = useDeleteVideo();
+	const [selectedIds, setSelectedIds] = useState<string[]>([]);
+	const { bulkDeleteVideos, isDeleting: isBulkDeleting } =
+		useBulkDeleteVideos();
+
+	const handleToggleSelect = (id: string) => {
+		setSelectedIds((prev) =>
+			prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
+		);
+	};
+
+	const handleBulkDelete = async () => {
+		if (
+			confirm(
+				`Are you sure you want to delete ${selectedIds.length} videos? This action cannot be undone.`,
+			)
+		) {
+			await bulkDeleteVideos(selectedIds);
+			setSelectedIds([]);
+		}
+	};
 
 	const userData = {
 		name: session.data?.user.name || "User",
@@ -100,6 +122,23 @@ function ProjectVideosPage() {
 							</Link>
 
 							<div className="flex-1" />
+
+							{selectedIds.length > 0 && (
+								<Button
+									variant="destructive"
+									size="sm"
+									onClick={handleBulkDelete}
+									disabled={isBulkDeleting}
+									className="mr-2"
+								>
+									{isBulkDeleting ? (
+										<IconLoader2 className="mr-2 size-4 animate-spin" />
+									) : (
+										<IconTrash className="mr-2 size-4" />
+									)}
+									Delete ({selectedIds.length})
+								</Button>
+							)}
 
 							<Button onClick={() => setIsUploadOpen(true)}>
 								<IconUpload className="mr-2 size-4" />
@@ -163,6 +202,9 @@ function ProjectVideosPage() {
 									showUploadButton={!searchQuery}
 									onDelete={(video) => deleteVideo(video.id)}
 									onUploadClick={() => setIsUploadOpen(true)}
+									selectedIds={selectedIds}
+									onToggleSelect={handleToggleSelect}
+									selectionMode={selectedIds.length > 0}
 								/>
 							</div>
 						)}

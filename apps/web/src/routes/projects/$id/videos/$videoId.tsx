@@ -2,6 +2,7 @@ import {
 	IconArrowLeft,
 	IconCalendar,
 	IconClock,
+	IconDownload,
 	IconEdit,
 	IconEye,
 	IconFile,
@@ -36,7 +37,12 @@ import {
 import { VideoEditForm } from "@/components/video-edit-form";
 import { VideoPlayer, type VideoPlayerHandle } from "@/components/video-player";
 import { useProject } from "@/hooks/use-projects";
-import { useDeleteVideo, useVideo } from "@/hooks/use-videos";
+import {
+	useDeleteVideo,
+	useDownloadOriginal,
+	useProcessingStatus,
+	useVideo,
+} from "@/hooks/use-videos";
 import { authClient } from "@/lib/auth-client";
 
 export const Route = createFileRoute("/projects/$id/videos/$videoId")({
@@ -97,6 +103,13 @@ function VideoDetailPage() {
 	const { project } = useProject({ id });
 	const { video, isLoading, error } = useVideo({ id: videoId });
 	const { deleteVideo, isDeleting } = useDeleteVideo();
+	const { getDownloadUrl, isLoading: isDownloading } = useDownloadOriginal();
+
+	const { status: processingStatus, progress: processingProgress } =
+		useProcessingStatus({
+			id: videoId,
+			enabled: video?.status === "processing" || video?.status === "uploading",
+		});
 
 	const currentUserId = session.data?.user.id || "";
 
@@ -126,6 +139,15 @@ function VideoDetailPage() {
 		}
 	};
 
+	const handleDownload = async () => {
+		try {
+			const url = await getDownloadUrl(videoId);
+			window.open(url, "_blank");
+		} catch (error) {
+			// Error handled in hook
+		}
+	};
+
 	const isOwner = project?.ownerId === session.data?.user.id;
 
 	return (
@@ -149,6 +171,19 @@ function VideoDetailPage() {
 
 							{isOwner && video && (
 								<div className="flex items-center gap-2">
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={handleDownload}
+										disabled={isDownloading}
+									>
+										{isDownloading ? (
+											<IconLoader2 className="mr-2 size-4 animate-spin" />
+										) : (
+											<IconDownload className="mr-2 size-4" />
+										)}
+										Download
+									</Button>
 									<Button
 										variant="outline"
 										size="sm"
@@ -215,15 +250,20 @@ function VideoDetailPage() {
 									) : (
 										<div className="flex aspect-video items-center justify-center rounded-lg bg-muted">
 											<div className="text-center">
-												<Badge variant={getStatusVariant(video.status)}>
-													{video.status}
+												<Badge
+													variant={getStatusVariant(
+														processingStatus || video.status,
+													)}
+												>
+													{processingStatus || video.status}
 												</Badge>
 												<p className="mt-2 text-muted-foreground text-sm">
-													{video.status === "processing" &&
-														`Processing: ${video.processingProgress ?? 0}%`}
-													{video.status === "uploading" &&
+													{(processingStatus || video.status) ===
+														"processing" &&
+														`Processing: ${processingProgress ?? video.processingProgress ?? 0}%`}
+													{(processingStatus || video.status) === "uploading" &&
 														"Upload in progress..."}
-													{video.status === "failed" &&
+													{(processingStatus || video.status) === "failed" &&
 														(video.errorMessage || "Processing failed")}
 												</p>
 											</div>

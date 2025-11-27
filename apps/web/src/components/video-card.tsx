@@ -14,6 +14,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -28,6 +29,9 @@ interface VideoCardProps {
 	projectId: string;
 	onEdit?: (video: VideoListItem) => void;
 	onDelete?: (video: VideoListItem) => void;
+	isSelected?: boolean;
+	onToggleSelect?: (id: string) => void;
+	selectionMode?: boolean;
 }
 
 function formatDuration(seconds: number | null): string {
@@ -73,9 +77,21 @@ export function VideoCard({
 	projectId,
 	onEdit,
 	onDelete,
+	isSelected,
+	onToggleSelect,
+	selectionMode,
 }: VideoCardProps) {
 	return (
-		<Card className="group overflow-hidden">
+		<Card className="group relative overflow-hidden">
+			{(selectionMode || isSelected) && onToggleSelect && (
+				<div className="absolute top-2 left-2 z-20">
+					<Checkbox
+						checked={isSelected}
+						onCheckedChange={() => onToggleSelect(video.id)}
+						className="bg-background/80 backdrop-blur-sm data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+					/>
+				</div>
+			)}
 			<Link
 				to="/projects/$id/videos/$videoId"
 				params={{ id: projectId, videoId: video.id }}
@@ -170,6 +186,13 @@ export function VideoCard({
 					</span>
 				</CardDescription>
 			</CardContent>
+
+			{isSelected && selectionMode && (
+				<div className="flex items-center gap-2 p-3">
+					<Checkbox checked={isSelected} onChange={onToggleSelect} />
+					<div>{video.title}</div>
+				</div>
+			)}
 		</Card>
 	);
 }
