@@ -6,12 +6,7 @@ import {
 	IconUpload,
 } from "@tabler/icons-react";
 import { useQueryClient } from "@tanstack/react-query";
-import {
-	createFileRoute,
-	Link,
-	redirect,
-	useNavigate,
-} from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Button } from "@/components/ui/button";
@@ -58,7 +53,6 @@ export const Route = createFileRoute("/projects/$id/videos/")({
 function ProjectVideosPage() {
 	const { session } = Route.useRouteContext();
 	const { id } = Route.useParams();
-	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const [searchQuery, setSearchQuery] = useState("");
 	const [statusFilter, setStatusFilter] = useState<VideoStatus | "all">("all");
@@ -222,14 +216,10 @@ function ProjectVideosPage() {
 						<CardContent>
 							<VideoUpload
 								projectId={id}
-								onSuccess={(videoId) => {
+								onSuccess={() => {
 									setIsUploadOpen(false);
 									queryClient.invalidateQueries({
 										queryKey: [["video", "getAll"]],
-									});
-									navigate({
-										to: "/projects/$id/videos/$videoId",
-										params: { id, videoId },
 									});
 								}}
 								onCancel={() => setIsUploadOpen(false)}

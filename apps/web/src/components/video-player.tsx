@@ -45,6 +45,7 @@ interface VideoPlayerProps {
 	autoplay?: boolean;
 	muted?: boolean;
 	onTimeUpdate?: (seconds: number) => void;
+	thumbnailUrl?: string | null;
 }
 
 export const VideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(
@@ -56,6 +57,7 @@ export const VideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(
 			autoplay = false,
 			muted = false,
 			onTimeUpdate,
+			thumbnailUrl,
 		},
 		ref,
 	) {
@@ -126,6 +128,13 @@ export const VideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(
 						className,
 					)}
 				>
+					{thumbnailUrl && (
+						<img
+							src={thumbnailUrl}
+							alt={title}
+							className="absolute inset-0 size-full object-cover opacity-50"
+						/>
+					)}
 					<div className="absolute inset-0 flex items-center justify-center">
 						<IconLoader2 className="size-8 animate-spin text-white/50" />
 					</div>
@@ -161,6 +170,13 @@ export const VideoPlayer = forwardRef<VideoPlayerHandle, VideoPlayerProps>(
 					className,
 				)}
 			>
+				{isIframeLoading && thumbnailUrl && (
+					<img
+						src={thumbnailUrl}
+						alt={title}
+						className="absolute inset-0 size-full object-cover opacity-50"
+					/>
+				)}
 				{isIframeLoading && (
 					<div className="absolute inset-0 flex items-center justify-center">
 						<IconLoader2 className="size-8 animate-spin text-white/50" />

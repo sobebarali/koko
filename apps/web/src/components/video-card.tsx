@@ -23,6 +23,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { VideoListItem, VideoStatus } from "@/hooks/use-videos";
+import { cn } from "@/lib/utils";
 
 interface VideoCardProps {
 	video: VideoListItem;
@@ -83,8 +84,15 @@ export function VideoCard({
 }: VideoCardProps) {
 	return (
 		<Card className="group relative overflow-hidden">
-			{(selectionMode || isSelected) && onToggleSelect && (
-				<div className="absolute top-2 left-2 z-20">
+			{onToggleSelect && (
+				<div
+					className={cn(
+						"absolute top-2 left-2 z-20 transition-opacity duration-200",
+						!selectionMode && !isSelected
+							? "opacity-0 group-hover:opacity-100"
+							: "opacity-100",
+					)}
+				>
 					<Checkbox
 						checked={isSelected}
 						onCheckedChange={() => onToggleSelect(video.id)}

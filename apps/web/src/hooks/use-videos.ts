@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import { trpc, trpcClient } from "@/utils/trpc";
 
@@ -63,9 +64,20 @@ export function useVideos({
 	hasMore: boolean;
 	nextCursor: string | undefined;
 } {
-	const { data, isLoading, error } = useQuery(
-		trpc.video.getAll.queryOptions({ projectId, status, limit }),
-	);
+	const { data, isLoading, error } = useQuery({
+		...trpc.video.getAll.queryOptions({ projectId, status, limit }),
+		refetchInterval: (query) => {
+			const videos = query.state.data?.videos;
+			if (
+				videos?.some(
+					(v) => v.status === "processing" || v.status === "uploading",
+				)
+			) {
+				return 2000;
+			}
+			return false;
+		},
+	});
 
 	return {
 		videos: (data?.videos ?? []) as VideoListItem[],
@@ -306,17 +318,29 @@ export function useProcessingStatus({
 	isLoading: boolean;
 	error: unknown;
 } {
+	const queryClient = useQueryClient();
 	const { data, isLoading, error } = useQuery({
 		...trpc.video.getProcessingStatus.queryOptions({ id }),
 		enabled,
 		refetchInterval: (query) => {
 			const status = query.state.data?.status;
 			if (status === "processing" || status === "uploading") {
-				return 2000; // Poll every 2s while processing
+				return 1000; // Poll every 1s. Drawback: Increased server load and network traffic.
 			}
 			return false;
 		},
 	});
+
+	useEffect(() => {
+		if (data?.status === "ready") {
+			queryClient.invalidateQueries({
+				queryKey: [["video", "getById"], { id }],
+			});
+			queryClient.invalidateQueries({
+				queryKey: [["video", "getAll"]],
+			});
+		}
+	}, [data?.status, queryClient, id]);
 
 	return {
 		status: data?.status as VideoStatus | undefined,

@@ -246,6 +246,7 @@ function VideoDetailPage() {
 											videoId={video.id}
 											title={video.title}
 											onTimeUpdate={handleTimeUpdate}
+											thumbnailUrl={video.thumbnailUrl}
 										/>
 									) : (
 										<div className="flex aspect-video items-center justify-center rounded-lg bg-muted">
