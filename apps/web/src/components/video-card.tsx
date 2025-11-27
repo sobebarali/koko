@@ -87,7 +87,7 @@ export function VideoCard({
 			{onToggleSelect && (
 				<div
 					className={cn(
-						"absolute top-2 left-2 z-20 transition-opacity duration-200",
+						"absolute top-2 right-2 z-20 transition-opacity duration-200",
 						!selectionMode && !isSelected
 							? "opacity-0 group-hover:opacity-100"
 							: "opacity-100",
@@ -96,7 +96,7 @@ export function VideoCard({
 					<Checkbox
 						checked={isSelected}
 						onCheckedChange={() => onToggleSelect(video.id)}
-						className="bg-background/80 backdrop-blur-sm data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+						className="size-5 border-2 bg-background/90 shadow-md backdrop-blur-sm data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
 					/>
 				</div>
 			)}
@@ -194,16 +194,6 @@ export function VideoCard({
 					</span>
 				</CardDescription>
 			</CardContent>
-
-			{isSelected && selectionMode && onToggleSelect && (
-				<div className="flex items-center gap-2 p-3">
-					<Checkbox
-						checked={isSelected}
-						onCheckedChange={() => onToggleSelect(video.id)}
-					/>
-					<div>{video.title}</div>
-				</div>
-			)}
 		</Card>
 	);
 }
