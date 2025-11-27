@@ -192,36 +192,75 @@ export function useArchiveProject(): {
 } {
 	const queryClient = useQueryClient();
 
-	const mutation = useMutation({
-		mutationFn: async ({ id, archive }: { id: string; archive: boolean }) => {
-			return trpcClient.project.update.mutate({
-				id,
-				status: archive ? "archived" : "active",
-			});
+	const archiveMutation = useMutation({
+		mutationFn: async (id: string) => {
+			return trpcClient.project.archive.mutate({ id });
 		},
-		onSuccess: (_, variables) => {
+		onSuccess: (_, id) => {
 			queryClient.invalidateQueries({ queryKey: [["project", "getAll"]] });
 			queryClient.invalidateQueries({
-				queryKey: [["project", "getById"], { id: variables.id }],
+				queryKey: [["project", "getById"], { id }],
 			});
-			toast.success(
-				variables.archive
-					? "Project archived successfully"
-					: "Project unarchived successfully",
-			);
+			toast.success("Project archived successfully");
 		},
 		onError: (error) => {
-			toast.error(error.message || "Failed to update project");
+			toast.error(error.message || "Failed to archive project");
+		},
+	});
+
+	const restoreMutation = useMutation({
+		mutationFn: async (id: string) => {
+			return trpcClient.project.restore.mutate({ id });
+		},
+		onSuccess: (_, id) => {
+			queryClient.invalidateQueries({ queryKey: [["project", "getAll"]] });
+			queryClient.invalidateQueries({
+				queryKey: [["project", "getById"], { id }],
+			});
+			toast.success("Project restored successfully");
+		},
+		onError: (error) => {
+			toast.error(error.message || "Failed to restore project");
 		},
 	});
 
 	return {
 		archiveProject: async (id) => {
-			await mutation.mutateAsync({ id, archive: true });
+			await archiveMutation.mutateAsync(id);
 		},
 		unarchiveProject: async (id) => {
-			await mutation.mutateAsync({ id, archive: false });
+			await restoreMutation.mutateAsync(id);
 		},
-		isArchiving: mutation.isPending,
+		isArchiving: archiveMutation.isPending || restoreMutation.isPending,
+	};
+}
+
+export function useDuplicateProject(): {
+	duplicateProject: (id: string, name?: string) => Promise<{ id: string }>;
+	isDuplicating: boolean;
+} {
+	const queryClient = useQueryClient();
+
+	const mutation = useMutation({
+		mutationFn: async ({ id, name }: { id: string; name?: string }) => {
+			return trpcClient.project.duplicate.mutate({ id, name });
+		},
+		onSuccess: (result) => {
+			queryClient.invalidateQueries({ queryKey: [["project", "getAll"]] });
+			toast.success(
+				`Project duplicated successfully (${result.copiedVideos} videos, ${result.copiedMembers} members)`,
+			);
+		},
+		onError: (error) => {
+			toast.error(error.message || "Failed to duplicate project");
+		},
+	});
+
+	return {
+		duplicateProject: async (id, name) => {
+			const result = await mutation.mutateAsync({ id, name });
+			return { id: result.project.id };
+		},
+		isDuplicating: mutation.isPending,
 	};
 }

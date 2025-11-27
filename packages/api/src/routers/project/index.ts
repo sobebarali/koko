@@ -1,12 +1,18 @@
 import { protectedProcedure, router } from "../../index";
+import { archiveProject } from "./archive/service";
+import { archiveProjectInput } from "./archive/validator";
 import { createProject } from "./create/service";
 import { createProjectInput } from "./create/validator";
 import { deleteProject } from "./delete/service";
 import { deleteProjectInput } from "./delete/validator";
+import { duplicateProject } from "./duplicate/service";
+import { duplicateProjectInput } from "./duplicate/validator";
 import { getAll } from "./get-all/service";
 import { getAllInput } from "./get-all/validator";
 import { getById } from "./get-by-id/service";
 import { getByIdInput } from "./get-by-id/validator";
+import { restoreProject } from "./restore/service";
+import { restoreProjectInput } from "./restore/validator";
 import { updateProject } from "./update/service";
 import { updateProjectInput } from "./update/validator";
 
@@ -59,6 +65,37 @@ export const projectRouter = router({
 			return deleteProject({
 				userId: ctx.session.user.id,
 				id: input.id,
+				logger: ctx.logger,
+			});
+		}),
+
+	archive: protectedProcedure
+		.input(archiveProjectInput)
+		.mutation(async ({ ctx, input }) => {
+			return archiveProject({
+				userId: ctx.session.user.id,
+				id: input.id,
+				logger: ctx.logger,
+			});
+		}),
+
+	restore: protectedProcedure
+		.input(restoreProjectInput)
+		.mutation(async ({ ctx, input }) => {
+			return restoreProject({
+				userId: ctx.session.user.id,
+				id: input.id,
+				logger: ctx.logger,
+			});
+		}),
+
+	duplicate: protectedProcedure
+		.input(duplicateProjectInput)
+		.mutation(async ({ ctx, input }) => {
+			return duplicateProject({
+				userId: ctx.session.user.id,
+				id: input.id,
+				name: input.name,
 				logger: ctx.logger,
 			});
 		}),

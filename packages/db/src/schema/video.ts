@@ -13,7 +13,7 @@ export const video = sqliteTable(
 		uploadedBy: text("uploaded_by")
 			.notNull()
 			.references(() => user.id, { onDelete: "restrict" }),
-		bunnyVideoId: text("bunny_video_id").notNull().unique(),
+		bunnyVideoId: text("bunny_video_id").notNull(),
 		bunnyLibraryId: text("bunny_library_id").notNull(),
 		bunnyCollectionId: text("bunny_collection_id"),
 		title: text("title").notNull(),

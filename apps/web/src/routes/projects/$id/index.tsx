@@ -1,6 +1,7 @@
 import {
 	IconArchive,
 	IconArrowLeft,
+	IconCopy,
 	IconEdit,
 	IconLoader2,
 	IconSettings,
@@ -44,6 +45,7 @@ import { VideoUpload } from "@/components/video-upload";
 import {
 	useArchiveProject,
 	useDeleteProject,
+	useDuplicateProject,
 	useProject,
 } from "@/hooks/use-projects";
 import { useDeleteVideo, useVideos } from "@/hooks/use-videos";
@@ -73,6 +75,7 @@ function ProjectDetailPage() {
 	const { project, isLoading, error } = useProject({ id });
 	const { archiveProject, unarchiveProject, isArchiving } = useArchiveProject();
 	const { deleteProject, isDeleting } = useDeleteProject();
+	const { duplicateProject, isDuplicating } = useDuplicateProject();
 	const { videos, isLoading: isLoadingVideos } = useVideos({
 		projectId: id,
 		limit: 4,
@@ -98,6 +101,11 @@ function ProjectDetailPage() {
 		} else {
 			await archiveProject(id);
 		}
+	};
+
+	const handleDuplicate = async () => {
+		const result = await duplicateProject(id);
+		navigate({ to: "/projects/$id", params: { id: result.id } });
 	};
 
 	const isOwner = project?.ownerId === session.data?.user.id;
@@ -138,6 +146,13 @@ function ProjectDetailPage() {
 											</Button>
 										</DropdownMenuTrigger>
 										<DropdownMenuContent align="end">
+											<DropdownMenuItem
+												onClick={handleDuplicate}
+												disabled={isDuplicating}
+											>
+												<IconCopy className="mr-2 size-4" />
+												Duplicate
+											</DropdownMenuItem>
 											<DropdownMenuItem
 												onClick={handleArchive}
 												disabled={isArchiving}

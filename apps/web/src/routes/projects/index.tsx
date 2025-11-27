@@ -1,5 +1,6 @@
 import {
 	IconArchive,
+	IconCopy,
 	IconDots,
 	IconFolder,
 	IconPlus,
@@ -38,6 +39,7 @@ import {
 	type Project,
 	useArchiveProject,
 	useDeleteProject,
+	useDuplicateProject,
 	useProjects,
 } from "@/hooks/use-projects";
 import { authClient } from "@/lib/auth-client";
@@ -66,6 +68,7 @@ function ProjectsPage() {
 	const { projects, isLoading } = useProjects({ status: activeTab });
 	const { archiveProject, unarchiveProject } = useArchiveProject();
 	const { deleteProject } = useDeleteProject();
+	const { duplicateProject } = useDuplicateProject();
 
 	const filteredProjects = React.useMemo(() => {
 		if (!searchQuery) return projects;
@@ -183,6 +186,7 @@ function ProjectsPage() {
 												: unarchiveProject(project.id)
 										}
 										onDelete={() => deleteProject(project.id)}
+										onDuplicate={() => duplicateProject(project.id)}
 										isArchived={activeTab === "archived"}
 									/>
 								))}
@@ -199,11 +203,13 @@ function ProjectCard({
 	project,
 	onArchive,
 	onDelete,
+	onDuplicate,
 	isArchived,
 }: {
 	project: Project;
 	onArchive: () => void;
 	onDelete: () => void;
+	onDuplicate: () => void;
 	isArchived: boolean;
 }) {
 	const roleColors = {
@@ -268,6 +274,10 @@ function ProjectCard({
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
+						<DropdownMenuItem onClick={onDuplicate}>
+							<IconCopy className="mr-2 size-4" />
+							Duplicate
+						</DropdownMenuItem>
 						<DropdownMenuItem onClick={onArchive}>
 							<IconArchive className="mr-2 size-4" />
 							{isArchived ? "Unarchive" : "Archive"}
