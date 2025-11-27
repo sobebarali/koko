@@ -1,44 +1,49 @@
-import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, expect, it } from "vitest";
+import { __clearTestDb, __setTestDb } from "../../setup";
 import {
-	mockSelectSequence,
-	mockUpdateOnce,
-	resetDbMocks,
-} from "../../utils/mocks/db";
+	cleanupTestDb,
+	createTestDb,
+	type TestClient,
+	type TestDb,
+} from "../../utils/test-db";
+import { createTestProject, createTestUser } from "../../utils/test-fixtures";
 import { createTestCaller } from "../../utils/testCaller";
 import { createTestSession } from "../../utils/testSession";
 
-beforeEach(() => resetDbMocks());
-afterEach(() => {
-	vi.restoreAllMocks();
-	resetDbMocks();
+let db: TestDb;
+let client: TestClient;
+
+beforeAll(async () => {
+	({ db, client } = await createTestDb());
+	__setTestDb(db);
+});
+
+afterAll(async () => {
+	__clearTestDb();
+	await cleanupTestDb(client);
 });
 
 it("updates project fields when user is owner", async () => {
-	const existingProject = { ownerId: "user_test" };
-	const updatedProject = {
-		id: "project_123",
-		name: "Updated Name",
-		description: "Updated description",
-		ownerId: "user_test",
-		status: "active",
-		color: "#00FF00",
-		thumbnail: null,
-		videoCount: 0,
-		memberCount: 1,
-		commentCount: 0,
-		createdAt: new Date(),
-		updatedAt: new Date(),
-	};
+	const user = await createTestUser(db, {
+		id: "user_test",
+		email: "test@example.com",
+		name: "Test User",
+	});
 
-	mockSelectSequence([[existingProject]]);
-	mockUpdateOnce([updatedProject]);
+	const project = await createTestProject(db, user.id, {
+		name: "Original Name",
+		description: "Original description",
+		color: "#FF0000",
+	});
 
 	const caller = createTestCaller({
-		session: createTestSession(),
+		session: createTestSession({
+			user: { id: user.id, email: user.email },
+		}),
 	});
 
 	const result = await caller.project.update({
-		id: "project_123",
+		id: project.id,
 		name: "Updated Name",
 		description: "Updated description",
 		color: "#00FF00",
@@ -46,4 +51,5 @@ it("updates project fields when user is owner", async () => {
 
 	expect(result.project.name).toBe("Updated Name");
 	expect(result.project.description).toBe("Updated description");
+	expect(result.project.color).toBe("#00FF00");
 });

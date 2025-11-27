@@ -1,31 +1,58 @@
-import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { mockSelectSequence, resetDbMocks } from "../../utils/mocks/db";
+import { afterAll, beforeAll, expect, it } from "vitest";
+import { __clearTestDb, __setTestDb } from "../../setup";
+import {
+	cleanupTestDb,
+	createTestDb,
+	type TestClient,
+	type TestDb,
+} from "../../utils/test-db";
+import {
+	createTestComment,
+	createTestProject,
+	createTestUser,
+	createTestVideo,
+} from "../../utils/test-fixtures";
 import { createTestCaller } from "../../utils/testCaller";
 import { createTestSession } from "../../utils/testSession";
 
-beforeEach(() => resetDbMocks());
-afterEach(() => {
-	vi.restoreAllMocks();
-	resetDbMocks();
+let db: TestDb;
+let client: TestClient;
+
+beforeAll(async () => {
+	({ db, client } = await createTestDb());
+	__setTestDb(db);
+});
+
+afterAll(async () => {
+	__clearTestDb();
+	await cleanupTestDb(client);
 });
 
 it("throws FORBIDDEN when user is not the comment author", async () => {
-	const existingComment = {
-		id: "comment_1",
-		videoId: "video_123",
-		authorId: "other_user",
-		deletedAt: null,
-	};
+	const author = await createTestUser(db, {
+		email: "author@example.com",
+	});
+	const otherUser = await createTestUser(db, {
+		email: "other@example.com",
+	});
 
-	mockSelectSequence([[existingComment]]);
+	const project = await createTestProject(db, author.id);
+	const video = await createTestVideo(db, project.id, author.id);
+
+	const testComment = await createTestComment(db, video.id, author.id, {
+		text: "Test comment",
+		timecode: 1000,
+	});
 
 	const caller = createTestCaller({
-		session: createTestSession(),
+		session: createTestSession({
+			user: { id: otherUser.id, email: otherUser.email },
+		}),
 	});
 
 	await expect(
 		caller.comment.delete({
-			id: "comment_1",
+			id: testComment.id,
 		}),
 	).rejects.toThrow("You can only delete your own comments");
 });

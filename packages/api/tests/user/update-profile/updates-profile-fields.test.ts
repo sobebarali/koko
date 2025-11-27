@@ -1,33 +1,40 @@
-import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { mockUpdateOnce, resetDbMocks } from "../../utils/mocks/db";
+import { afterAll, beforeAll, expect, it } from "vitest";
+import { __clearTestDb, __setTestDb } from "../../setup";
+import {
+	cleanupTestDb,
+	createTestDb,
+	type TestClient,
+	type TestDb,
+} from "../../utils/test-db";
+import { createTestUser } from "../../utils/test-fixtures";
 import { createTestCaller } from "../../utils/testCaller";
 import { createTestSession } from "../../utils/testSession";
 
-beforeEach(() => resetDbMocks());
-afterEach(() => {
-	vi.restoreAllMocks();
-	resetDbMocks();
+let db: TestDb;
+let client: TestClient;
+
+beforeAll(async () => {
+	({ db, client } = await createTestDb());
+	__setTestDb(db);
+});
+
+afterAll(async () => {
+	__clearTestDb();
+	await cleanupTestDb(client);
 });
 
 it("updates provided profile fields", async () => {
-	const updatedProfile = {
+	const user = await createTestUser(db, {
 		id: "user_test",
 		email: "user@example.com",
-		name: "Jane Doe",
-		emailVerified: true,
-		image: "avatar.png",
-		bio: "Updated bio",
-		title: "Editor",
-		company: "Studio",
-		location: "Remote",
-		website: "https://example.com",
-		createdAt: Date.now(),
-		updatedAt: Date.now(),
-	};
-	const { setMock } = mockUpdateOnce([updatedProfile]);
+		name: "Original Name",
+		bio: "Original bio",
+	});
 
 	const caller = createTestCaller({
-		session: createTestSession(),
+		session: createTestSession({
+			user: { id: user.id, email: user.email },
+		}),
 	});
 
 	const result = await caller.user.updateProfile({
@@ -36,10 +43,8 @@ it("updates provided profile fields", async () => {
 		website: "https://sobebar.online/",
 	});
 
-	expect(result).toEqual({ user: updatedProfile });
-	expect(setMock).toHaveBeenCalledWith({
-		name: "Jane Doe",
-		bio: "Updated bio",
-		website: "https://sobebar.online/",
-	});
+	// Verify the name was trimmed and the profile was updated
+	expect(result.user.name).toBe("Jane Doe");
+	expect(result.user.bio).toBe("Updated bio");
+	expect(result.user.website).toBe("https://sobebar.online/");
 });

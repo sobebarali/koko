@@ -1,40 +1,61 @@
-import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { mockSelectSequence, resetDbMocks } from "../../utils/mocks/db";
+import { afterAll, beforeAll, expect, it } from "vitest";
+import { __clearTestDb, __setTestDb } from "../../setup";
+import {
+	cleanupTestDb,
+	createTestDb,
+	type TestClient,
+	type TestDb,
+} from "../../utils/test-db";
+import {
+	createTestComment,
+	createTestProject,
+	createTestUser,
+	createTestVideo,
+} from "../../utils/test-fixtures";
 import { createTestCaller } from "../../utils/testCaller";
 import { createTestSession } from "../../utils/testSession";
 
-beforeEach(() => resetDbMocks());
-afterEach(() => {
-	vi.restoreAllMocks();
-	resetDbMocks();
+let db: TestDb;
+let client: TestClient;
+
+beforeAll(async () => {
+	({ db, client } = await createTestDb());
+	__setTestDb(db);
+});
+
+afterAll(async () => {
+	__clearTestDb();
+	await cleanupTestDb(client);
 });
 
 it("throws FORBIDDEN when user is neither author nor project owner", async () => {
-	const existingComment = {
-		id: "comment_1",
-		videoId: "video_123",
-		authorId: "other_user", // Not the current user
-		deletedAt: null,
-	};
+	const projectOwner = await createTestUser(db, {
+		email: "owner@example.com",
+	});
+	const commentAuthor = await createTestUser(db, {
+		email: "author@example.com",
+	});
+	const otherUser = await createTestUser(db, {
+		email: "other@example.com",
+	});
 
-	const mockVideo = {
-		projectId: "project_123",
-	};
+	const project = await createTestProject(db, projectOwner.id);
+	const video = await createTestVideo(db, project.id, projectOwner.id);
 
-	const mockProject = {
-		ownerId: "another_user", // Also not the current user
-	};
-
-	// Mock: Select comment, then video, then project
-	mockSelectSequence([[existingComment], [mockVideo], [mockProject]]);
+	const testComment = await createTestComment(db, video.id, commentAuthor.id, {
+		text: "Test comment",
+		timecode: 1000,
+	});
 
 	const caller = createTestCaller({
-		session: createTestSession(),
+		session: createTestSession({
+			user: { id: otherUser.id, email: otherUser.email },
+		}),
 	});
 
 	await expect(
 		caller.comment.resolve({
-			id: "comment_1",
+			id: testComment.id,
 			resolved: true,
 		}),
 	).rejects.toThrow(

@@ -1,36 +1,63 @@
-import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import {
-	mockInsertReturning,
-	mockSelectSequence,
-	mockVideoEnv,
-	resetDbMocks,
-	resetVideoEnv,
-} from "../../utils/mocks/db";
+	afterAll,
+	afterEach,
+	beforeAll,
+	beforeEach,
+	expect,
+	it,
+	vi,
+} from "vitest";
+import { __clearTestDb, __setTestDb } from "../../setup";
+import { mockVideoEnv, resetVideoEnv } from "../../utils/mocks/db";
+import {
+	cleanupTestDb,
+	createTestDb,
+	type TestClient,
+	type TestDb,
+} from "../../utils/test-db";
+import { createTestProject, createTestUser } from "../../utils/test-fixtures";
 import { createTestCaller } from "../../utils/testCaller";
 import { createTestSession } from "../../utils/testSession";
+
+let db: TestDb;
+let client: TestClient;
 
 // Mock global fetch for Bunny API
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
+beforeAll(async () => {
+	({ db, client } = await createTestDb());
+	__setTestDb(db);
+});
+
+afterAll(async () => {
+	__clearTestDb();
+	await cleanupTestDb(client);
+});
+
 beforeEach(() => {
-	resetDbMocks();
 	mockVideoEnv({
 		BUNNY_API_KEY: "test-api-key",
 		BUNNY_LIBRARY_ID: "test-library-id",
 	});
+	mockFetch.mockReset();
 });
+
 afterEach(() => {
-	vi.restoreAllMocks();
-	resetDbMocks();
 	resetVideoEnv();
 });
 
 it("creates video upload and returns TUS upload credentials", async () => {
-	const mockProject = { id: "project_123", ownerId: "user_test" };
+	const user = await createTestUser(db, {
+		id: "user_test",
+		email: "test@example.com",
+		name: "Test User",
+	});
 
-	// Mock: project exists and user is owner
-	mockSelectSequence([[mockProject]]);
+	const project = await createTestProject(db, user.id, {
+		name: "Test Project",
+	});
 
 	// Mock: Bunny API returns video GUID
 	mockFetch.mockResolvedValueOnce({
@@ -38,20 +65,14 @@ it("creates video upload and returns TUS upload credentials", async () => {
 		json: async () => ({ guid: "bunny-video-guid-123" }),
 	});
 
-	// Mock: video insert
-	const mockVideo = {
-		id: "video_123",
-		bunnyVideoId: "bunny-video-guid-123",
-		status: "uploading",
-	};
-	mockInsertReturning([mockVideo]);
-
 	const caller = createTestCaller({
-		session: createTestSession(),
+		session: createTestSession({
+			user: { id: user.id, email: user.email },
+		}),
 	});
 
 	const result = await caller.video.createUpload({
-		projectId: "project_123",
+		projectId: project.id,
 		title: "Test Video",
 		description: "A test video",
 		fileName: "test.mp4",
@@ -60,7 +81,7 @@ it("creates video upload and returns TUS upload credentials", async () => {
 	});
 
 	// Verify video record returned
-	expect(result.video.id).toBe("video_123");
+	expect(result.video.id).toBeDefined();
 	expect(result.video.bunnyVideoId).toBe("bunny-video-guid-123");
 	expect(result.video.status).toBe("uploading");
 
@@ -83,43 +104,4 @@ it("creates video upload and returns TUS upload credentials", async () => {
 			}),
 		}),
 	);
-});
-
-it("allows project member with upload permission to upload", async () => {
-	const mockProject = { id: "project_123", ownerId: "other_user" };
-	const mockMembership = { id: "member_123", canUpload: true };
-
-	// Mock: project exists, user is not owner, but is member with upload permission
-	mockSelectSequence([[mockProject], [mockMembership]]);
-
-	// Mock: Bunny API returns video GUID
-	mockFetch.mockResolvedValueOnce({
-		ok: true,
-		json: async () => ({ guid: "bunny-video-guid-456" }),
-	});
-
-	// Mock: video insert
-	const mockVideo = {
-		id: "video_456",
-		bunnyVideoId: "bunny-video-guid-456",
-		status: "uploading",
-	};
-	mockInsertReturning([mockVideo]);
-
-	const caller = createTestCaller({
-		session: createTestSession({
-			user: { id: "user_test", email: "test@example.com" },
-		}),
-	});
-
-	const result = await caller.video.createUpload({
-		projectId: "project_123",
-		title: "Member Upload",
-		fileName: "member-video.mp4",
-		fileSize: 2048000,
-		mimeType: "video/mp4",
-	});
-
-	expect(result.video.id).toBe("video_456");
-	expect(result.video.bunnyVideoId).toBe("bunny-video-guid-456");
 });

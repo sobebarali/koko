@@ -1,64 +1,60 @@
-import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, expect, it } from "vitest";
+import { __clearTestDb, __setTestDb } from "../../setup";
 import {
-	mockSelectSequence,
-	mockUpdateOnce,
-	resetDbMocks,
-} from "../../utils/mocks/db";
+	cleanupTestDb,
+	createTestDb,
+	type TestClient,
+	type TestDb,
+} from "../../utils/test-db";
+import {
+	createTestComment,
+	createTestProject,
+	createTestUser,
+	createTestVideo,
+} from "../../utils/test-fixtures";
 import { createTestCaller } from "../../utils/testCaller";
 import { createTestSession } from "../../utils/testSession";
 
-beforeEach(() => resetDbMocks());
-afterEach(() => {
-	vi.restoreAllMocks();
-	resetDbMocks();
+let db: TestDb;
+let client: TestClient;
+
+beforeAll(async () => {
+	({ db, client } = await createTestDb());
+	__setTestDb(db);
+});
+
+afterAll(async () => {
+	__clearTestDb();
+	await cleanupTestDb(client);
 });
 
 it("resolves a comment when user is the project owner", async () => {
-	const existingComment = {
-		id: "comment_1",
-		videoId: "video_123",
-		authorId: "other_user", // Not the current user
-		deletedAt: null,
-	};
+	const projectOwner = await createTestUser(db, {
+		email: "owner@example.com",
+	});
+	const commentAuthor = await createTestUser(db, {
+		email: "author@example.com",
+	});
 
-	const mockVideo = {
-		projectId: "project_123",
-	};
+	const project = await createTestProject(db, projectOwner.id);
+	const video = await createTestVideo(db, project.id, projectOwner.id);
 
-	const mockProject = {
-		ownerId: "user_test", // Current user is project owner
-	};
-
-	const resolvedComment = {
-		id: "comment_1",
-		videoId: "video_123",
-		authorId: "other_user",
-		text: "Comment text",
+	const testComment = await createTestComment(db, video.id, commentAuthor.id, {
+		text: "Test comment",
 		timecode: 1000,
-		parentId: null,
-		replyCount: 0,
-		resolved: true,
-		resolvedAt: new Date(),
-		resolvedBy: "user_test",
-		edited: false,
-		editedAt: null,
-		mentions: [],
-		createdAt: new Date(),
-		updatedAt: new Date(),
-	};
-
-	// Mock: Select comment, then video, then project
-	mockSelectSequence([[existingComment], [mockVideo], [mockProject]]);
-	mockUpdateOnce([resolvedComment]);
+	});
 
 	const caller = createTestCaller({
-		session: createTestSession(),
+		session: createTestSession({
+			user: { id: projectOwner.id, email: projectOwner.email },
+		}),
 	});
 
 	const result = await caller.comment.resolve({
-		id: "comment_1",
+		id: testComment.id,
 		resolved: true,
 	});
 
 	expect(result.comment.resolved).toBe(true);
+	expect(result.comment.resolvedBy).toBe(projectOwner.id);
 });

@@ -1,62 +1,54 @@
-import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, expect, it } from "vitest";
+import { __clearTestDb, __setTestDb } from "../../setup";
 import {
-	mockInsertReturning,
-	mockSelectOnce,
-	mockTransaction,
-	mockUpdateSimple,
-	resetDbMocks,
-} from "../../utils/mocks/db";
+	cleanupTestDb,
+	createTestDb,
+	type TestClient,
+	type TestDb,
+} from "../../utils/test-db";
+import {
+	createTestProject,
+	createTestUser,
+	createTestVideo,
+} from "../../utils/test-fixtures";
 import { createTestCaller } from "../../utils/testCaller";
 import { createTestSession } from "../../utils/testSession";
 
-beforeEach(() => resetDbMocks());
-afterEach(() => {
-	vi.restoreAllMocks();
-	resetDbMocks();
+let db: TestDb;
+let client: TestClient;
+
+beforeAll(async () => {
+	({ db, client } = await createTestDb());
+	__setTestDb(db);
+});
+
+afterAll(async () => {
+	__clearTestDb();
+	await cleanupTestDb(client);
 });
 
 it("increments project.commentCount when creating a comment", async () => {
-	const mockVideo = {
-		id: "video_123",
-		projectId: "project_123",
-	};
-
-	const mockComment = {
-		id: "comment_123",
-		videoId: "video_123",
-		authorId: "user_test",
-		text: "Test comment",
-		timecode: 5000,
-		parentId: null,
-		replyCount: 0,
-		resolved: false,
-		resolvedAt: null,
-		resolvedBy: null,
-		edited: false,
-		editedAt: null,
-		mentions: [],
-		createdAt: new Date(),
-		updatedAt: new Date(),
-	};
-
-	// Mock: Select video to verify it exists (should include projectId)
-	mockSelectOnce([mockVideo]);
-
-	// Mock: Transaction for insert comment and update counts
-	const { transactionMock } = mockTransaction();
-	mockInsertReturning([mockComment]);
-	mockUpdateSimple();
+	const user = await createTestUser(db);
+	const testProject = await createTestProject(db, user.id);
+	const video = await createTestVideo(db, testProject.id, user.id);
 
 	const caller = createTestCaller({
-		session: createTestSession(),
+		session: createTestSession({
+			user: { id: user.id, email: user.email },
+		}),
 	});
 
+	const projectBefore = await caller.project.getById({ id: testProject.id });
+	const commentCountBefore = projectBefore.project.commentCount;
+
 	await caller.comment.create({
-		videoId: "video_123",
+		videoId: video.id,
 		text: "Test comment",
 		timecode: 5000,
 	});
 
-	// Verify transaction was called (it contains both video and project updates)
-	expect(transactionMock).toHaveBeenCalled();
+	const projectAfter = await caller.project.getById({ id: testProject.id });
+	const commentCountAfter = projectAfter.project.commentCount;
+
+	expect(commentCountAfter).toBe(commentCountBefore + 1);
 });

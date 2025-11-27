@@ -1,31 +1,51 @@
-import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, expect, it } from "vitest";
+import { __clearTestDb, __setTestDb } from "../../setup";
+import { mockVideoEnv, resetVideoEnv } from "../../utils/mocks/db";
 import {
-	mockSelectSequence,
-	mockVideoEnv,
-	resetDbMocks,
-	resetVideoEnv,
-} from "../../utils/mocks/db";
+	cleanupTestDb,
+	createTestDb,
+	type TestClient,
+	type TestDb,
+} from "../../utils/test-db";
+import { createTestUser } from "../../utils/test-fixtures";
 import { createTestCaller } from "../../utils/testCaller";
 import { createTestSession } from "../../utils/testSession";
 
+let db: TestDb;
+let client: TestClient;
+
+beforeAll(async () => {
+	({ db, client } = await createTestDb());
+	__setTestDb(db);
+});
+
+afterAll(async () => {
+	__clearTestDb();
+	await cleanupTestDb(client);
+});
+
 beforeEach(() => {
-	resetDbMocks();
 	mockVideoEnv({
 		BUNNY_API_KEY: "test-api-key",
 		BUNNY_LIBRARY_ID: "test-library-id",
 	});
 });
+
 afterEach(() => {
-	vi.restoreAllMocks();
-	resetDbMocks();
 	resetVideoEnv();
 });
 
 it("throws NOT_FOUND when project does not exist", async () => {
-	mockSelectSequence([[]]);
+	const user = await createTestUser(db, {
+		id: "user_test",
+		email: "test@example.com",
+		name: "Test User",
+	});
 
 	const caller = createTestCaller({
-		session: createTestSession(),
+		session: createTestSession({
+			user: { id: user.id, email: user.email },
+		}),
 	});
 
 	await expect(

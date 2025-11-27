@@ -1,48 +1,64 @@
-import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { project } from "@koko/db/schema/index";
+import { eq } from "drizzle-orm";
+import { afterAll, beforeAll, expect, it } from "vitest";
+import { __clearTestDb, __setTestDb } from "../../setup";
 import {
-	mockSelectSequence,
-	mockTransaction,
-	mockUpdateSimple,
-	resetDbMocks,
-} from "../../utils/mocks/db";
+	cleanupTestDb,
+	createTestDb,
+	type TestClient,
+	type TestDb,
+} from "../../utils/test-db";
+import {
+	createTestComment,
+	createTestProject,
+	createTestUser,
+	createTestVideo,
+} from "../../utils/test-fixtures";
 import { createTestCaller } from "../../utils/testCaller";
 import { createTestSession } from "../../utils/testSession";
 
-beforeEach(() => resetDbMocks());
-afterEach(() => {
-	vi.restoreAllMocks();
-	resetDbMocks();
+let db: TestDb;
+let client: TestClient;
+
+beforeAll(async () => {
+	({ db, client } = await createTestDb());
+	__setTestDb(db);
+});
+
+afterAll(async () => {
+	__clearTestDb();
+	await cleanupTestDb(client);
 });
 
 it("decrements project.commentCount when deleting a comment", async () => {
-	const existingComment = {
-		id: "comment_1",
-		videoId: "video_123",
-		authorId: "user_test",
-		deletedAt: null,
-	};
+	const user = await createTestUser(db);
+	const testProject = await createTestProject(db, user.id);
+	const video = await createTestVideo(db, testProject.id, user.id);
 
-	const mockVideo = {
-		id: "video_123",
-		projectId: "project_123",
-	};
+	const testComment = await createTestComment(db, video.id, user.id, {
+		text: "Test comment",
+		timecode: 1000,
+	});
 
-	// Mock: Select comment, then select video for projectId
-	mockSelectSequence([[existingComment], [mockVideo]]);
-
-	// Mock: Transaction
-	const { transactionMock } = mockTransaction();
-	mockUpdateSimple();
+	const projectBefore = await db.query.project.findFirst({
+		where: eq(project.id, testProject.id),
+	});
 
 	const caller = createTestCaller({
-		session: createTestSession(),
+		session: createTestSession({
+			user: { id: user.id, email: user.email },
+		}),
 	});
 
-	const result = await caller.comment.delete({
-		id: "comment_1",
+	await caller.comment.delete({
+		id: testComment.id,
 	});
 
-	expect(result.success).toBe(true);
-	// Verify transaction was called (it contains comment soft delete, video commentCount, and project commentCount updates)
-	expect(transactionMock).toHaveBeenCalled();
+	const projectAfter = await db.query.project.findFirst({
+		where: eq(project.id, testProject.id),
+	});
+
+	expect(projectAfter?.commentCount).toBe(
+		(projectBefore?.commentCount ?? 0) - 1,
+	);
 });

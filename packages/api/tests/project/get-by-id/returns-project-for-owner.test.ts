@@ -1,48 +1,54 @@
-import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { mockSelectSequence, resetDbMocks } from "../../utils/mocks/db";
+import { afterAll, beforeAll, expect, it } from "vitest";
+import { __clearTestDb, __setTestDb } from "../../setup";
+import {
+	cleanupTestDb,
+	createTestDb,
+	type TestClient,
+	type TestDb,
+} from "../../utils/test-db";
+import { createTestProject, createTestUser } from "../../utils/test-fixtures";
 import { createTestCaller } from "../../utils/testCaller";
 import { createTestSession } from "../../utils/testSession";
 
-beforeEach(() => resetDbMocks());
-afterEach(() => {
-	vi.restoreAllMocks();
-	resetDbMocks();
+let db: TestDb;
+let client: TestClient;
+
+beforeAll(async () => {
+	({ db, client } = await createTestDb());
+	__setTestDb(db);
+});
+
+afterAll(async () => {
+	__clearTestDb();
+	await cleanupTestDb(client);
 });
 
 it("returns project details when user is the owner", async () => {
-	const mockProject = {
-		id: "project_123",
+	// Create a real user and project in the database
+	const user = await createTestUser(db, {
+		id: "user_test",
+		email: "test@example.com",
+		name: "Test User",
+	});
+
+	const project = await createTestProject(db, user.id, {
 		name: "Test Project",
 		description: "A test project",
-		ownerId: "user_test",
-		status: "active",
 		color: "#FF5733",
-		thumbnail: null,
-		videoCount: 5,
-		memberCount: 3,
-		commentCount: 10,
-		createdAt: new Date(),
-		updatedAt: new Date(),
-		archivedAt: null,
-		deletedAt: null,
-		owner: {
-			id: "user_test",
-			name: "Test User",
-			image: null,
-		},
-	};
-
-	mockSelectSequence([[mockProject]]);
+	});
 
 	const caller = createTestCaller({
 		session: createTestSession({
-			user: { id: "user_test", email: "test@example.com" },
+			user: { id: user.id, email: user.email },
 		}),
 	});
 
-	const result = await caller.project.getById({ id: "project_123" });
+	const result = await caller.project.getById({ id: project.id });
 
-	expect(result.project.id).toBe("project_123");
+	expect(result.project.id).toBe(project.id);
 	expect(result.project.name).toBe("Test Project");
-	expect(result.project.ownerId).toBe("user_test");
+	expect(result.project.ownerId).toBe(user.id);
+	expect(result.project.description).toBe("A test project");
+	expect(result.project.owner.id).toBe(user.id);
+	expect(result.project.owner.name).toBe("Test User");
 });

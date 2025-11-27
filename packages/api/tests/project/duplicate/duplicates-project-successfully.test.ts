@@ -1,81 +1,49 @@
-import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, expect, it } from "vitest";
+import { __clearTestDb, __setTestDb } from "../../setup";
 import {
-	mockInsertReturning,
-	mockSelectSequence,
-	resetDbMocks,
-} from "../../utils/mocks/db";
+	cleanupTestDb,
+	createTestDb,
+	type TestClient,
+	type TestDb,
+} from "../../utils/test-db";
+import { createTestProject, createTestUser } from "../../utils/test-fixtures";
 import { createTestCaller } from "../../utils/testCaller";
 import { createTestSession } from "../../utils/testSession";
 
-beforeEach(() => resetDbMocks());
-afterEach(() => {
-	vi.restoreAllMocks();
-	resetDbMocks();
+let db: TestDb;
+let client: TestClient;
+
+beforeAll(async () => {
+	({ db, client } = await createTestDb());
+	__setTestDb(db);
+});
+
+afterAll(async () => {
+	__clearTestDb();
+	await cleanupTestDb(client);
 });
 
 it("duplicates project when user is owner", async () => {
-	const sourceProject = {
-		id: "project_123",
-		name: "Test Project",
-		description: "A test project",
-		ownerId: "user_test",
-		status: "active",
-		color: "#ff0000",
-		thumbnail: null,
-		videoCount: 0,
-		memberCount: 1,
-		commentCount: 0,
-		createdAt: new Date(),
-		updatedAt: new Date(),
-		archivedAt: null,
-		deletedAt: null,
-	};
-
-	const sourceMember = {
-		id: "member_1",
-		projectId: "project_123",
-		userId: "user_test",
-		role: "owner",
-		canUpload: true,
-		canComment: true,
-		canInvite: true,
-		canDelete: true,
-		invitedBy: null,
-		joinedAt: new Date(),
-	};
-
-	const newProject = {
-		id: "project_456",
-		name: "Copy of Test Project",
-		description: "A test project",
-		ownerId: "user_test",
-		status: "active",
-		color: "#ff0000",
-		thumbnail: null,
-		videoCount: 0,
-		memberCount: 1,
-		commentCount: 0,
-		createdAt: new Date(),
-		updatedAt: new Date(),
-	};
-
-	// Mock sequence: source project, membership check, source members, source videos
-	mockSelectSequence([
-		[sourceProject],
-		[{ role: "owner" }],
-		[sourceMember],
-		[], // no videos
-		[], // no transcriptions
-		[], // no scene detections
-	]);
-
-	mockInsertReturning([newProject]);
-
-	const caller = createTestCaller({
-		session: createTestSession(),
+	const user = await createTestUser(db, {
+		id: "user_test",
+		email: "test@example.com",
+		name: "Test User",
 	});
 
-	const result = await caller.project.duplicate({ id: "project_123" });
+	const project = await createTestProject(db, user.id, {
+		name: "Test Project",
+		description: "A test project",
+		color: "#ff0000",
+		status: "active",
+	});
+
+	const caller = createTestCaller({
+		session: createTestSession({
+			user: { id: user.id, email: user.email },
+		}),
+	});
+
+	const result = await caller.project.duplicate({ id: project.id });
 
 	expect(result.project.name).toBe("Copy of Test Project");
 	expect(result.project.status).toBe("active");

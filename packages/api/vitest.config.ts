@@ -23,8 +23,22 @@ export default defineConfig({
 			// Include other env vars from .env file
 			...envVars,
 		},
+		// Enable parallel execution with thread pooling
+		pool: "threads",
+		poolOptions: {
+			threads: {
+				// Allow multiple threads for parallel execution
+				singleThread: false,
+				// Each test file runs in isolation
+				isolate: true,
+			},
+		},
+		// Increase timeout for DB operations
+		testTimeout: 10000,
+		// Hook timeout for beforeAll/afterAll with DB setup
+		hookTimeout: 15000,
 		coverage: {
-			reports: ["text", "html"],
+			reporter: ["text", "html"],
 		},
 	},
 });

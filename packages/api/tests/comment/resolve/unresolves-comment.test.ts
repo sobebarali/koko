@@ -1,53 +1,52 @@
-import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, expect, it } from "vitest";
+import { __clearTestDb, __setTestDb } from "../../setup";
 import {
-	mockSelectSequence,
-	mockUpdateOnce,
-	resetDbMocks,
-} from "../../utils/mocks/db";
+	cleanupTestDb,
+	createTestDb,
+	type TestClient,
+	type TestDb,
+} from "../../utils/test-db";
+import {
+	createTestComment,
+	createTestProject,
+	createTestUser,
+	createTestVideo,
+} from "../../utils/test-fixtures";
 import { createTestCaller } from "../../utils/testCaller";
 import { createTestSession } from "../../utils/testSession";
 
-beforeEach(() => resetDbMocks());
-afterEach(() => {
-	vi.restoreAllMocks();
-	resetDbMocks();
+let db: TestDb;
+let client: TestClient;
+
+beforeAll(async () => {
+	({ db, client } = await createTestDb());
+	__setTestDb(db);
+});
+
+afterAll(async () => {
+	__clearTestDb();
+	await cleanupTestDb(client);
 });
 
 it("unresolves a previously resolved comment", async () => {
-	const existingComment = {
-		id: "comment_1",
-		videoId: "video_123",
-		authorId: "user_test", // Current user is author
-		deletedAt: null,
-	};
+	const user = await createTestUser(db);
+	const project = await createTestProject(db, user.id);
+	const video = await createTestVideo(db, project.id, user.id);
 
-	const unresolvedComment = {
-		id: "comment_1",
-		videoId: "video_123",
-		authorId: "user_test",
-		text: "Comment text",
+	const testComment = await createTestComment(db, video.id, user.id, {
+		text: "Test comment",
 		timecode: 1000,
-		parentId: null,
-		replyCount: 0,
-		resolved: false,
-		resolvedAt: null,
-		resolvedBy: null,
-		edited: false,
-		editedAt: null,
-		mentions: [],
-		createdAt: new Date(),
-		updatedAt: new Date(),
-	};
-
-	mockSelectSequence([[existingComment]]);
-	mockUpdateOnce([unresolvedComment]);
+		resolved: true,
+	});
 
 	const caller = createTestCaller({
-		session: createTestSession(),
+		session: createTestSession({
+			user: { id: user.id, email: user.email },
+		}),
 	});
 
 	const result = await caller.comment.resolve({
-		id: "comment_1",
+		id: testComment.id,
 		resolved: false,
 	});
 

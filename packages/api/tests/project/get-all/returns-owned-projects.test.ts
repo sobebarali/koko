@@ -1,55 +1,57 @@
-import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { mockSelectSequence, resetDbMocks } from "../../utils/mocks/db";
+import { afterAll, beforeAll, expect, it } from "vitest";
+import { __clearTestDb, __setTestDb } from "../../setup";
+import {
+	cleanupTestDb,
+	createTestDb,
+	type TestClient,
+	type TestDb,
+} from "../../utils/test-db";
+import { createTestProject, createTestUser } from "../../utils/test-fixtures";
 import { createTestCaller } from "../../utils/testCaller";
 import { createTestSession } from "../../utils/testSession";
 
-beforeEach(() => resetDbMocks());
-afterEach(() => {
-	vi.restoreAllMocks();
-	resetDbMocks();
+let db: TestDb;
+let client: TestClient;
+
+beforeAll(async () => {
+	({ db, client } = await createTestDb());
+	__setTestDb(db);
+});
+
+afterAll(async () => {
+	__clearTestDb();
+	await cleanupTestDb(client);
 });
 
 it("returns projects owned by the user", async () => {
-	const mockProjects = [
-		{
-			id: "project_1",
-			name: "Project One",
-			description: "First project",
-			ownerId: "user_test",
-			status: "active",
-			color: null,
-			thumbnail: null,
-			videoCount: 0,
-			memberCount: 1,
-			commentCount: 0,
-			createdAt: new Date("2024-01-02"),
-			updatedAt: new Date("2024-01-02"),
-		},
-		{
-			id: "project_2",
-			name: "Project Two",
-			description: "Second project",
-			ownerId: "user_test",
-			status: "active",
-			color: null,
-			thumbnail: null,
-			videoCount: 0,
-			memberCount: 1,
-			commentCount: 0,
-			createdAt: new Date("2024-01-01"),
-			updatedAt: new Date("2024-01-01"),
-		},
-	];
+	const user = await createTestUser(db, {
+		id: "user_test",
+		email: "test@example.com",
+		name: "Test User",
+	});
 
-	mockSelectSequence([[], mockProjects, []]);
+	// Create two projects owned by the user
+	await createTestProject(db, user.id, {
+		name: "Project One",
+		description: "First project",
+	});
+
+	await createTestProject(db, user.id, {
+		name: "Project Two",
+		description: "Second project",
+	});
 
 	const caller = createTestCaller({
-		session: createTestSession(),
+		session: createTestSession({
+			user: { id: user.id, email: user.email },
+		}),
 	});
 
 	const result = await caller.project.getAll({});
 
 	expect(result.projects).toHaveLength(2);
-	expect(result.projects[0]?.name).toBe("Project One");
-	expect(result.projects[1]?.name).toBe("Project Two");
+	// Projects should be returned (order may vary)
+	const projectNames = result.projects.map((p) => p.name);
+	expect(projectNames).toContain("Project One");
+	expect(projectNames).toContain("Project Two");
 });

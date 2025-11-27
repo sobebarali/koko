@@ -1,40 +1,64 @@
-import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { mockSelectSequence, resetDbMocks } from "../../utils/mocks/db";
+import { afterAll, beforeAll, expect, it } from "vitest";
+import { __clearTestDb, __setTestDb } from "../../setup";
+import {
+	cleanupTestDb,
+	createTestDb,
+	type TestClient,
+	type TestDb,
+} from "../../utils/test-db";
+import {
+	addProjectMember,
+	createTestProject,
+	createTestUser,
+} from "../../utils/test-fixtures";
 import { createTestCaller } from "../../utils/testCaller";
 import { createTestSession } from "../../utils/testSession";
 
-beforeEach(() => resetDbMocks());
-afterEach(() => {
-	vi.restoreAllMocks();
-	resetDbMocks();
+let db: TestDb;
+let client: TestClient;
+
+beforeAll(async () => {
+	({ db, client } = await createTestDb());
+	__setTestDb(db);
+});
+
+afterAll(async () => {
+	__clearTestDb();
+	await cleanupTestDb(client);
 });
 
 it("returns projects where user is a member with their role", async () => {
-	const memberships = [{ projectId: "project_shared", role: "editor" }];
+	// Create project owner
+	const owner = await createTestUser(db, {
+		id: "owner_user",
+		email: "owner@example.com",
+		name: "Owner User",
+	});
 
-	const ownedProjects: unknown[] = [];
+	// Create the member user
+	const member = await createTestUser(db, {
+		id: "member_user",
+		email: "member@example.com",
+		name: "Member User",
+	});
 
-	const memberProjects = [
-		{
-			id: "project_shared",
-			name: "Shared Project",
-			description: "A shared project",
-			ownerId: "other_user",
-			status: "active",
-			color: null,
-			thumbnail: null,
-			videoCount: 3,
-			memberCount: 2,
-			commentCount: 5,
-			createdAt: new Date("2024-01-01"),
-			updatedAt: new Date("2024-01-01"),
-		},
-	];
+	// Create a project owned by another user
+	const project = await createTestProject(db, owner.id, {
+		name: "Shared Project",
+		description: "A shared project",
+	});
 
-	mockSelectSequence([memberships, ownedProjects, memberProjects]);
+	// Add the member user to the project with editor role
+	await addProjectMember(db, project.id, member.id, {
+		role: "editor",
+		canUpload: true,
+		canComment: true,
+	});
 
 	const caller = createTestCaller({
-		session: createTestSession(),
+		session: createTestSession({
+			user: { id: member.id, email: member.email },
+		}),
 	});
 
 	const result = await caller.project.getAll({});

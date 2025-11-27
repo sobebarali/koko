@@ -1,52 +1,51 @@
-import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, expect, it } from "vitest";
+import { __clearTestDb, __setTestDb } from "../../setup";
 import {
-	mockSelectSequence,
-	mockUpdateOnce,
-	resetDbMocks,
-} from "../../utils/mocks/db";
+	cleanupTestDb,
+	createTestDb,
+	type TestClient,
+	type TestDb,
+} from "../../utils/test-db";
+import {
+	createTestComment,
+	createTestProject,
+	createTestUser,
+	createTestVideo,
+} from "../../utils/test-fixtures";
 import { createTestCaller } from "../../utils/testCaller";
 import { createTestSession } from "../../utils/testSession";
 
-beforeEach(() => resetDbMocks());
-afterEach(() => {
-	vi.restoreAllMocks();
-	resetDbMocks();
+let db: TestDb;
+let client: TestClient;
+
+beforeAll(async () => {
+	({ db, client } = await createTestDb());
+	__setTestDb(db);
+});
+
+afterAll(async () => {
+	__clearTestDb();
+	await cleanupTestDb(client);
 });
 
 it("updates comment text and sets edited flag", async () => {
-	const existingComment = {
-		id: "comment_1",
-		authorId: "user_test",
-		deletedAt: null,
-	};
+	const user = await createTestUser(db);
+	const project = await createTestProject(db, user.id);
+	const video = await createTestVideo(db, project.id, user.id);
 
-	const updatedComment = {
-		id: "comment_1",
-		videoId: "video_123",
-		authorId: "user_test",
-		text: "Updated text",
+	const testComment = await createTestComment(db, video.id, user.id, {
+		text: "Original text",
 		timecode: 1000,
-		parentId: null,
-		replyCount: 0,
-		resolved: false,
-		resolvedAt: null,
-		resolvedBy: null,
-		edited: true,
-		editedAt: new Date(),
-		mentions: [],
-		createdAt: new Date(),
-		updatedAt: new Date(),
-	};
-
-	mockSelectSequence([[existingComment]]);
-	mockUpdateOnce([updatedComment]);
+	});
 
 	const caller = createTestCaller({
-		session: createTestSession(),
+		session: createTestSession({
+			user: { id: user.id, email: user.email },
+		}),
 	});
 
 	const result = await caller.comment.update({
-		id: "comment_1",
+		id: testComment.id,
 		text: "Updated text",
 	});
 

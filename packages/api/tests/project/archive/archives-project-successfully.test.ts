@@ -1,44 +1,48 @@
-import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, expect, it } from "vitest";
+import { __clearTestDb, __setTestDb } from "../../setup";
 import {
-	mockSelectSequence,
-	mockUpdateOnce,
-	resetDbMocks,
-} from "../../utils/mocks/db";
+	cleanupTestDb,
+	createTestDb,
+	type TestClient,
+	type TestDb,
+} from "../../utils/test-db";
+import { createTestProject, createTestUser } from "../../utils/test-fixtures";
 import { createTestCaller } from "../../utils/testCaller";
 import { createTestSession } from "../../utils/testSession";
 
-beforeEach(() => resetDbMocks());
-afterEach(() => {
-	vi.restoreAllMocks();
-	resetDbMocks();
+let db: TestDb;
+let client: TestClient;
+
+beforeAll(async () => {
+	({ db, client } = await createTestDb());
+	__setTestDb(db);
+});
+
+afterAll(async () => {
+	__clearTestDb();
+	await cleanupTestDb(client);
 });
 
 it("archives project when user is owner", async () => {
-	const existingProject = { ownerId: "user_test", status: "active" };
-	const updatedProject = {
-		id: "project_123",
-		name: "Test Project",
-		description: null,
-		ownerId: "user_test",
-		status: "archived",
-		color: null,
-		thumbnail: null,
-		videoCount: 0,
-		memberCount: 1,
-		commentCount: 0,
-		createdAt: new Date(),
-		updatedAt: new Date(),
-	};
-
-	mockSelectSequence([[existingProject]]);
-	mockUpdateOnce([updatedProject]);
-
-	const caller = createTestCaller({
-		session: createTestSession(),
+	const user = await createTestUser(db, {
+		id: "user_test",
+		email: "test@example.com",
+		name: "Test User",
 	});
 
-	const result = await caller.project.archive({ id: "project_123" });
+	const project = await createTestProject(db, user.id, {
+		name: "Test Project",
+		status: "active",
+	});
+
+	const caller = createTestCaller({
+		session: createTestSession({
+			user: { id: user.id, email: user.email },
+		}),
+	});
+
+	const result = await caller.project.archive({ id: project.id });
 
 	expect(result.project.status).toBe("archived");
-	expect(result.project.id).toBe("project_123");
+	expect(result.project.id).toBe(project.id);
 });

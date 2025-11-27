@@ -1,43 +1,51 @@
-import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, expect, it } from "vitest";
+import { __clearTestDb, __setTestDb } from "../../setup";
 import {
-	mockSelectSequence,
-	mockTransaction,
-	mockUpdateSimple,
-	resetDbMocks,
-} from "../../utils/mocks/db";
+	cleanupTestDb,
+	createTestDb,
+	type TestClient,
+	type TestDb,
+} from "../../utils/test-db";
+import {
+	createTestComment,
+	createTestProject,
+	createTestUser,
+	createTestVideo,
+} from "../../utils/test-fixtures";
 import { createTestCaller } from "../../utils/testCaller";
 import { createTestSession } from "../../utils/testSession";
 
-beforeEach(() => resetDbMocks());
-afterEach(() => {
-	vi.restoreAllMocks();
-	resetDbMocks();
+let db: TestDb;
+let client: TestClient;
+
+beforeAll(async () => {
+	({ db, client } = await createTestDb());
+	__setTestDb(db);
+});
+
+afterAll(async () => {
+	__clearTestDb();
+	await cleanupTestDb(client);
 });
 
 it("soft deletes a comment and returns success", async () => {
-	const existingComment = {
-		id: "comment_1",
-		videoId: "video_123",
-		authorId: "user_test",
-		deletedAt: null,
-	};
+	const user = await createTestUser(db);
+	const project = await createTestProject(db, user.id);
+	const video = await createTestVideo(db, project.id, user.id);
 
-	const mockVideo = {
-		id: "video_123",
-		projectId: "project_123",
-	};
-
-	// Mock: Select comment, then select video for projectId
-	mockSelectSequence([[existingComment], [mockVideo]]);
-	mockTransaction();
-	mockUpdateSimple();
+	const testComment = await createTestComment(db, video.id, user.id, {
+		text: "Test comment",
+		timecode: 1000,
+	});
 
 	const caller = createTestCaller({
-		session: createTestSession(),
+		session: createTestSession({
+			user: { id: user.id, email: user.email },
+		}),
 	});
 
 	const result = await caller.comment.delete({
-		id: "comment_1",
+		id: testComment.id,
 	});
 
 	expect(result.success).toBe(true);

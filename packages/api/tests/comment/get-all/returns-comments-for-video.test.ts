@@ -1,73 +1,70 @@
-import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { mockSelectSequence, resetDbMocks } from "../../utils/mocks/db";
+import { afterAll, beforeAll, expect, it } from "vitest";
+import { __clearTestDb, __setTestDb } from "../../setup";
+import {
+	cleanupTestDb,
+	createTestDb,
+	type TestClient,
+	type TestDb,
+} from "../../utils/test-db";
+import {
+	createTestComment,
+	createTestProject,
+	createTestUser,
+	createTestVideo,
+} from "../../utils/test-fixtures";
 import { createTestCaller } from "../../utils/testCaller";
 import { createTestSession } from "../../utils/testSession";
 
-beforeEach(() => resetDbMocks());
-afterEach(() => {
-	vi.restoreAllMocks();
-	resetDbMocks();
+let db: TestDb;
+let client: TestClient;
+
+beforeAll(async () => {
+	({ db, client } = await createTestDb());
+	__setTestDb(db);
+});
+
+afterAll(async () => {
+	__clearTestDb();
+	await cleanupTestDb(client);
 });
 
 it("returns top-level comments for a video ordered by timecode", async () => {
-	const mockComments = [
-		{
-			id: "comment_1",
-			videoId: "video_123",
-			authorId: "user_1",
-			text: "First comment",
-			timecode: 1000,
-			parentId: null,
-			replyCount: 0,
-			resolved: false,
-			resolvedAt: null,
-			resolvedBy: null,
-			edited: false,
-			editedAt: null,
-			mentions: [],
-			createdAt: new Date(),
-			updatedAt: new Date(),
-			author: { id: "user_1", name: "User One", image: null },
-		},
-		{
-			id: "comment_2",
-			videoId: "video_123",
-			authorId: "user_2",
-			text: "Second comment",
-			timecode: 5000,
-			parentId: null,
-			replyCount: 1,
-			resolved: false,
-			resolvedAt: null,
-			resolvedBy: null,
-			edited: false,
-			editedAt: null,
-			mentions: [],
-			createdAt: new Date(),
-			updatedAt: new Date(),
-			author: { id: "user_2", name: "User Two", image: null },
-		},
-	];
+	const user1 = await createTestUser(db, {
+		name: "User One",
+		email: "user1@example.com",
+	});
 
-	// Mock: First select for video existence check
-	mockSelectSequence([
-		[{ id: "video_123" }], // Video exists
-		mockComments, // Top-level comments
-		[], // Replies for comment_1
-		[], // Replies for comment_2
-	]);
+	const user2 = await createTestUser(db, {
+		name: "User Two",
+		email: "user2@example.com",
+	});
+
+	const project = await createTestProject(db, user1.id);
+	const video = await createTestVideo(db, project.id, user1.id);
+
+	await createTestComment(db, video.id, user1.id, {
+		text: "First comment",
+		timecode: 1000,
+	});
+
+	await createTestComment(db, video.id, user2.id, {
+		text: "Second comment",
+		timecode: 5000,
+	});
 
 	const caller = createTestCaller({
-		session: createTestSession(),
+		session: createTestSession({
+			user: { id: user1.id, email: user1.email },
+		}),
 	});
 
 	const result = await caller.comment.getAll({
-		videoId: "video_123",
+		videoId: video.id,
 	});
 
 	expect(result.comments).toHaveLength(2);
-	expect(result.comments[0]?.id).toBe("comment_1");
 	expect(result.comments[0]?.timecode).toBe(1000);
-	expect(result.comments[1]?.id).toBe("comment_2");
+	expect(result.comments[0]?.text).toBe("First comment");
 	expect(result.comments[1]?.timecode).toBe(5000);
+	expect(result.comments[1]?.text).toBe("Second comment");
 });

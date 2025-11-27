@@ -1,49 +1,68 @@
-import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { comment } from "@koko/db/schema/index";
+import { eq } from "drizzle-orm";
+import { afterAll, beforeAll, expect, it } from "vitest";
+import { __clearTestDb, __setTestDb } from "../../setup";
 import {
-	mockSelectSequence,
-	mockTransaction,
-	mockUpdateSimple,
-	resetDbMocks,
-} from "../../utils/mocks/db";
+	cleanupTestDb,
+	createTestDb,
+	type TestClient,
+	type TestDb,
+} from "../../utils/test-db";
+import {
+	createTestComment,
+	createTestProject,
+	createTestUser,
+	createTestVideo,
+} from "../../utils/test-fixtures";
 import { createTestCaller } from "../../utils/testCaller";
 import { createTestSession } from "../../utils/testSession";
 
-beforeEach(() => resetDbMocks());
-afterEach(() => {
-	vi.restoreAllMocks();
-	resetDbMocks();
+let db: TestDb;
+let client: TestClient;
+
+beforeAll(async () => {
+	({ db, client } = await createTestDb());
+	__setTestDb(db);
+});
+
+afterAll(async () => {
+	__clearTestDb();
+	await cleanupTestDb(client);
 });
 
 it("decrements parent.replyCount when deleting a reply", async () => {
-	const existingReply = {
-		id: "reply_1",
-		videoId: "video_123",
-		authorId: "user_test",
-		deletedAt: null,
-		parentId: "comment_parent",
-	};
+	const user = await createTestUser(db);
+	const project = await createTestProject(db, user.id);
+	const video = await createTestVideo(db, project.id, user.id);
 
-	const mockVideo = {
-		id: "video_123",
-		projectId: "project_123",
-	};
+	const parentComment = await createTestComment(db, video.id, user.id, {
+		text: "Parent comment",
+		timecode: 1000,
+	});
 
-	// Mock: Select reply, then select video for projectId
-	mockSelectSequence([[existingReply], [mockVideo]]);
+	const replyComment = await createTestComment(db, video.id, user.id, {
+		text: "Reply comment",
+		timecode: 1000,
+		parentId: parentComment.id,
+	});
 
-	// Mock: Transaction
-	const { transactionMock } = mockTransaction();
-	mockUpdateSimple();
+	const parentBefore = await db.query.comment.findFirst({
+		where: eq(comment.id, parentComment.id),
+	});
 
 	const caller = createTestCaller({
-		session: createTestSession(),
+		session: createTestSession({
+			user: { id: user.id, email: user.email },
+		}),
 	});
 
-	const result = await caller.comment.delete({
-		id: "reply_1",
+	await caller.comment.delete({
+		id: replyComment.id,
 	});
 
-	expect(result.success).toBe(true);
-	// Verify transaction was called (it contains reply soft delete, parent replyCount, video commentCount, and project commentCount updates)
-	expect(transactionMock).toHaveBeenCalled();
+	const parentAfter = await db.query.comment.findFirst({
+		where: eq(comment.id, parentComment.id),
+	});
+
+	expect(parentAfter?.replyCount).toBe((parentBefore?.replyCount ?? 0) - 1);
 });

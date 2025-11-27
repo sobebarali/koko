@@ -1,45 +1,53 @@
-import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { mockSelectSequence, resetDbMocks } from "../../utils/mocks/db";
+import { afterAll, beforeAll, expect, it } from "vitest";
+import { __clearTestDb, __setTestDb } from "../../setup";
+import {
+	cleanupTestDb,
+	createTestDb,
+	type TestClient,
+	type TestDb,
+} from "../../utils/test-db";
+import { createTestProject, createTestUser } from "../../utils/test-fixtures";
 import { createTestCaller } from "../../utils/testCaller";
 import { createTestSession } from "../../utils/testSession";
 
-beforeEach(() => resetDbMocks());
-afterEach(() => {
-	vi.restoreAllMocks();
-	resetDbMocks();
+let db: TestDb;
+let client: TestClient;
+
+beforeAll(async () => {
+	({ db, client } = await createTestDb());
+	__setTestDb(db);
+});
+
+afterAll(async () => {
+	__clearTestDb();
+	await cleanupTestDb(client);
 });
 
 it("throws FORBIDDEN when user is not owner or member", async () => {
-	const sourceProject = {
-		id: "project_123",
-		name: "Test Project",
-		description: null,
-		ownerId: "other_user",
-		status: "active",
-		color: null,
-		thumbnail: null,
-		videoCount: 0,
-		memberCount: 1,
-		commentCount: 0,
-		createdAt: new Date(),
-		updatedAt: new Date(),
-		archivedAt: null,
-		deletedAt: null,
-	};
+	const owner = await createTestUser(db, {
+		id: "owner_user",
+		email: "owner@example.com",
+		name: "Owner User",
+	});
 
-	// Mock: project exists but user is not owner and not a member
-	mockSelectSequence([
-		[sourceProject],
-		[], // empty membership - user is not a member
-	]);
+	const otherUser = await createTestUser(db, {
+		id: "other_user",
+		email: "other@example.com",
+		name: "Other User",
+	});
+
+	const project = await createTestProject(db, owner.id, {
+		name: "Test Project",
+		status: "active",
+	});
 
 	const caller = createTestCaller({
 		session: createTestSession({
-			user: { id: "user_test", email: "test@example.com" },
+			user: { id: otherUser.id, email: otherUser.email },
 		}),
 	});
 
-	await expect(caller.project.duplicate({ id: "project_123" })).rejects.toThrow(
+	await expect(caller.project.duplicate({ id: project.id })).rejects.toThrow(
 		"Only project owner or members can duplicate this project",
 	);
 });
