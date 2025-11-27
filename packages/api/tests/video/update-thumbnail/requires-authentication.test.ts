@@ -14,8 +14,7 @@ it("throws UNAUTHORIZED when no session", async () => {
 	await expect(
 		caller.video.updateThumbnail({
 			id: "some-id",
-			mode: "timestamp",
-			timestamp: 5,
+			imageBase64: "dGVzdA==",
 		}),
 	).rejects.toThrow("Authentication required");
 });

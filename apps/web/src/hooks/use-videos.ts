@@ -263,23 +263,13 @@ export function usePlaybackUrl({ id }: { id: string }): {
 }
 
 export function useUpdateThumbnail(): {
-	updateThumbnail: (data: {
-		id: string;
-		mode: "image" | "timestamp";
-		imageBase64?: string;
-		timestamp?: number;
-	}) => Promise<void>;
+	updateThumbnail: (data: { id: string; imageBase64: string }) => Promise<void>;
 	isUpdating: boolean;
 } {
 	const queryClient = useQueryClient();
 
 	const mutation = useMutation({
-		mutationFn: async (input: {
-			id: string;
-			mode: "image" | "timestamp";
-			imageBase64?: string;
-			timestamp?: number;
-		}) => {
+		mutationFn: async (input: { id: string; imageBase64: string }) => {
 			return trpcClient.video.updateThumbnail.mutate(input);
 		},
 		onSuccess: (_, variables) => {

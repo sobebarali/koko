@@ -35,10 +35,6 @@ export function VideoEditForm({
 		useUpdateThumbnail();
 	const { addCaptions, isAdding: isAddingCaptions } = useAddCaptions();
 
-	const [thumbnailMode, setThumbnailMode] = useState<"image" | "timestamp">(
-		"timestamp",
-	);
-	const [thumbnailTimestamp, setThumbnailTimestamp] = useState(0);
 	const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
 
 	const [captionFile, setCaptionFile] = useState<File | null>(null);
@@ -98,28 +94,21 @@ export function VideoEditForm({
 
 	const handleThumbnailSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
+		if (!thumbnailFile) return;
+
 		try {
-			if (thumbnailMode === "timestamp") {
-				await updateThumbnail({
-					id: video.id,
-					mode: "timestamp",
-					timestamp: thumbnailTimestamp,
-				});
-			} else if (thumbnailFile) {
-				const reader = new FileReader();
-				reader.onload = async () => {
-					const base64 = (reader.result as string).split(",")[1];
+			const reader = new FileReader();
+			reader.onload = async () => {
+				const base64 = (reader.result as string).split(",")[1];
+				if (base64) {
 					await updateThumbnail({
 						id: video.id,
-						mode: "image",
 						imageBase64: base64,
 					});
 					onSuccess?.();
-				};
-				reader.readAsDataURL(thumbnailFile);
-				return;
-			}
-			onSuccess?.();
+				}
+			};
+			reader.readAsDataURL(thumbnailFile);
 		} catch {
 			// Error handled in hook
 		}
@@ -253,64 +242,26 @@ export function VideoEditForm({
 			<TabsContent value="thumbnail">
 				<form onSubmit={handleThumbnailSubmit} className="space-y-4 pt-4">
 					<div className="space-y-2">
-						<Label>Thumbnail Source</Label>
-						<div className="flex gap-2">
-							<Button
-								type="button"
-								variant={thumbnailMode === "timestamp" ? "default" : "outline"}
-								onClick={() => setThumbnailMode("timestamp")}
-								className="flex-1"
-							>
-								From Video
-							</Button>
-							<Button
-								type="button"
-								variant={thumbnailMode === "image" ? "default" : "outline"}
-								onClick={() => setThumbnailMode("image")}
-								className="flex-1"
-							>
-								Upload Image
-							</Button>
-						</div>
+						<Label htmlFor="thumbnail-file">Upload Thumbnail</Label>
+						<Input
+							id="thumbnail-file"
+							type="file"
+							accept="image/*"
+							onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
+						/>
+						<p className="text-muted-foreground text-xs">
+							Upload a custom thumbnail image (JPG, PNG)
+						</p>
 					</div>
-
-					{thumbnailMode === "timestamp" ? (
-						<div className="space-y-2">
-							<Label htmlFor="timestamp">Timestamp (seconds)</Label>
-							<Input
-								id="timestamp"
-								type="number"
-								min={0}
-								step={0.1}
-								value={thumbnailTimestamp}
-								onChange={(e) =>
-									setThumbnailTimestamp(Number.parseFloat(e.target.value))
-								}
-							/>
-							<p className="text-muted-foreground text-xs">
-								Select a frame from the video to use as thumbnail
-							</p>
-						</div>
-					) : (
-						<div className="space-y-2">
-							<Label htmlFor="thumbnail-file">Image File</Label>
-							<Input
-								id="thumbnail-file"
-								type="file"
-								accept="image/*"
-								onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
-							/>
-							<p className="text-muted-foreground text-xs">
-								Upload a custom image (JPG, PNG)
-							</p>
-						</div>
-					)}
 
 					<div className="flex justify-end gap-2 pt-4">
 						<Button type="button" variant="outline" onClick={onCancel}>
 							Cancel
 						</Button>
-						<Button type="submit" disabled={isUpdatingThumbnail}>
+						<Button
+							type="submit"
+							disabled={isUpdatingThumbnail || !thumbnailFile}
+						>
 							{isUpdatingThumbnail && (
 								<IconLoader2 className="mr-2 size-4 animate-spin" />
 							)}

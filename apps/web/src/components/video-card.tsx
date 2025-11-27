@@ -187,9 +187,12 @@ export function VideoCard({
 				</CardDescription>
 			</CardContent>
 
-			{isSelected && selectionMode && (
+			{isSelected && selectionMode && onToggleSelect && (
 				<div className="flex items-center gap-2 p-3">
-					<Checkbox checked={isSelected} onChange={onToggleSelect} />
+					<Checkbox
+						checked={isSelected}
+						onCheckedChange={() => onToggleSelect(video.id)}
+					/>
 					<div>{video.title}</div>
 				</div>
 			)}

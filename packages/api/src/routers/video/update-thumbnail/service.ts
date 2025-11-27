@@ -9,16 +9,14 @@ import type { UpdateThumbnailInput, UpdateThumbnailOutput } from "./type";
 export async function updateThumbnail({
 	userId,
 	id,
-	mode,
 	imageBase64,
-	timestamp,
 	logger,
 }: {
 	userId: string;
 	logger: Logger;
 } & UpdateThumbnailInput): Promise<UpdateThumbnailOutput> {
 	logger.debug(
-		{ event: "update_thumbnail_start", videoId: id, userId, mode },
+		{ event: "update_thumbnail_start", videoId: id, userId },
 		"Updating video thumbnail",
 	);
 
@@ -120,42 +118,20 @@ export async function updateThumbnail({
 			}
 		}
 
-		// 5. Call Bunny API to update thumbnail
-		let bunnyResponse: Response;
-
-		if (mode === "timestamp" && timestamp !== undefined) {
-			// Update thumbnail from video timestamp
-			bunnyResponse = await fetch(
-				`https://video.bunnycdn.com/library/${libraryId}/videos/${videoData.bunnyVideoId}/thumbnail?thumbnailUrl=${timestamp}`,
-				{
-					method: "POST",
-					headers: {
-						AccessKey: apiKey,
-						Accept: "application/json",
-					},
+		// 5. Upload thumbnail image to Bunny
+		const imageBuffer = Buffer.from(imageBase64, "base64");
+		const bunnyResponse = await fetch(
+			`https://video.bunnycdn.com/library/${libraryId}/videos/${videoData.bunnyVideoId}/thumbnail`,
+			{
+				method: "POST",
+				headers: {
+					AccessKey: apiKey,
+					"Content-Type": "image/jpeg",
+					Accept: "application/json",
 				},
-			);
-		} else if (mode === "image" && imageBase64) {
-			// Upload custom thumbnail image
-			const imageBuffer = Buffer.from(imageBase64, "base64");
-			bunnyResponse = await fetch(
-				`https://video.bunnycdn.com/library/${libraryId}/videos/${videoData.bunnyVideoId}/thumbnail`,
-				{
-					method: "POST",
-					headers: {
-						AccessKey: apiKey,
-						"Content-Type": "image/jpeg",
-						Accept: "application/json",
-					},
-					body: imageBuffer,
-				},
-			);
-		} else {
-			throw new TRPCError({
-				code: "BAD_REQUEST",
-				message: "Invalid thumbnail update request",
-			});
-		}
+				body: imageBuffer,
+			},
+		);
 
 		if (!bunnyResponse.ok) {
 			logger.error(
@@ -174,8 +150,9 @@ export async function updateThumbnail({
 
 		// 6. Construct new thumbnail URL and update database
 		const thumbnailFileName = "thumbnail.jpg";
+		const cacheBuster = Date.now();
 		const thumbnailUrl = cdnHostname
-			? `https://${cdnHostname}/${videoData.bunnyVideoId}/${thumbnailFileName}`
+			? `https://${cdnHostname}/${videoData.bunnyVideoId}/${thumbnailFileName}?v=${cacheBuster}`
 			: null;
 
 		if (thumbnailUrl) {
@@ -186,7 +163,6 @@ export async function updateThumbnail({
 			{
 				event: "update_thumbnail_success",
 				videoId: id,
-				mode,
 				thumbnailUrl,
 			},
 			"Video thumbnail updated successfully",

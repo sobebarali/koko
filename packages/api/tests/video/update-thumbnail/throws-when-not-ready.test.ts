@@ -51,8 +51,7 @@ it("throws BAD_REQUEST when video is not ready", async () => {
 	await expect(
 		caller.video.updateThumbnail({
 			id: video.id,
-			mode: "timestamp",
-			timestamp: 5,
+			imageBase64: "dGVzdA==",
 		}),
 	).rejects.toThrow("Video must be ready before updating thumbnail");
 });

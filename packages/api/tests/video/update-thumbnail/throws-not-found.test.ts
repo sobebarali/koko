@@ -38,8 +38,7 @@ it("throws NOT_FOUND when video does not exist", async () => {
 	await expect(
 		caller.video.updateThumbnail({
 			id: "non-existent-id",
-			mode: "timestamp",
-			timestamp: 5,
+			imageBase64: "dGVzdA==",
 		}),
 	).rejects.toThrow("Video not found");
 });
