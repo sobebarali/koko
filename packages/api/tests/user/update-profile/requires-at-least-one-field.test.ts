@@ -32,8 +32,7 @@ it("requires at least one profile field", async () => {
 		}),
 	});
 
-	await expect(
-		// @ts-expect-error - testing runtime validation
-		caller.user.updateProfile({}),
-	).rejects.toThrow("At least one field must be provided.");
+	await expect(caller.user.updateProfile({})).rejects.toThrow(
+		"At least one field must be provided.",
+	);
 });

@@ -12,7 +12,9 @@ const baseContext: Context = {
 	logger: testLogger,
 };
 
-export function createTestCaller(overrides?: Partial<Context>) {
+export function createTestCaller(
+	overrides?: Partial<Context>,
+): ReturnType<typeof appRouter.createCaller> {
 	const traceId = overrides?.traceId ?? generateTraceId();
 	return appRouter.createCaller({
 		...baseContext,

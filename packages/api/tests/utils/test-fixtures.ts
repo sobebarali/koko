@@ -71,6 +71,10 @@ export async function createTestUser(
 		})
 		.returning();
 
+	if (!createdUser) {
+		throw new Error("Failed to create test user");
+	}
+
 	return createdUser;
 }
 
@@ -128,6 +132,10 @@ export async function createTestProject(
 			deletedAt: null,
 		})
 		.returning();
+
+	if (!createdProject) {
+		throw new Error("Failed to create test project");
+	}
 
 	// Create owner as project member
 	await db.insert(projectMember).values({
@@ -188,6 +196,10 @@ export async function addProjectMember(
 			joinedAt: new Date(),
 		})
 		.returning();
+
+	if (!member) {
+		throw new Error("Failed to add project member");
+	}
 
 	// Update project member count
 	await db
@@ -270,6 +282,10 @@ export async function createTestVideo(
 		})
 		.returning();
 
+	if (!createdVideo) {
+		throw new Error("Failed to create test video");
+	}
+
 	// Update project video count
 	await db
 		.update(project)
@@ -329,6 +345,10 @@ export async function createTestComment(
 			updatedAt: now,
 		})
 		.returning();
+
+	if (!createdComment) {
+		throw new Error("Failed to create test comment");
+	}
 
 	// If this is a reply, increment parent reply count
 	if (overrides?.parentId) {
@@ -406,6 +426,10 @@ export async function createTestTranscription(
 		})
 		.returning();
 
+	if (!created) {
+		throw new Error("Failed to create test transcription");
+	}
+
 	return created;
 }
 
@@ -441,6 +465,10 @@ export async function createTestSceneDetection(
 		})
 		.returning();
 
+	if (!created) {
+		throw new Error("Failed to create test scene detection");
+	}
+
 	return created;
 }
 
@@ -474,6 +502,10 @@ export async function createTestAccount(
 		})
 		.returning();
 
+	if (!created) {
+		throw new Error("Failed to create test account");
+	}
+
 	return created;
 }
 
@@ -505,6 +537,10 @@ export async function createTestVerification(
 			updatedAt: new Date(),
 		})
 		.returning();
+
+	if (!created) {
+		throw new Error("Failed to create test verification");
+	}
 
 	return created;
 }
