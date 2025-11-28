@@ -252,3 +252,100 @@ export function useResolveComment(): {
 		isResolving: mutation.isPending,
 	};
 }
+
+export function useUnresolveComment(): {
+	unresolveComment: (data: { id: string }) => Promise<void>;
+	isUnresolving: boolean;
+} {
+	const queryClient = useQueryClient();
+
+	const mutation = useMutation({
+		mutationFn: async (input: { id: string }) => {
+			return trpcClient.comment.unresolve.mutate(input);
+		},
+		onSuccess: (result) => {
+			queryClient.invalidateQueries({
+				queryKey: [
+					["comment", "getAll"],
+					{ input: { videoId: result.comment.videoId } },
+				],
+			});
+			toast.success("Comment reopened");
+		},
+		onError: (error) => {
+			toast.error(error.message || "Failed to reopen comment");
+		},
+	});
+
+	return {
+		unresolveComment: async (data) => {
+			await mutation.mutateAsync(data);
+		},
+		isUnresolving: mutation.isPending,
+	};
+}
+
+export type SearchCommentsInput = {
+	videoId: string;
+	searchText?: string;
+	authorId?: string;
+	timecodeRange?: { start: number; end: number };
+	mentionedUserId?: string;
+	limit?: number;
+	cursor?: string;
+};
+
+export type SearchCommentResult = {
+	id: string;
+	videoId: string;
+	authorId: string;
+	text: string;
+	timecode: number;
+	parentId: string | null;
+	replyCount: number;
+	resolved: boolean;
+	resolvedAt: string | null;
+	resolvedBy: string | null;
+	edited: boolean;
+	editedAt: string | null;
+	mentions: string[];
+	createdAt: string;
+	updatedAt: string;
+	author: CommentAuthor;
+};
+
+export function useSearchComments({
+	videoId,
+	searchText,
+	authorId,
+	timecodeRange,
+	mentionedUserId,
+	limit = 50,
+	cursor,
+	enabled = true,
+}: SearchCommentsInput & { enabled?: boolean }): {
+	comments: SearchCommentResult[];
+	isSearching: boolean;
+	error: unknown;
+	nextCursor: string | null;
+} {
+	const { data, isLoading, error } = useQuery({
+		...trpc.comment.search.queryOptions({
+			videoId,
+			searchText,
+			authorId,
+			timecodeRange,
+			mentionedUserId,
+			limit,
+			cursor,
+		}),
+		enabled: enabled && !!videoId,
+	});
+
+	return {
+		comments: (data?.comments ?? []) as SearchCommentResult[],
+		isSearching: isLoading,
+		error,
+		nextCursor: data?.nextCursor ?? null,
+	};
+}

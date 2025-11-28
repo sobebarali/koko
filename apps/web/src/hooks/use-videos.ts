@@ -449,3 +449,28 @@ export function useBulkDeleteVideos(): {
 		isDeleting: mutation.isPending,
 	};
 }
+
+export type MentionableUser = {
+	id: string;
+	name: string;
+	email: string;
+	image: string | null;
+};
+
+export function useMentionableUsers({ videoId }: { videoId: string }): {
+	users: MentionableUser[];
+	isLoading: boolean;
+	error: unknown;
+} {
+	const { data, isLoading, error } = useQuery({
+		...trpc.video.getMentionableUsers.queryOptions({ videoId }),
+		enabled: !!videoId,
+		staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+	});
+
+	return {
+		users: (data?.users ?? []) as MentionableUser[],
+		isLoading,
+		error,
+	};
+}

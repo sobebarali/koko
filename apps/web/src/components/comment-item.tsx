@@ -24,6 +24,7 @@ import {
 	useDeleteComment,
 	useReplyToComment,
 	useResolveComment,
+	useUnresolveComment,
 	useUpdateComment,
 } from "@/hooks/use-comments";
 import { cn } from "@/lib/utils";
@@ -77,6 +78,7 @@ export function CommentItem({
 	const { updateComment, isUpdating } = useUpdateComment();
 	const { deleteComment, isDeleting } = useDeleteComment();
 	const { resolveComment, isResolving } = useResolveComment();
+	const { unresolveComment, isUnresolving } = useUnresolveComment();
 	const { replyToComment, isReplying: isSubmittingReply } = useReplyToComment();
 
 	const isOwner = comment.authorId === currentUserId;
@@ -94,7 +96,11 @@ export function CommentItem({
 	};
 
 	const handleResolve = async (): Promise<void> => {
-		await resolveComment({ id: comment.id, resolved: !comment.resolved });
+		if (comment.resolved) {
+			await unresolveComment({ id: comment.id });
+		} else {
+			await resolveComment({ id: comment.id, resolved: true });
+		}
 	};
 
 	const handleReply = async (): Promise<void> => {
@@ -202,7 +208,7 @@ export function CommentItem({
 									comment.resolved && "text-green-600",
 								)}
 								onClick={handleResolve}
-								disabled={isResolving}
+								disabled={isResolving || isUnresolving}
 							>
 								<IconCheckbox className="mr-1 size-3" />
 								{comment.resolved ? "Reopen" : "Resolve"}

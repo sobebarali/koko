@@ -5,6 +5,7 @@ import { video } from "@koko/db/schema/video";
 import { TRPCError } from "@trpc/server";
 import { eq, sql } from "drizzle-orm";
 import type { Logger } from "../../../lib/logger/types";
+import { processCommentMentions } from "../../../lib/services/notification-service";
 import { commentSelect } from "../constants";
 import type { ReplyToCommentInput, ReplyToCommentOutput } from "./type";
 
@@ -76,6 +77,15 @@ export async function replyToComment({
 
 		const replyId = crypto.randomUUID();
 
+		// Process mentions before transaction
+		const validMentionIds = await processCommentMentions({
+			commentId: replyId,
+			videoId: parentComment.videoId,
+			mentionedUserIds: mentions ?? [],
+			authorId: userId,
+			logger,
+		});
+
 		// Use transaction to insert reply, increment parent replyCount, and video/project commentCount
 		const [newReply] = await db.transaction(async (tx) => {
 			const [insertedReply] = await tx
@@ -87,7 +97,7 @@ export async function replyToComment({
 					text,
 					timecode: parentComment.timecode,
 					parentId,
-					mentions: mentions ?? [],
+					mentions: validMentionIds,
 				})
 				.returning(commentSelect);
 

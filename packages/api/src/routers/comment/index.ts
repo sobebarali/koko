@@ -11,6 +11,10 @@ import { replyToComment } from "./reply/service";
 import { replyToCommentInput } from "./reply/validator";
 import { resolveComment } from "./resolve/service";
 import { resolveCommentInput } from "./resolve/validator";
+import { searchComments } from "./search/service";
+import { searchCommentsInput } from "./search/validator";
+import { unresolveComment } from "./unresolve/service";
+import { unresolveCommentInput } from "./unresolve/validator";
 import { updateComment } from "./update/service";
 import { updateCommentInput } from "./update/validator";
 
@@ -79,6 +83,26 @@ export const commentRouter = router({
 		.input(resolveCommentInput)
 		.mutation(async ({ ctx, input }) => {
 			return resolveComment({
+				userId: ctx.session.user.id,
+				logger: ctx.logger,
+				...input,
+			});
+		}),
+
+	unresolve: protectedProcedure
+		.input(unresolveCommentInput)
+		.mutation(async ({ ctx, input }) => {
+			return unresolveComment({
+				userId: ctx.session.user.id,
+				logger: ctx.logger,
+				...input,
+			});
+		}),
+
+	search: protectedProcedure
+		.input(searchCommentsInput)
+		.query(async ({ ctx, input }) => {
+			return searchComments({
 				userId: ctx.session.user.id,
 				logger: ctx.logger,
 				...input,

@@ -13,6 +13,8 @@ import { getAll } from "./get-all/service";
 import { getAllInput } from "./get-all/validator";
 import { getById } from "./get-by-id/service";
 import { getByIdInput } from "./get-by-id/validator";
+import { getMentionableUsers } from "./get-mentionable-users/service";
+import { getMentionableUsersInput } from "./get-mentionable-users/validator";
 import { getPlaybackUrl } from "./get-playback-url/service";
 import { getPlaybackUrlInput } from "./get-playback-url/validator";
 import { getProcessingStatus } from "./get-processing-status/service";
@@ -127,6 +129,16 @@ export const videoRouter = router({
 		.input(bulkDeleteInput)
 		.mutation(async ({ ctx, input }) => {
 			return bulkDelete({
+				userId: ctx.session.user.id,
+				logger: ctx.logger,
+				...input,
+			});
+		}),
+
+	getMentionableUsers: protectedProcedure
+		.input(getMentionableUsersInput)
+		.query(async ({ ctx, input }) => {
+			return getMentionableUsers({
 				userId: ctx.session.user.id,
 				logger: ctx.logger,
 				...input,

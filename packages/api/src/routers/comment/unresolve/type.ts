@@ -1,9 +1,9 @@
 import type { z } from "zod";
-import type { updateCommentInput } from "./validator";
+import type { unresolveCommentInput } from "./validator";
 
-export type UpdateCommentInput = z.infer<typeof updateCommentInput>;
+export type UnresolveCommentInput = z.infer<typeof unresolveCommentInput>;
 
-export type UpdateCommentOutput = {
+export interface UnresolveCommentOutput {
 	comment: {
 		id: string;
 		videoId: string;
@@ -21,4 +21,4 @@ export type UpdateCommentOutput = {
 		createdAt: Date;
 		updatedAt: Date;
 	};
-};
+}

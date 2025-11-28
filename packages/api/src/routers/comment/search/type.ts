@@ -1,10 +1,10 @@
 import type { z } from "zod";
-import type { updateCommentInput } from "./validator";
+import type { searchCommentsInput } from "./validator";
 
-export type UpdateCommentInput = z.infer<typeof updateCommentInput>;
+export type SearchCommentsInput = z.infer<typeof searchCommentsInput>;
 
-export type UpdateCommentOutput = {
-	comment: {
+export interface SearchCommentsOutput {
+	comments: Array<{
 		id: string;
 		videoId: string;
 		authorId: string;
@@ -20,5 +20,12 @@ export type UpdateCommentOutput = {
 		mentions: string[];
 		createdAt: Date;
 		updatedAt: Date;
-	};
-};
+		author: {
+			id: string;
+			name: string;
+			email: string;
+			image: string | null;
+		};
+	}>;
+	nextCursor: string | null;
+}
