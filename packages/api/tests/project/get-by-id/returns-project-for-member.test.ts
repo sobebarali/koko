@@ -43,7 +43,8 @@ it("returns project details when user is a member", async () => {
 	});
 
 	// Create project
-	const project = await createTestProject(db, owner.id, {
+	const project = await createTestProject(db, {
+		ownerId: owner.id,
 		name: "Test Project",
 		description: "A test project",
 		color: "#FF5733",

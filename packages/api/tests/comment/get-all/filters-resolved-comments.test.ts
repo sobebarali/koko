@@ -34,7 +34,7 @@ it("filters to show only resolved comments", async () => {
 		email: "user1@example.com",
 	});
 
-	const project = await createTestProject(db, user.id);
+	const project = await createTestProject(db, { ownerId: user.id });
 	const video = await createTestVideo(db, project.id, user.id);
 
 	await createTestComment(db, video.id, user.id, {

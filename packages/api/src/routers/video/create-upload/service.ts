@@ -5,6 +5,7 @@ import { video } from "@koko/db/schema/video";
 import { TRPCError } from "@trpc/server";
 import { and, eq, sql } from "drizzle-orm";
 import type { Logger } from "../../../lib/logger/types";
+import { addVideoToCollection } from "../../../lib/services/bunny-collection-service";
 import type { CreateUploadInput, CreateUploadOutput } from "./type";
 
 export async function createUpload({
@@ -41,9 +42,13 @@ export async function createUpload({
 			});
 		}
 
-		// 2. Verify project exists
+		// 2. Verify project exists and get collection ID
 		const projects = await db
-			.select({ id: project.id, ownerId: project.ownerId })
+			.select({
+				id: project.id,
+				ownerId: project.ownerId,
+				bunnyCollectionId: project.bunnyCollectionId,
+			})
 			.from(project)
 			.where(eq(project.id, projectId))
 			.limit(1);
@@ -137,7 +142,45 @@ export async function createUpload({
 		const signatureData = `${libraryId}${apiKey}${expirationTime}${bunnyVideo.guid}`;
 		const signature = createHash("sha256").update(signatureData).digest("hex");
 
-		// 6. Insert video record and increment counter in a transaction
+		// 6. Assign video to collection if project has one
+		if (projectData.bunnyCollectionId) {
+			logger.debug(
+				{
+					event: "assign_video_to_collection_start",
+					videoId: bunnyVideo.guid,
+					collectionId: projectData.bunnyCollectionId,
+				},
+				"Assigning video to collection",
+			);
+
+			const success = await addVideoToCollection({
+				videoId: bunnyVideo.guid,
+				collectionId: projectData.bunnyCollectionId,
+			});
+
+			if (!success) {
+				logger.error(
+					{
+						event: "assign_video_to_collection_failed",
+						videoId: bunnyVideo.guid,
+						collectionId: projectData.bunnyCollectionId,
+					},
+					"Failed to assign video to collection, but continuing with upload",
+				);
+				// Continue with upload even if collection assignment fails
+			} else {
+				logger.debug(
+					{
+						event: "assign_video_to_collection_success",
+						videoId: bunnyVideo.guid,
+						collectionId: projectData.bunnyCollectionId,
+					},
+					"Video assigned to collection successfully",
+				);
+			}
+		}
+
+		// 7. Insert video record and increment counter in a transaction
 		const videoId = crypto.randomUUID();
 		const newVideo = await db.transaction(async (tx) => {
 			const [insertedVideo] = await tx
@@ -148,6 +191,7 @@ export async function createUpload({
 					uploadedBy: userId,
 					bunnyVideoId: bunnyVideo.guid,
 					bunnyLibraryId: libraryId,
+					bunnyCollectionId: projectData.bunnyCollectionId,
 					title,
 					description: description ?? null,
 					tags: tags ?? [],
@@ -187,7 +231,7 @@ export async function createUpload({
 			"Video upload initialized successfully",
 		);
 
-		// 7. Return upload credentials
+		// 8. Return upload credentials
 		return {
 			video: {
 				id: newVideo.id,

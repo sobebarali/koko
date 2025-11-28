@@ -33,7 +33,8 @@ it("returns partial success when some videos cannot be deleted", async () => {
 		email: "owner@example.com",
 	});
 
-	const project = await createTestProject(db, owner.id, {
+	const project = await createTestProject(db, {
+		ownerId: owner.id,
 		name: "Test Project",
 	});
 

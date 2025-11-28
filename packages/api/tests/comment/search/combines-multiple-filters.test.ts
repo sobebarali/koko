@@ -40,7 +40,8 @@ it("combines multiple filters with AND logic", async () => {
 		name: "User Two",
 	});
 
-	const project = await createTestProject(db, user1.id, {
+	const project = await createTestProject(db, {
+		ownerId: user1.id,
 		name: "Test Project",
 	});
 

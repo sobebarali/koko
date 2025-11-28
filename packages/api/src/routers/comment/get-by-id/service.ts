@@ -2,7 +2,7 @@ import { db } from "@koko/db";
 import { user } from "@koko/db/schema/auth";
 import { comment } from "@koko/db/schema/comment";
 import { TRPCError } from "@trpc/server";
-import { and, asc, eq, isNull } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import type { Logger } from "../../../lib/logger/types";
 import { authorSelect, commentSelect } from "../constants";
 import type {
@@ -29,7 +29,6 @@ export async function getCommentById({
 		const [foundComment] = await db
 			.select({
 				...commentSelect,
-				deletedAt: comment.deletedAt,
 				author: authorSelect,
 			})
 			.from(comment)
@@ -38,14 +37,6 @@ export async function getCommentById({
 			.limit(1);
 
 		if (!foundComment) {
-			throw new TRPCError({
-				code: "NOT_FOUND",
-				message: "Comment not found",
-			});
-		}
-
-		// Check if comment is soft-deleted
-		if (foundComment.deletedAt !== null) {
 			throw new TRPCError({
 				code: "NOT_FOUND",
 				message: "Comment not found",
@@ -62,7 +53,7 @@ export async function getCommentById({
 				})
 				.from(comment)
 				.innerJoin(user, eq(comment.authorId, user.id))
-				.where(and(eq(comment.parentId, id), isNull(comment.deletedAt)))
+				.where(and(eq(comment.parentId, id)))
 				.orderBy(asc(comment.createdAt));
 
 			replies = fetchedReplies.map((reply) => ({

@@ -3,7 +3,7 @@ import { user } from "@koko/db/schema/auth";
 import { comment } from "@koko/db/schema/comment";
 import { video } from "@koko/db/schema/video";
 import { TRPCError } from "@trpc/server";
-import { and, asc, eq, gte, isNull, like, lte, sql } from "drizzle-orm";
+import { and, asc, eq, gte, like, lte, sql } from "drizzle-orm";
 import type { Logger } from "../../../lib/logger/types";
 import type { SearchCommentsInput, SearchCommentsOutput } from "./type";
 
@@ -50,10 +50,7 @@ export async function searchComments({
 		}
 
 		// Build WHERE conditions
-		const conditions = [
-			eq(comment.videoId, videoId),
-			isNull(comment.deletedAt),
-		];
+		const conditions = [eq(comment.videoId, videoId)];
 
 		// Add text search filter
 		if (searchText) {

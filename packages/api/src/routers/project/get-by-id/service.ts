@@ -2,7 +2,7 @@ import { db } from "@koko/db";
 import { user } from "@koko/db/schema/auth";
 import { project, projectMember } from "@koko/db/schema/project";
 import { TRPCError } from "@trpc/server";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { Logger } from "../../../lib/logger/types";
 import { projectDetailSelect } from "../constants";
 import type { GetByIdOutput } from "./type";
@@ -33,7 +33,7 @@ export async function getById({
 			})
 			.from(project)
 			.innerJoin(user, eq(project.ownerId, user.id))
-			.where(and(eq(project.id, id), isNull(project.deletedAt)))
+			.where(and(eq(project.id, id)))
 			.limit(1);
 
 		const result = results[0];

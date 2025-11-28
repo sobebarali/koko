@@ -30,7 +30,8 @@ it("throws BAD_REQUEST when project is already archived", async () => {
 		name: "Test User",
 	});
 
-	const project = await createTestProject(db, user.id, {
+	const project = await createTestProject(db, {
+		ownerId: user.id,
 		name: "Test Project",
 		status: "archived",
 	});

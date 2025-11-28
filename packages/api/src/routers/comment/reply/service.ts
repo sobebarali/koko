@@ -32,21 +32,12 @@ export async function replyToComment({
 				videoId: comment.videoId,
 				timecode: comment.timecode,
 				parentId: comment.parentId,
-				deletedAt: comment.deletedAt,
 			})
 			.from(comment)
 			.where(eq(comment.id, parentId))
 			.limit(1);
 
 		if (!parentComment) {
-			throw new TRPCError({
-				code: "NOT_FOUND",
-				message: "Parent comment not found",
-			});
-		}
-
-		// Check if parent is soft-deleted
-		if (parentComment.deletedAt !== null) {
 			throw new TRPCError({
 				code: "NOT_FOUND",
 				message: "Parent comment not found",

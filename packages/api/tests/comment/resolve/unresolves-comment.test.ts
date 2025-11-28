@@ -30,7 +30,7 @@ afterAll(async () => {
 
 it("unresolves a previously resolved comment", async () => {
 	const user = await createTestUser(db);
-	const project = await createTestProject(db, user.id);
+	const project = await createTestProject(db, { ownerId: user.id });
 	const video = await createTestVideo(db, project.id, user.id);
 
 	const testComment = await createTestComment(db, video.id, user.id, {

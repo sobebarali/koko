@@ -36,7 +36,7 @@ it("throws FORBIDDEN when user is not the comment author", async () => {
 		email: "other@example.com",
 	});
 
-	const project = await createTestProject(db, author.id);
+	const project = await createTestProject(db, { ownerId: author.id });
 	const video = await createTestVideo(db, project.id, author.id);
 
 	const testComment = await createTestComment(db, video.id, author.id, {

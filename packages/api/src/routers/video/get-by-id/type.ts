@@ -30,7 +30,6 @@ export type VideoDetail = {
 	isCurrentVersion: boolean;
 	createdAt: Date;
 	updatedAt: Date;
-	deletedAt: Date | null;
 };
 
 export type GetByIdOutput = {

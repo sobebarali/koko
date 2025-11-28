@@ -43,7 +43,8 @@ it("returns projects where user is a member with their role", async () => {
 	});
 
 	// Create a project owned by another user
-	const project = await createTestProject(db, owner.id, {
+	const project = await createTestProject(db, {
+		ownerId: owner.id,
 		name: "Shared Project",
 		description: "A shared project",
 	});

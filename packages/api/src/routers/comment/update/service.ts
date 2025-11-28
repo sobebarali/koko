@@ -28,7 +28,6 @@ export async function updateComment({
 			.select({
 				id: comment.id,
 				authorId: comment.authorId,
-				deletedAt: comment.deletedAt,
 				videoId: comment.videoId,
 				mentions: comment.mentions,
 			})
@@ -37,14 +36,6 @@ export async function updateComment({
 			.limit(1);
 
 		if (!existingComment) {
-			throw new TRPCError({
-				code: "NOT_FOUND",
-				message: "Comment not found",
-			});
-		}
-
-		// Check if comment is soft-deleted
-		if (existingComment.deletedAt !== null) {
 			throw new TRPCError({
 				code: "NOT_FOUND",
 				message: "Comment not found",

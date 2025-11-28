@@ -34,7 +34,8 @@ it("returns empty results when no matches found", async () => {
 		name: "Test User",
 	});
 
-	const project = await createTestProject(db, user.id, {
+	const project = await createTestProject(db, {
+		ownerId: user.id,
 		name: "Test Project",
 	});
 

@@ -2,7 +2,7 @@ import { db } from "@koko/db";
 import { project, projectMember } from "@koko/db/schema/project";
 import { video } from "@koko/db/schema/video";
 import { TRPCError } from "@trpc/server";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { Logger } from "../../../lib/logger/types";
 import type { UpdateThumbnailInput, UpdateThumbnailOutput } from "./type";
 
@@ -45,14 +45,13 @@ export async function updateThumbnail({
 				projectId: video.projectId,
 				uploadedBy: video.uploadedBy,
 				status: video.status,
-				deletedAt: video.deletedAt,
 				project: {
 					ownerId: project.ownerId,
 				},
 			})
 			.from(video)
 			.innerJoin(project, eq(video.projectId, project.id))
-			.where(and(eq(video.id, id), isNull(video.deletedAt)))
+			.where(eq(video.id, id))
 			.limit(1);
 
 		if (videos.length === 0) {

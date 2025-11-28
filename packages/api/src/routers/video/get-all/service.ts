@@ -2,7 +2,7 @@ import { db } from "@koko/db";
 import { project, projectMember } from "@koko/db/schema/project";
 import { video } from "@koko/db/schema/video";
 import { TRPCError } from "@trpc/server";
-import { and, desc, eq, isNull, lt } from "drizzle-orm";
+import { and, desc, eq, lt } from "drizzle-orm";
 import type { Logger } from "../../../lib/logger/types";
 import { videoListSelect } from "../constants";
 import type { GetAllInput, GetAllOutput } from "./type";
@@ -77,10 +77,7 @@ export async function getAll({
 		}
 
 		// 3. Build query conditions
-		const conditions = [
-			eq(video.projectId, projectId),
-			isNull(video.deletedAt),
-		];
+		const conditions = [eq(video.projectId, projectId)];
 
 		if (status) {
 			conditions.push(eq(video.status, status));

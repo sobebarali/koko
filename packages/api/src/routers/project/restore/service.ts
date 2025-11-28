@@ -1,7 +1,7 @@
 import { db } from "@koko/db";
 import { project } from "@koko/db/schema/project";
 import { TRPCError } from "@trpc/server";
-import { and, eq, isNull } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import type { Logger } from "../../../lib/logger/types";
 import { projectListSelect } from "../constants";
 import type { RestoreProjectOutput } from "./type";
@@ -24,7 +24,7 @@ export async function restoreProject({
 		const existing = await db
 			.select({ ownerId: project.ownerId, status: project.status })
 			.from(project)
-			.where(and(eq(project.id, id), isNull(project.deletedAt)))
+			.where(eq(project.id, id))
 			.limit(1);
 
 		if (existing.length === 0) {
@@ -64,7 +64,6 @@ export async function restoreProject({
 			.update(project)
 			.set({
 				status: "active",
-				archivedAt: null,
 			})
 			.where(eq(project.id, id))
 			.returning(projectListSelect);

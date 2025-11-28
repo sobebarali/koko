@@ -2,7 +2,7 @@ import { db } from "@koko/db";
 import { project, projectMember } from "@koko/db/schema/project";
 import { video } from "@koko/db/schema/video";
 import { TRPCError } from "@trpc/server";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { Logger } from "../../../lib/logger/types";
 import type { GetPlaybackUrlOutput } from "./type";
 
@@ -36,7 +36,7 @@ export async function getPlaybackUrl({
 			})
 			.from(video)
 			.innerJoin(project, eq(video.projectId, project.id))
-			.where(and(eq(video.id, id), isNull(video.deletedAt)))
+			.where(eq(video.id, id))
 			.limit(1);
 
 		if (videos.length === 0) {

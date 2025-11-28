@@ -39,7 +39,8 @@ it("throws FORBIDDEN when user is not the owner", async () => {
 	});
 
 	// Create a project owned by owner
-	const project = await createTestProject(db, owner.id, {
+	const project = await createTestProject(db, {
+		ownerId: owner.id,
 		name: "Test Project",
 		status: "active",
 	});

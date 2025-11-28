@@ -32,7 +32,6 @@ export const comment = sqliteTable(
 			.default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
 			.$onUpdate(() => new Date())
 			.notNull(),
-		deletedAt: integer("deleted_at", { mode: "timestamp_ms" }),
 	},
 	(table) => [
 		index("comment_video_idx").on(table.videoId),
@@ -82,7 +81,6 @@ export const annotation = sqliteTable(
 			.default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
 			.$onUpdate(() => new Date())
 			.notNull(),
-		deletedAt: integer("deleted_at", { mode: "timestamp_ms" }),
 	},
 	(table) => [
 		index("annotation_video_idx").on(table.videoId),

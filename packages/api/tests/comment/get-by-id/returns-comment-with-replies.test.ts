@@ -39,7 +39,7 @@ it("returns a comment with its replies", async () => {
 		email: "user2@example.com",
 	});
 
-	const project = await createTestProject(db, user1.id);
+	const project = await createTestProject(db, { ownerId: user1.id });
 	const video = await createTestVideo(db, project.id, user1.id);
 
 	const parentComment = await createTestComment(db, video.id, user1.id, {

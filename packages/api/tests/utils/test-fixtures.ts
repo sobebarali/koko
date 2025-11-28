@@ -83,13 +83,14 @@ export async function createTestUser(
  */
 export async function createTestProject(
 	db: TestDb,
-	ownerId: string,
-	overrides?: Partial<{
+	overrides: Partial<{
 		id: string;
 		name: string;
 		description: string | null;
-		status: "active" | "archived" | "deleted";
+		ownerId: string;
+		status: "active" | "archived";
 		color: string | null;
+		bunnyCollectionId: string | null;
 		videoCount: number;
 		memberCount: number;
 		commentCount: number;
@@ -99,19 +100,23 @@ export async function createTestProject(
 	name: string;
 	description: string | null;
 	ownerId: string;
-	status: "active" | "archived" | "deleted";
+	status: "active" | "archived";
 	color: string | null;
 	thumbnail: string | null;
+	bunnyCollectionId: string | null;
 	videoCount: number;
 	memberCount: number;
 	commentCount: number;
 	createdAt: Date;
 	updatedAt: Date;
-	archivedAt: Date | null;
-	deletedAt: Date | null;
 }> {
 	const projectId = overrides?.id ?? generateId();
 	const now = new Date();
+	const ownerId = overrides.ownerId;
+
+	if (!ownerId) {
+		throw new Error("ownerId is required for createTestProject");
+	}
 
 	const [createdProject] = await db
 		.insert(project)
@@ -123,13 +128,12 @@ export async function createTestProject(
 			status: overrides?.status ?? "active",
 			color: overrides?.color ?? null,
 			thumbnail: null,
+			bunnyCollectionId: overrides?.bunnyCollectionId ?? null,
 			videoCount: overrides?.videoCount ?? 0,
 			memberCount: overrides?.memberCount ?? 1,
 			commentCount: overrides?.commentCount ?? 0,
 			createdAt: now,
 			updatedAt: now,
-			archivedAt: null,
-			deletedAt: null,
 		})
 		.returning();
 
@@ -556,16 +560,15 @@ export async function getProjectWithOwner(
 	name: string;
 	description: string | null;
 	ownerId: string;
-	status: "active" | "archived" | "deleted";
+	status: "active" | "archived";
 	color: string | null;
 	thumbnail: string | null;
+	bunnyCollectionId: string | null;
 	videoCount: number;
 	memberCount: number;
 	commentCount: number;
 	createdAt: Date;
 	updatedAt: Date;
-	archivedAt: Date | null;
-	deletedAt: Date | null;
 	owner: {
 		id: string;
 		name: string;

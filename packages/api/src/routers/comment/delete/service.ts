@@ -27,7 +27,6 @@ export async function deleteComment({
 				id: comment.id,
 				videoId: comment.videoId,
 				authorId: comment.authorId,
-				deletedAt: comment.deletedAt,
 				parentId: comment.parentId,
 			})
 			.from(comment)
@@ -35,14 +34,6 @@ export async function deleteComment({
 			.limit(1);
 
 		if (!existingComment) {
-			throw new TRPCError({
-				code: "NOT_FOUND",
-				message: "Comment not found",
-			});
-		}
-
-		// Check if comment is already soft-deleted
-		if (existingComment.deletedAt !== null) {
 			throw new TRPCError({
 				code: "NOT_FOUND",
 				message: "Comment not found",
@@ -71,15 +62,10 @@ export async function deleteComment({
 			});
 		}
 
-		// Use transaction to soft delete and decrement video/project commentCount
+		// Use transaction to hard delete and decrement video/project commentCount
 		await db.transaction(async (tx) => {
-			// Soft delete the comment
-			await tx
-				.update(comment)
-				.set({
-					deletedAt: new Date(),
-				})
-				.where(eq(comment.id, id));
+			// Hard delete the comment
+			await tx.delete(comment).where(eq(comment.id, id));
 
 			// If this is a reply, decrement parent's replyCount
 			if (existingComment.parentId) {
@@ -110,7 +96,7 @@ export async function deleteComment({
 
 		logger.info(
 			{ event: "delete_comment_success", userId, commentId: id },
-			"Comment soft deleted successfully",
+			"Comment deleted successfully",
 		);
 
 		return { success: true };

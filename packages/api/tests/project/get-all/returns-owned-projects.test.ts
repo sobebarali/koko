@@ -31,12 +31,14 @@ it("returns projects owned by the user", async () => {
 	});
 
 	// Create two projects owned by the user
-	await createTestProject(db, user.id, {
+	await createTestProject(db, {
+		ownerId: user.id,
 		name: "Project One",
 		description: "First project",
 	});
 
-	await createTestProject(db, user.id, {
+	await createTestProject(db, {
+		ownerId: user.id,
 		name: "Project Two",
 		description: "Second project",
 	});

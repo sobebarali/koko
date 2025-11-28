@@ -32,7 +32,7 @@ afterAll(async () => {
 
 it("decrements parent.replyCount when deleting a reply", async () => {
 	const user = await createTestUser(db);
-	const project = await createTestProject(db, user.id);
+	const project = await createTestProject(db, { ownerId: user.id });
 	const video = await createTestVideo(db, project.id, user.id);
 
 	const parentComment = await createTestComment(db, video.id, user.id, {

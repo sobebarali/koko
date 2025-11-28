@@ -30,7 +30,8 @@ it("returns empty array when no videos exist", async () => {
 		name: "Test User",
 	});
 
-	const project = await createTestProject(db, user.id, {
+	const project = await createTestProject(db, {
+		ownerId: user.id,
 		name: "Empty Project",
 	});
 

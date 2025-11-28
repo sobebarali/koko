@@ -33,7 +33,8 @@ it("throws BAD_REQUEST when video is not ready", async () => {
 		email: "owner@example.com",
 	});
 
-	const project = await createTestProject(db, owner.id, {
+	const project = await createTestProject(db, {
+		ownerId: owner.id,
 		name: "Test Project",
 	});
 

@@ -34,7 +34,8 @@ it("creates a new comment and returns it", async () => {
 		name: "Test User",
 	});
 
-	const project = await createTestProject(db, user.id, {
+	const project = await createTestProject(db, {
+		ownerId: user.id,
 		name: "Test Project",
 	});
 

@@ -48,7 +48,8 @@ it("throws FORBIDDEN when user is not a project member", async () => {
 		name: "Other User",
 	});
 
-	const project = await createTestProject(db, owner.id, {
+	const project = await createTestProject(db, {
+		ownerId: owner.id,
 		name: "Test Project",
 	});
 

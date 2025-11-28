@@ -2,6 +2,7 @@ import { db } from "@koko/db";
 import { project, projectMember } from "@koko/db/schema/project";
 import { TRPCError } from "@trpc/server";
 import type { Logger } from "../../../lib/logger/types";
+import { createCollection } from "../../../lib/services/bunny-collection-service";
 import { projectListSelect } from "../constants";
 import type { CreateProjectInput, CreateProjectOutput } from "./type";
 
@@ -21,6 +22,29 @@ export async function createProject({
 	);
 
 	try {
+		// 1. Create Bunny Collection first (fail fast if this fails)
+		const collection = await createCollection({ name });
+
+		if (!collection) {
+			logger.error(
+				{ event: "create_project_collection_failed", userId, name },
+				"Failed to create Bunny Collection",
+			);
+			throw new TRPCError({
+				code: "INTERNAL_SERVER_ERROR",
+				message: "Failed to create video collection. Please try again.",
+			});
+		}
+
+		logger.debug(
+			{
+				event: "create_project_collection_success",
+				collectionId: collection.guid,
+			},
+			"Bunny Collection created",
+		);
+
+		// 2. Create project with collection ID
 		const projectId = crypto.randomUUID();
 		const memberId = crypto.randomUUID();
 
@@ -32,6 +56,7 @@ export async function createProject({
 				description: description ?? null,
 				color: color ?? null,
 				ownerId: userId,
+				bunnyCollectionId: collection.guid,
 			})
 			.returning(projectListSelect);
 

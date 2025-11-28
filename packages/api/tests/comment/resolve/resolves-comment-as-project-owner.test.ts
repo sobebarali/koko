@@ -36,7 +36,7 @@ it("resolves a comment when user is the project owner", async () => {
 		email: "author@example.com",
 	});
 
-	const project = await createTestProject(db, projectOwner.id);
+	const project = await createTestProject(db, { ownerId: projectOwner.id });
 	const video = await createTestVideo(db, project.id, projectOwner.id);
 
 	const testComment = await createTestComment(db, video.id, commentAuthor.id, {

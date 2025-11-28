@@ -34,7 +34,8 @@ it("returns playback URL when video is ready", async () => {
 		name: "Test User",
 	});
 
-	const project = await createTestProject(db, user.id, {
+	const project = await createTestProject(db, {
+		ownerId: user.id,
 		name: "Test Project",
 	});
 

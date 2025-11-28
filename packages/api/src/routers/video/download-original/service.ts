@@ -3,7 +3,7 @@ import { db } from "@koko/db";
 import { project, projectMember } from "@koko/db/schema/project";
 import { video } from "@koko/db/schema/video";
 import { TRPCError } from "@trpc/server";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { Logger } from "../../../lib/logger/types";
 import type { DownloadOriginalInput, DownloadOriginalOutput } from "./type";
 
@@ -46,7 +46,6 @@ export async function downloadOriginal({
 				projectId: video.projectId,
 				uploadedBy: video.uploadedBy,
 				status: video.status,
-				deletedAt: video.deletedAt,
 				originalFileName: video.originalFileName,
 				project: {
 					ownerId: project.ownerId,
@@ -54,7 +53,7 @@ export async function downloadOriginal({
 			})
 			.from(video)
 			.innerJoin(project, eq(video.projectId, project.id))
-			.where(and(eq(video.id, id), isNull(video.deletedAt)))
+			.where(eq(video.id, id))
 			.limit(1);
 
 		if (videos.length === 0) {

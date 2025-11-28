@@ -1,6 +1,7 @@
 import { relations, sql } from "drizzle-orm";
 import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { user } from "./auth";
+import { video } from "./video";
 
 export const project = sqliteTable(
 	"project",
@@ -11,11 +12,12 @@ export const project = sqliteTable(
 		ownerId: text("owner_id")
 			.notNull()
 			.references(() => user.id, { onDelete: "cascade" }),
-		status: text("status", { enum: ["active", "archived", "deleted"] })
+		status: text("status", { enum: ["active", "archived"] })
 			.default("active")
 			.notNull(),
 		color: text("color"),
 		thumbnail: text("thumbnail"),
+		bunnyCollectionId: text("bunny_collection_id"),
 		videoCount: integer("video_count").default(0).notNull(),
 		memberCount: integer("member_count").default(1).notNull(),
 		commentCount: integer("comment_count").default(0).notNull(),
@@ -26,8 +28,6 @@ export const project = sqliteTable(
 			.default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
 			.$onUpdate(() => new Date())
 			.notNull(),
-		archivedAt: integer("archived_at", { mode: "timestamp_ms" }),
-		deletedAt: integer("deleted_at", { mode: "timestamp_ms" }),
 	},
 	(table) => [
 		index("project_owner_idx").on(table.ownerId),
@@ -79,6 +79,7 @@ export const projectMember = sqliteTable(
 export const projectRelations = relations(project, ({ one, many }) => ({
 	owner: one(user, { fields: [project.ownerId], references: [user.id] }),
 	members: many(projectMember),
+	videos: many(video),
 }));
 
 export const projectMemberRelations = relations(projectMember, ({ one }) => ({

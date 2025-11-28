@@ -10,7 +10,8 @@ vi.hoisted(() => {
 
 // Use globalThis to store the database reference across all module boundaries
 // This ensures the same reference is used regardless of how modules are loaded
-const globalKey = "__koko_test_db__";
+// Using string literal directly to avoid hoisting issues
+const GLOBAL_KEY = "__koko_test_db__";
 
 // Create the proxy using vi.hoisted so it's available to vi.mock
 const dbProxy = vi.hoisted(() => {
@@ -20,7 +21,7 @@ const dbProxy = vi.hoisted(() => {
 		{
 			get(_target, prop) {
 				// biome-ignore lint/suspicious/noExplicitAny: globalThis is untyped
-				const currentDb = (globalThis as any)[globalKey];
+				const currentDb = (globalThis as any)["__koko_test_db__"];
 				if (!currentDb) {
 					throw new Error(
 						"Test database not initialized. Call __setTestDb(db) in beforeAll() after creating the test database.",
@@ -35,7 +36,7 @@ const dbProxy = vi.hoisted(() => {
 			},
 			has(_target, prop) {
 				// biome-ignore lint/suspicious/noExplicitAny: globalThis is untyped
-				const currentDb = (globalThis as any)[globalKey];
+				const currentDb = (globalThis as any)["__koko_test_db__"];
 				if (!currentDb) return false;
 				return Reflect.has(currentDb, prop);
 			},
@@ -57,7 +58,7 @@ vi.mock("@koko/db", () => ({
 // biome-ignore lint/suspicious/noExplicitAny: Required for dynamic db type
 export function __setTestDb(db: any): void {
 	// biome-ignore lint/suspicious/noExplicitAny: globalThis is untyped
-	(globalThis as any)[globalKey] = db;
+	(globalThis as any)[GLOBAL_KEY] = db;
 }
 
 /**
@@ -66,5 +67,5 @@ export function __setTestDb(db: any): void {
  */
 export function __clearTestDb(): void {
 	// biome-ignore lint/suspicious/noExplicitAny: globalThis is untyped
-	(globalThis as any)[globalKey] = null;
+	(globalThis as any)[GLOBAL_KEY] = null;
 }

@@ -2,15 +2,16 @@ import { db } from "@koko/db";
 import { project, projectMember } from "@koko/db/schema/project";
 import { video } from "@koko/db/schema/video";
 import { TRPCError } from "@trpc/server";
-import { and, eq, inArray, isNull, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import type { Logger } from "../../../lib/logger/types";
+import { deleteVideo as deleteBunnyVideo } from "../../../lib/services/bunny-collection-service";
 import type { BulkDeleteInput, BulkDeleteOutput } from "./type";
 
 interface VideoWithPermissions {
 	id: string;
 	projectId: string;
 	uploadedBy: string;
-	deletedAt: Date | null;
+	bunnyVideoId: string;
 	projectOwnerId: string;
 }
 
@@ -37,7 +38,7 @@ export async function bulkDelete({
 				id: video.id,
 				projectId: video.projectId,
 				uploadedBy: video.uploadedBy,
-				deletedAt: video.deletedAt,
+				bunnyVideoId: video.bunnyVideoId,
 				projectOwnerId: project.ownerId,
 			})
 			.from(video)
@@ -83,6 +84,7 @@ export async function bulkDelete({
 		const videosToDelete: {
 			id: string;
 			projectId: string;
+			bunnyVideoId: string;
 		}[] = [];
 
 		for (const videoId of ids) {
@@ -90,11 +92,6 @@ export async function bulkDelete({
 
 			if (!videoData) {
 				failed.push({ id: videoId, reason: "Video not found" });
-				continue;
-			}
-
-			if (videoData.deletedAt !== null) {
-				failed.push({ id: videoId, reason: "Video is already deleted" });
 				continue;
 			}
 
@@ -114,19 +111,37 @@ export async function bulkDelete({
 			videosToDelete.push({
 				id: videoData.id,
 				projectId: videoData.projectId,
+				bunnyVideoId: videoData.bunnyVideoId,
 			});
 		}
 
-		// 4. Perform bulk soft delete in a transaction
+		// 4. Delete from Bunny and database
 		if (videosToDelete.length > 0) {
+			// Delete from Bunny first (graceful degradation - log failures but continue)
+			for (const videoItem of videosToDelete) {
+				const bunnySuccess = await deleteBunnyVideo({
+					videoId: videoItem.bunnyVideoId,
+				});
+
+				if (!bunnySuccess) {
+					logger.error(
+						{
+							event: "bulk_delete_bunny_failed",
+							videoId: videoItem.id,
+							bunnyVideoId: videoItem.bunnyVideoId,
+						},
+						"Failed to delete video from Bunny during bulk delete",
+					);
+					// Continue with database deletion even if Bunny fails
+				}
+			}
+
+			// Perform bulk hard delete in a transaction
 			await db.transaction(async (tx) => {
 				const videoIds = videosToDelete.map((v) => v.id);
 
-				// Soft delete all videos
-				await tx
-					.update(video)
-					.set({ deletedAt: new Date() })
-					.where(and(inArray(video.id, videoIds), isNull(video.deletedAt)));
+				// Hard delete all videos
+				await tx.delete(video).where(inArray(video.id, videoIds));
 
 				// Group videos by project for count updates
 				const projectCounts = new Map<string, number>();

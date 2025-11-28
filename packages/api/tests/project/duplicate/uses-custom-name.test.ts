@@ -30,7 +30,8 @@ it("uses custom name when provided", async () => {
 		name: "Test User",
 	});
 
-	const project = await createTestProject(db, user.id, {
+	const project = await createTestProject(db, {
+		ownerId: user.id,
 		name: "Test Project",
 		description: "A test project",
 		color: "#ff0000",

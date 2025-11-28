@@ -30,7 +30,8 @@ it("updates project fields when user is owner", async () => {
 		name: "Test User",
 	});
 
-	const project = await createTestProject(db, user.id, {
+	const project = await createTestProject(db, {
+		ownerId: user.id,
 		name: "Original Name",
 		description: "Original description",
 		color: "#FF0000",

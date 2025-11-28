@@ -40,7 +40,8 @@ it("updates video metadata when user is project owner", async () => {
 		name: "Uploader User",
 	});
 
-	const project = await createTestProject(db, owner.id, {
+	const project = await createTestProject(db, {
+		ownerId: owner.id,
 		name: "Test Project",
 	});
 

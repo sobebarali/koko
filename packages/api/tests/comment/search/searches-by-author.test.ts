@@ -40,7 +40,8 @@ it("searches comments by author", async () => {
 		name: "User Two",
 	});
 
-	const project = await createTestProject(db, user1.id, {
+	const project = await createTestProject(db, {
+		ownerId: user1.id,
 		name: "Test Project",
 	});
 

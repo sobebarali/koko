@@ -43,11 +43,7 @@ export async function getAllComments({
 		}
 
 		// Build where conditions for top-level comments
-		const conditions = [
-			eq(comment.videoId, videoId),
-			isNull(comment.parentId),
-			isNull(comment.deletedAt),
-		];
+		const conditions = [eq(comment.videoId, videoId), isNull(comment.parentId)];
 
 		// Add resolved filter if not "all"
 		if (resolved === "resolved") {
@@ -77,9 +73,7 @@ export async function getAllComments({
 					})
 					.from(comment)
 					.innerJoin(user, eq(comment.authorId, user.id))
-					.where(
-						and(eq(comment.parentId, topComment.id), isNull(comment.deletedAt)),
-					)
+					.where(and(eq(comment.parentId, topComment.id)))
 					.orderBy(asc(comment.createdAt));
 
 				return {

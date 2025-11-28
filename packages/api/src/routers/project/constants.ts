@@ -8,6 +8,7 @@ export const projectListSelect = {
 	status: project.status,
 	color: project.color,
 	thumbnail: project.thumbnail,
+	bunnyCollectionId: project.bunnyCollectionId,
 	videoCount: project.videoCount,
 	memberCount: project.memberCount,
 	commentCount: project.commentCount,
@@ -17,6 +18,4 @@ export const projectListSelect = {
 
 export const projectDetailSelect = {
 	...projectListSelect,
-	archivedAt: project.archivedAt,
-	deletedAt: project.deletedAt,
 };

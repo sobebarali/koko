@@ -32,5 +32,4 @@ export const videoDetailSelect = {
 	parentVideoId: video.parentVideoId,
 	isCurrentVersion: video.isCurrentVersion,
 	updatedAt: video.updatedAt,
-	deletedAt: video.deletedAt,
 };

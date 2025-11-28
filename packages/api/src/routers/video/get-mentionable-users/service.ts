@@ -3,7 +3,7 @@ import { user } from "@koko/db/schema/auth";
 import { project, projectMember } from "@koko/db/schema/project";
 import { video } from "@koko/db/schema/video";
 import { TRPCError } from "@trpc/server";
-import { and, eq, inArray, isNull } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import type { Logger } from "../../../lib/logger/types";
 import type {
 	GetMentionableUsersInput,
@@ -31,7 +31,7 @@ export async function getMentionableUsers({
 				projectId: video.projectId,
 			})
 			.from(video)
-			.where(and(eq(video.id, videoId), isNull(video.deletedAt)))
+			.where(and(eq(video.id, videoId)))
 			.limit(1);
 
 		if (!videoRecord) {

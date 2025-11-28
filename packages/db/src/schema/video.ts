@@ -49,7 +49,6 @@ export const video = sqliteTable(
 			.default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
 			.$onUpdate(() => new Date())
 			.notNull(),
-		deletedAt: integer("deleted_at", { mode: "timestamp_ms" }),
 	},
 	(table) => [
 		index("video_project_idx").on(table.projectId),

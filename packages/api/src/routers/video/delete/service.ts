@@ -4,6 +4,7 @@ import { video } from "@koko/db/schema/video";
 import { TRPCError } from "@trpc/server";
 import { and, eq, sql } from "drizzle-orm";
 import type { Logger } from "../../../lib/logger/types";
+import { deleteVideo as deleteBunnyVideo } from "../../../lib/services/bunny-collection-service";
 import type { DeleteOutput } from "./type";
 
 export async function deleteVideo({
@@ -17,17 +18,17 @@ export async function deleteVideo({
 }): Promise<DeleteOutput> {
 	logger.debug(
 		{ event: "delete_video_start", videoId: id, userId },
-		"Deleting video (soft delete)",
+		"Deleting video (hard delete)",
 	);
 
 	try {
-		// 1. Fetch video with project info
+		// 1. Fetch video with project info and bunnyVideoId
 		const videos = await db
 			.select({
 				id: video.id,
 				projectId: video.projectId,
 				uploadedBy: video.uploadedBy,
-				deletedAt: video.deletedAt,
+				bunnyVideoId: video.bunnyVideoId,
 				project: {
 					ownerId: project.ownerId,
 				},
@@ -56,19 +57,7 @@ export async function deleteVideo({
 			});
 		}
 
-		// 2. Check if already deleted
-		if (videoData.deletedAt !== null) {
-			logger.warn(
-				{ event: "delete_video_already_deleted", videoId: id },
-				"Video is already deleted",
-			);
-			throw new TRPCError({
-				code: "BAD_REQUEST",
-				message: "Video is already deleted",
-			});
-		}
-
-		// 3. Check permissions (uploader OR project owner can delete)
+		// 2. Check permissions (uploader OR project owner can delete)
 		const isUploader = videoData.uploadedBy === userId;
 		const isProjectOwner = videoData.project.ownerId === userId;
 
@@ -98,12 +87,30 @@ export async function deleteVideo({
 			}
 		}
 
-		// 4. Soft delete and decrement counter in a transaction
+		// 3. Delete video from Bunny first (fail-fast if this fails)
+		const bunnyDeleteSuccess = await deleteBunnyVideo({
+			videoId: videoData.bunnyVideoId,
+		});
+
+		if (!bunnyDeleteSuccess) {
+			logger.error(
+				{
+					event: "delete_video_bunny_failed",
+					videoId: id,
+					bunnyVideoId: videoData.bunnyVideoId,
+				},
+				"Failed to delete video from Bunny",
+			);
+			throw new TRPCError({
+				code: "INTERNAL_SERVER_ERROR",
+				message: "Failed to delete video from storage. Please try again.",
+			});
+		}
+
+		// 4. Hard delete from database and decrement counter in a transaction
 		await db.transaction(async (tx) => {
-			await tx
-				.update(video)
-				.set({ deletedAt: new Date() })
-				.where(eq(video.id, id));
+			// Delete video from database
+			await tx.delete(video).where(eq(video.id, id));
 
 			// Decrement project video count atomically
 			await tx
@@ -116,7 +123,7 @@ export async function deleteVideo({
 
 		logger.info(
 			{ event: "delete_video_success", videoId: id, userId },
-			"Video deleted successfully (soft delete)",
+			"Video deleted successfully (hard delete)",
 		);
 
 		return { success: true };

@@ -29,21 +29,12 @@ export async function resolveComment({
 				id: comment.id,
 				videoId: comment.videoId,
 				authorId: comment.authorId,
-				deletedAt: comment.deletedAt,
 			})
 			.from(comment)
 			.where(eq(comment.id, id))
 			.limit(1);
 
 		if (!existingComment) {
-			throw new TRPCError({
-				code: "NOT_FOUND",
-				message: "Comment not found",
-			});
-		}
-
-		// Check if comment is soft-deleted
-		if (existingComment.deletedAt !== null) {
 			throw new TRPCError({
 				code: "NOT_FOUND",
 				message: "Comment not found",

@@ -32,7 +32,7 @@ afterAll(async () => {
 
 it("decrements project.commentCount when deleting a comment", async () => {
 	const user = await createTestUser(db);
-	const testProject = await createTestProject(db, user.id);
+	const testProject = await createTestProject(db, { ownerId: user.id });
 	const video = await createTestVideo(db, testProject.id, user.id);
 
 	const testComment = await createTestComment(db, video.id, user.id, {

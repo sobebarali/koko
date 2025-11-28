@@ -34,7 +34,8 @@ it("returns video when user is the project owner", async () => {
 		name: "Owner User",
 	});
 
-	const project = await createTestProject(db, owner.id, {
+	const project = await createTestProject(db, {
+		ownerId: owner.id,
 		name: "Test Project",
 	});
 

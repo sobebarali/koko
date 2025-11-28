@@ -2,7 +2,7 @@ import { db } from "@koko/db";
 import { project, projectMember } from "@koko/db/schema/project";
 import { sceneDetection, transcription, video } from "@koko/db/schema/video";
 import { TRPCError } from "@trpc/server";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { Logger } from "../../../lib/logger/types";
 import { projectListSelect } from "../constants";
 import type { DuplicateProjectOutput } from "./type";
@@ -28,7 +28,7 @@ export async function duplicateProject({
 		const sourceProject = await db
 			.select()
 			.from(project)
-			.where(and(eq(project.id, id), isNull(project.deletedAt)))
+			.where(and(eq(project.id, id)))
 			.limit(1);
 
 		if (sourceProject.length === 0) {
@@ -83,7 +83,7 @@ export async function duplicateProject({
 		const sourceVideos = await db
 			.select()
 			.from(video)
-			.where(and(eq(video.projectId, id), isNull(video.deletedAt)));
+			.where(eq(video.projectId, id));
 
 		// Fetch transcriptions for source videos
 		const sourceVideoIds = sourceVideos.map((v) => v.id);

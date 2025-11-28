@@ -7,7 +7,7 @@ export type ProjectDetail = {
 	name: string;
 	description: string | null;
 	ownerId: string;
-	status: "active" | "archived" | "deleted";
+	status: "active" | "archived";
 	color: string | null;
 	thumbnail: string | null;
 	videoCount: number;
@@ -15,8 +15,6 @@ export type ProjectDetail = {
 	commentCount: number;
 	createdAt: Date;
 	updatedAt: Date;
-	archivedAt: Date | null;
-	deletedAt: Date | null;
 	owner: {
 		id: string;
 		name: string;

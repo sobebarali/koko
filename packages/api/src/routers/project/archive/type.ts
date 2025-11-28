@@ -8,9 +8,10 @@ export type ArchiveProjectOutput = {
 		name: string;
 		description: string | null;
 		ownerId: string;
-		status: "active" | "archived" | "deleted";
+		status: "active" | "archived";
 		color: string | null;
 		thumbnail: string | null;
+		bunnyCollectionId: string | null;
 		videoCount: number;
 		memberCount: number;
 		commentCount: number;

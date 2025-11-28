@@ -124,13 +124,12 @@ async function createTables(client: TestClient): Promise<void> {
 			"status" text DEFAULT 'active' NOT NULL,
 			"color" text,
 			"thumbnail" text,
+			"bunny_collection_id" text,
 			"video_count" integer DEFAULT 0 NOT NULL,
 			"member_count" integer DEFAULT 1 NOT NULL,
 			"comment_count" integer DEFAULT 0 NOT NULL,
 			"created_at" integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
-			"updated_at" integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
-			"archived_at" integer,
-			"deleted_at" integer
+			"updated_at" integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL
 		)`,
 
 		// Project member table
@@ -176,8 +175,7 @@ async function createTables(client: TestClient): Promise<void> {
 			"parent_video_id" text,
 			"is_current_version" integer DEFAULT 1 NOT NULL,
 			"created_at" integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
-			"updated_at" integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
-			"deleted_at" integer
+			"updated_at" integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL
 		)`,
 
 		// Transcription table
@@ -221,8 +219,7 @@ async function createTables(client: TestClient): Promise<void> {
 			"edited_at" integer,
 			"mentions" text DEFAULT '[]',
 			"created_at" integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
-			"updated_at" integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
-			"deleted_at" integer
+			"updated_at" integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL
 		)`,
 
 		// Annotation table
@@ -236,8 +233,7 @@ async function createTables(client: TestClient): Promise<void> {
 			"type" text NOT NULL,
 			"data" text NOT NULL,
 			"created_at" integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
-			"updated_at" integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL,
-			"deleted_at" integer
+			"updated_at" integer DEFAULT (cast(unixepoch('subsec') * 1000 as integer)) NOT NULL
 		)`,
 
 		// Team member table
