@@ -21,6 +21,7 @@ const dbProxy = vi.hoisted(() => {
 		{
 			get(_target, prop) {
 				// biome-ignore lint/suspicious/noExplicitAny: globalThis is untyped
+				// biome-ignore lint/complexity/useLiteralKeys: dynamic key access required
 				const currentDb = (globalThis as any)["__koko_test_db__"];
 				if (!currentDb) {
 					throw new Error(
@@ -36,6 +37,7 @@ const dbProxy = vi.hoisted(() => {
 			},
 			has(_target, prop) {
 				// biome-ignore lint/suspicious/noExplicitAny: globalThis is untyped
+				// biome-ignore lint/complexity/useLiteralKeys: dynamic key access required
 				const currentDb = (globalThis as any)["__koko_test_db__"];
 				if (!currentDb) return false;
 				return Reflect.has(currentDb, prop);

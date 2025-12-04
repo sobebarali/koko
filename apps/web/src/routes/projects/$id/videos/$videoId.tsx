@@ -143,7 +143,7 @@ function VideoDetailPage() {
 		try {
 			const url = await getDownloadUrl(videoId);
 			window.open(url, "_blank");
-		} catch (error) {
+		} catch {
 			// Error handled in hook
 		}
 	};
