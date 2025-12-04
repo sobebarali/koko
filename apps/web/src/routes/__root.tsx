@@ -22,17 +22,19 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 	head: () => ({
 		meta: [
 			{
-				title: "koko - Video Collaboration Platform",
+				title: "Koko - Video Collaboration Platform",
 			},
 			{
 				name: "description",
-				content: "koko is a web application",
+				content:
+					"Review, collaborate, and manage video projects with real-time feedback. The modern platform for creative teams.",
 			},
 		],
 		links: [
 			{
 				rel: "icon",
-				href: "/favicon.ico",
+				type: "image/svg+xml",
+				href: "/favicon.svg",
 			},
 		],
 	}),
