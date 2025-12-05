@@ -4,7 +4,7 @@ import { Video } from "lucide-react";
 import { toast } from "sonner";
 import z from "zod";
 import { authClient } from "@/lib/auth-client";
-import { getAppUrl, isAppDomain } from "@/lib/domain";
+import { getAppUrl, isAppDomain, isLocalDomain } from "@/lib/domain";
 import { AuthLayout } from "./auth-layout";
 import Loader from "./loader";
 import { Button } from "./ui/button";
@@ -35,8 +35,8 @@ export default function SignInForm({
 				{
 					onSuccess: () => {
 						toast.success("Sign in successful");
-						// Redirect to app domain if not already on it
-						if (isAppDomain()) {
+						// Redirect to app domain if not already on it (skip for local dev)
+						if (isAppDomain() || isLocalDomain()) {
 							navigate({ to: "/dashboard" });
 						} else {
 							window.location.href = getAppUrl({ path: "/dashboard" });

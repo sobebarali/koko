@@ -3,8 +3,8 @@
 // app.usekoko.com → Application (post-login)
 
 const DOMAINS = {
-	landing: import.meta.env.VITE_LANDING_DOMAIN || "www.usekoko.com",
-	app: import.meta.env.VITE_APP_DOMAIN || "app.usekoko.com",
+	landing: import.meta.env.VITE_LANDING_DOMAIN || "localhost:3001",
+	app: import.meta.env.VITE_APP_DOMAIN || "localhost:3001",
 } as const;
 
 export type DomainType = "landing" | "app" | "local";
