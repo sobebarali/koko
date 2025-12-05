@@ -8,7 +8,6 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { useEffect } from "react";
-import Header from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import {
@@ -85,7 +84,6 @@ function RootComponent(): React.ReactElement {
 				storageKey="vite-ui-theme"
 			>
 				<div className="flex min-h-svh flex-col">
-					<Header />
 					<main className="flex-1">
 						<Outlet />
 					</main>
