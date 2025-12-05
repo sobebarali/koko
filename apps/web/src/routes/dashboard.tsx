@@ -37,11 +37,7 @@ export const Route = createFileRoute("/dashboard")({
 				throw: true,
 			});
 		}
-		// @ts-expect-error - customer plugin may not be configured
-		const { data: customerState } = (await authClient.customer?.state?.()) ?? {
-			data: null,
-		};
-		return { session, customerState };
+		return { session };
 	},
 });
 
@@ -72,11 +68,8 @@ function adaptProjectToVideoProject(project: Project): VideoProject {
 const placeholderChartData: ChartDataPoint[] = [];
 
 function RouteComponent() {
-	const { session, customerState } = Route.useRouteContext();
+	const { session } = Route.useRouteContext();
 	const { projects } = useProjects({ status: "active" });
-
-	const hasProSubscription =
-		(customerState?.activeSubscriptions?.length ?? 0) > 0;
 
 	// Get current date for greeting
 	const currentDate = new Date().toLocaleDateString("en-US", {
@@ -162,48 +155,6 @@ function RouteComponent() {
 									</Button>
 								</div>
 							</div>
-						</div>
-
-						{/* Subscription badge */}
-						<div className="flex items-center gap-2 border-t px-4 py-2 lg:px-6">
-							<span className="text-muted-foreground text-xs">Plan:</span>
-							<span
-								className={`rounded-full px-2 py-0.5 font-medium text-xs ${hasProSubscription ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}
-							>
-								{hasProSubscription ? "Pro" : "Free"}
-							</span>
-							{!hasProSubscription && (
-								<Button
-									size="sm"
-									variant="link"
-									className="h-auto p-0 text-xs"
-									onClick={async () => {
-										// @ts-expect-error - checkout plugin may not be configured
-										if (authClient.checkout) {
-											// @ts-expect-error - checkout plugin may not be configured
-											await authClient.checkout({ slug: "pro" });
-										}
-									}}
-								>
-									Upgrade to Pro →
-								</Button>
-							)}
-							{hasProSubscription && (
-								<Button
-									size="sm"
-									variant="link"
-									className="h-auto p-0 text-xs"
-									onClick={async () => {
-										// @ts-expect-error - customer plugin may not be configured
-										if (authClient.customer?.portal) {
-											// @ts-expect-error - customer plugin may not be configured
-											await authClient.customer.portal();
-										}
-									}}
-								>
-									Manage Subscription
-								</Button>
-							)}
 						</div>
 					</header>
 

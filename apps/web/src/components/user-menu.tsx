@@ -38,16 +38,9 @@ export default function UserMenu() {
 				<DropdownMenuItem>{session.user.email}</DropdownMenuItem>
 				<DropdownMenuItem
 					variant="destructive"
-					onSelect={() => {
-						authClient.signOut({
-							fetchOptions: {
-								onSuccess: () => {
-									navigate({
-										to: "/",
-									});
-								},
-							},
-						});
+					onSelect={async () => {
+						await authClient.signOut();
+						navigate({ to: "/" });
 					}}
 				>
 					Sign Out
