@@ -23,10 +23,17 @@ import {
 } from "@/components/ui/sidebar";
 import { useCreateProject } from "@/hooks/use-projects";
 import { authClient } from "@/lib/auth-client";
+import { getAppUrl, isLandingDomain } from "@/lib/domain";
 
 export const Route = createFileRoute("/projects/new")({
 	component: NewProjectPage,
 	beforeLoad: async () => {
+		// Redirect to app domain if on landing domain
+		if (isLandingDomain()) {
+			window.location.href = getAppUrl({ path: "/projects/new" });
+			throw new Error("Redirecting to app domain");
+		}
+
 		const session = await authClient.getSession();
 		if (!session.data) {
 			redirect({

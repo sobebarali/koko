@@ -3,6 +3,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import z from "zod";
 import { authClient } from "@/lib/auth-client";
+import { getAppUrl, isAppDomain } from "@/lib/domain";
 import Loader from "./loader";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -31,10 +32,13 @@ export default function SignInForm({
 				},
 				{
 					onSuccess: () => {
-						navigate({
-							to: "/dashboard",
-						});
 						toast.success("Sign in successful");
+						// Redirect to app domain if not already on it
+						if (isAppDomain()) {
+							navigate({ to: "/dashboard" });
+						} else {
+							window.location.href = getAppUrl({ path: "/dashboard" });
+						}
 					},
 					onError: (error) => {
 						toast.error(error.error.message || error.error.statusText);

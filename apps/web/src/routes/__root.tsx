@@ -4,11 +4,20 @@ import {
 	createRootRouteWithContext,
 	HeadContent,
 	Outlet,
+	useRouterState,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import { useEffect } from "react";
 import Header from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import {
+	getAppUrl,
+	getDomainType,
+	getLandingUrl,
+	isAppRoute,
+	isLandingRoute,
+} from "@/lib/domain";
 import type { trpc } from "@/utils/trpc";
 import "../index.css";
 
@@ -40,7 +49,32 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 	}),
 });
 
-function RootComponent() {
+function RootComponent(): React.ReactElement {
+	const router = useRouterState();
+	const pathname = router.location.pathname;
+
+	// Handle cross-domain redirects
+	useEffect(() => {
+		const domainType = getDomainType();
+
+		// Skip redirects in local development
+		if (domainType === "local") return;
+
+		const onLandingRoute = isLandingRoute({ pathname });
+		const onAppRoute = isAppRoute({ pathname });
+
+		// On landing domain but accessing app route → redirect to app domain
+		if (domainType === "landing" && onAppRoute) {
+			window.location.href = getAppUrl({ path: pathname });
+			return;
+		}
+
+		// On app domain but accessing landing route → redirect to landing domain
+		if (domainType === "app" && onLandingRoute) {
+			window.location.href = getLandingUrl({ path: pathname });
+		}
+	}, [pathname]);
+
 	return (
 		<>
 			<HeadContent />

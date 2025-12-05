@@ -13,6 +13,7 @@ import {
 import { VideoProjectsTable } from "@/components/video-projects-table";
 import { type Project, useProjects } from "@/hooks/use-projects";
 import { authClient } from "@/lib/auth-client";
+import { getAppUrl, isLandingDomain } from "@/lib/domain";
 import type {
 	ChartDataPoint,
 	DashboardMetrics,
@@ -22,6 +23,13 @@ import type {
 export const Route = createFileRoute("/dashboard")({
 	component: RouteComponent,
 	beforeLoad: async () => {
+		// Redirect to app domain if on landing domain
+		if (isLandingDomain()) {
+			window.location.href = getAppUrl({ path: "/dashboard" });
+			// Throw to prevent route from loading while redirect happens
+			throw new Error("Redirecting to app domain");
+		}
+
 		const session = await authClient.getSession();
 		if (!session.data) {
 			redirect({

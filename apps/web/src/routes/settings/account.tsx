@@ -11,10 +11,17 @@ import {
 } from "@/components/ui/sidebar";
 import { useProfile, useUpdateProfile } from "@/hooks/use-profile";
 import { authClient } from "@/lib/auth-client";
+import { getAppUrl, isLandingDomain } from "@/lib/domain";
 
 export const Route = createFileRoute("/settings/account")({
 	component: RouteComponent,
 	beforeLoad: async () => {
+		// Redirect to app domain if on landing domain
+		if (isLandingDomain()) {
+			window.location.href = getAppUrl({ path: "/settings/account" });
+			throw new Error("Redirecting to app domain");
+		}
+
 		const session = await authClient.getSession();
 		if (!session.data) {
 			redirect({

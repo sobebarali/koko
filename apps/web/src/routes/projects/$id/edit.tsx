@@ -23,10 +23,17 @@ import {
 } from "@/components/ui/sidebar";
 import { useProject, useUpdateProject } from "@/hooks/use-projects";
 import { authClient } from "@/lib/auth-client";
+import { getAppUrl, isLandingDomain } from "@/lib/domain";
 
 export const Route = createFileRoute("/projects/$id/edit")({
 	component: EditProjectPage,
-	beforeLoad: async () => {
+	beforeLoad: async ({ params }) => {
+		// Redirect to app domain if on landing domain
+		if (isLandingDomain()) {
+			window.location.href = getAppUrl({ path: `/projects/${params.id}/edit` });
+			throw new Error("Redirecting to app domain");
+		}
+
 		const session = await authClient.getSession();
 		if (!session.data) {
 			redirect({

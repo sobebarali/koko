@@ -24,8 +24,19 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { authClient } from "@/lib/auth-client";
+import { getAppUrl, isLandingDomain } from "@/lib/domain";
 
 export const Route = createFileRoute("/")({
+	beforeLoad: async () => {
+		// If on landing domain and user is authenticated, redirect to app domain
+		if (isLandingDomain()) {
+			const session = await authClient.getSession();
+			if (session.data) {
+				window.location.href = getAppUrl({ path: "/dashboard" });
+			}
+		}
+	},
 	component: LandingPage,
 });
 

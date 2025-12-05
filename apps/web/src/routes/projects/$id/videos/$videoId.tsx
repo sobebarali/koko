@@ -44,10 +44,19 @@ import {
 	useVideo,
 } from "@/hooks/use-videos";
 import { authClient } from "@/lib/auth-client";
+import { getAppUrl, isLandingDomain } from "@/lib/domain";
 
 export const Route = createFileRoute("/projects/$id/videos/$videoId")({
 	component: VideoDetailPage,
-	beforeLoad: async () => {
+	beforeLoad: async ({ params }) => {
+		// Redirect to app domain if on landing domain
+		if (isLandingDomain()) {
+			window.location.href = getAppUrl({
+				path: `/projects/${params.id}/videos/${params.videoId}`,
+			});
+			throw new Error("Redirecting to app domain");
+		}
+
 		const session = await authClient.getSession();
 		if (!session.data) {
 			redirect({
