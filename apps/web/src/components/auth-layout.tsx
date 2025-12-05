@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { Video } from "lucide-react";
 import type { ReactElement, ReactNode } from "react";
 
@@ -30,10 +31,13 @@ export function AuthLayout({
 
 				{/* Branding Overlay */}
 				<div className="relative z-10 mt-auto p-8 text-white">
-					<div className="flex items-center gap-2">
+					<Link
+						to="/"
+						className="flex items-center gap-2 transition-opacity hover:opacity-80"
+					>
 						<Video className="size-8" />
 						<span className="font-bold text-2xl">Koko</span>
-					</div>
+					</Link>
 					{tagline && (
 						<p className="mt-4 max-w-md text-lg text-white/80">{tagline}</p>
 					)}

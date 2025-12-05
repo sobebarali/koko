@@ -67,10 +67,13 @@ export default function SignInForm({
 			tagline="Collaborate on video projects with your team. Review, comment, and approve - all in one place."
 		>
 			{/* Logo for mobile */}
-			<div className="mb-8 flex items-center gap-2 lg:hidden">
+			<Link
+				to="/"
+				className="mb-8 flex items-center gap-2 transition-opacity hover:opacity-80 lg:hidden"
+			>
 				<Video className="size-6 text-primary" />
 				<span className="font-bold text-xl">Koko</span>
-			</div>
+			</Link>
 
 			<h1 className="mb-2 font-bold text-3xl">Welcome Back</h1>
 			<p className="mb-6 text-muted-foreground">

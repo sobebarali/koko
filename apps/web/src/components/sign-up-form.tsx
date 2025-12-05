@@ -1,5 +1,5 @@
 import { useForm } from "@tanstack/react-form";
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Video } from "lucide-react";
 import { toast } from "sonner";
 import z from "zod";
@@ -70,10 +70,13 @@ export default function SignUpForm({
 			tagline="Join creative teams who streamline their video review process with Koko."
 		>
 			{/* Logo for mobile */}
-			<div className="mb-8 flex items-center gap-2 lg:hidden">
+			<Link
+				to="/"
+				className="mb-8 flex items-center gap-2 transition-opacity hover:opacity-80 lg:hidden"
+			>
 				<Video className="size-6 text-primary" />
 				<span className="font-bold text-xl">Koko</span>
-			</div>
+			</Link>
 
 			<h1 className="mb-2 font-bold text-3xl">Create Account</h1>
 			<p className="mb-6 text-muted-foreground">

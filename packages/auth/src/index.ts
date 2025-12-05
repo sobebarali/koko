@@ -12,7 +12,8 @@ export const auth = betterAuth<BetterAuthOptions>({
 
 		schema: schema,
 	}),
-	trustedOrigins: [process.env.CORS_ORIGIN || ""],
+	trustedOrigins:
+		process.env.CORS_ORIGIN?.split(",").map((o) => o.trim()) || [],
 	emailAndPassword: {
 		enabled: true,
 		sendResetPassword: async ({ user, url }) => {
