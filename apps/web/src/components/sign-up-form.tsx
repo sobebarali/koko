@@ -1,9 +1,11 @@
 import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
+import { Video } from "lucide-react";
 import { toast } from "sonner";
 import z from "zod";
 import { authClient } from "@/lib/auth-client";
 import { getAppUrl, isAppDomain } from "@/lib/domain";
+import { AuthLayout } from "./auth-layout";
 import Loader from "./loader";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -62,8 +64,21 @@ export default function SignUpForm({
 	}
 
 	return (
-		<div className="mx-auto mt-10 w-full max-w-md p-6">
-			<h1 className="mb-6 text-center font-bold text-3xl">Create Account</h1>
+		<AuthLayout
+			imageSrc="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=1200&h=1600&fit=crop&q=80"
+			imageAlt="Person editing video content on computer"
+			tagline="Join creative teams who streamline their video review process with Koko."
+		>
+			{/* Logo for mobile */}
+			<div className="mb-8 flex items-center gap-2 lg:hidden">
+				<Video className="size-6 text-primary" />
+				<span className="font-bold text-xl">Koko</span>
+			</div>
+
+			<h1 className="mb-2 font-bold text-3xl">Create Account</h1>
+			<p className="mb-6 text-muted-foreground">
+				Get started with your free account
+			</p>
 
 			<form
 				onSubmit={(e) => {
@@ -158,11 +173,11 @@ export default function SignUpForm({
 				<Button
 					variant="link"
 					onClick={onSwitchToSignIn}
-					className="text-indigo-600 hover:text-indigo-800"
+					className="text-primary hover:text-primary/80"
 				>
 					Already have an account? Sign In
 				</Button>
 			</div>
-		</div>
+		</AuthLayout>
 	);
 }

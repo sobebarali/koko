@@ -1,9 +1,11 @@
 import { useForm } from "@tanstack/react-form";
 import { Link, useNavigate } from "@tanstack/react-router";
+import { Video } from "lucide-react";
 import { toast } from "sonner";
 import z from "zod";
 import { authClient } from "@/lib/auth-client";
 import { getAppUrl, isAppDomain } from "@/lib/domain";
+import { AuthLayout } from "./auth-layout";
 import Loader from "./loader";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -59,8 +61,21 @@ export default function SignInForm({
 	}
 
 	return (
-		<div className="mx-auto mt-10 w-full max-w-md p-6">
-			<h1 className="mb-6 text-center font-bold text-3xl">Welcome Back</h1>
+		<AuthLayout
+			imageSrc="https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=1200&h=1600&fit=crop&q=80"
+			imageAlt="Video editing workspace with professional monitors showing timeline"
+			tagline="Collaborate on video projects with your team. Review, comment, and approve - all in one place."
+		>
+			{/* Logo for mobile */}
+			<div className="mb-8 flex items-center gap-2 lg:hidden">
+				<Video className="size-6 text-primary" />
+				<span className="font-bold text-xl">Koko</span>
+			</div>
+
+			<h1 className="mb-2 font-bold text-3xl">Welcome Back</h1>
+			<p className="mb-6 text-muted-foreground">
+				Sign in to continue to your projects
+			</p>
 
 			<form
 				onSubmit={(e) => {
@@ -101,7 +116,7 @@ export default function SignInForm({
 									<Label htmlFor={field.name}>Password</Label>
 									<Link
 										to="/auth/forgot-password"
-										className="text-indigo-600 text-sm hover:text-indigo-800"
+										className="text-primary text-sm hover:text-primary/80"
 									>
 										Forgot password?
 									</Link>
@@ -141,11 +156,11 @@ export default function SignInForm({
 				<Button
 					variant="link"
 					onClick={onSwitchToSignUp}
-					className="text-indigo-600 hover:text-indigo-800"
+					className="text-primary hover:text-primary/80"
 				>
 					Need an account? Sign Up
 				</Button>
 			</div>
-		</div>
+		</AuthLayout>
 	);
 }

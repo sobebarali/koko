@@ -3,12 +3,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
 	ArrowRight,
 	CheckCircle2,
-	Clock,
 	Folder,
 	MessageSquare,
 	Play,
 	Shield,
-	Star,
 	Upload,
 	Users,
 	Video,
@@ -46,17 +44,11 @@ function LandingPage(): React.ReactElement {
 			{/* Hero Section */}
 			<HeroSection />
 
-			{/* Trusted By / Stats */}
-			<StatsSection />
-
 			{/* Features Section */}
 			<FeaturesSection />
 
 			{/* How It Works */}
 			<HowItWorksSection />
-
-			{/* Testimonials */}
-			<TestimonialsSection />
 
 			{/* Pricing Section */}
 			<PricingSection />
@@ -94,24 +86,12 @@ function HeroSection(): React.ReactElement {
 						exceptional work, faster.
 					</p>
 
-					<div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-						<Button size="lg" asChild>
-							<Link to="/login">
-								Get Started Free
-								<ArrowRight className="ml-2 size-4" />
-							</Link>
-						</Button>
-						<Button size="lg" variant="outline" asChild>
-							<a
-								href="https://github.com/koko/koko"
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								<Play className="mr-2 size-4" />
-								Watch Demo
-							</a>
-						</Button>
-					</div>
+					<Button size="lg" asChild>
+						<Link to="/login">
+							Get Started Free
+							<ArrowRight className="ml-2 size-4" />
+						</Link>
+					</Button>
 
 					<p className="mt-4 text-muted-foreground text-sm">
 						No credit card required. Free forever for small teams.
@@ -151,30 +131,6 @@ function HeroSection(): React.ReactElement {
 							</div>
 						</div>
 					</div>
-				</div>
-			</div>
-		</section>
-	);
-}
-
-function StatsSection(): React.ReactElement {
-	const stats = [
-		{ value: "10K+", label: "Creative Teams" },
-		{ value: "500K+", label: "Videos Reviewed" },
-		{ value: "99.9%", label: "Uptime" },
-		{ value: "4.9/5", label: "User Rating" },
-	];
-
-	return (
-		<section className="border-y bg-muted/30 py-12">
-			<div className="container mx-auto px-4">
-				<div className="grid grid-cols-2 gap-8 md:grid-cols-4">
-					{stats.map((stat) => (
-						<div key={stat.label} className="text-center">
-							<div className="font-bold text-3xl md:text-4xl">{stat.value}</div>
-							<div className="text-muted-foreground text-sm">{stat.label}</div>
-						</div>
-					))}
 				</div>
 			</div>
 		</section>
@@ -357,90 +313,6 @@ function HowItWorksSection(): React.ReactElement {
 	);
 }
 
-function TestimonialsSection(): React.ReactElement {
-	const testimonials = [
-		{
-			quote:
-				"Koko has transformed how we review video content. What used to take days now takes hours.",
-			author: "Sarah Chen",
-			role: "Creative Director",
-			company: "Studio Motion",
-			avatar:
-				"https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&q=80",
-		},
-		{
-			quote:
-				"The timecode comments feature is a game-changer. Our clients love how easy it is to give feedback.",
-			author: "Marcus Johnson",
-			role: "Post-Production Lead",
-			company: "Frame Perfect",
-			avatar:
-				"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&q=80",
-		},
-		{
-			quote:
-				"Finally, a video review tool that's as fast as our team needs. No more waiting for uploads or buffering.",
-			author: "Emily Rodriguez",
-			role: "Video Producer",
-			company: "Pixel Labs",
-			avatar:
-				"https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&q=80",
-		},
-	];
-
-	return (
-		<section className="py-20 md:py-32">
-			<div className="container mx-auto px-4">
-				<div className="mx-auto mb-16 max-w-2xl text-center">
-					<Badge variant="outline" className="mb-4">
-						Testimonials
-					</Badge>
-					<h2 className="mb-4 font-bold text-3xl tracking-tight md:text-4xl">
-						Loved by creative teams worldwide
-					</h2>
-					<p className="text-lg text-muted-foreground">
-						Join thousands of teams who have streamlined their video review
-						process.
-					</p>
-				</div>
-
-				<div className="grid gap-8 md:grid-cols-3">
-					{testimonials.map((testimonial) => (
-						<Card key={testimonial.author} className="bg-muted/30">
-							<CardContent className="pt-6">
-								<div className="mb-4 flex gap-1">
-									<Star className="size-4 fill-yellow-500 text-yellow-500" />
-									<Star className="size-4 fill-yellow-500 text-yellow-500" />
-									<Star className="size-4 fill-yellow-500 text-yellow-500" />
-									<Star className="size-4 fill-yellow-500 text-yellow-500" />
-									<Star className="size-4 fill-yellow-500 text-yellow-500" />
-								</div>
-								<blockquote className="mb-6 text-lg">
-									"{testimonial.quote}"
-								</blockquote>
-								<div className="flex items-center gap-3">
-									<img
-										src={testimonial.avatar}
-										alt={testimonial.author}
-										className="size-12 rounded-full object-cover"
-										loading="lazy"
-									/>
-									<div>
-										<div className="font-semibold">{testimonial.author}</div>
-										<div className="text-muted-foreground text-sm">
-											{testimonial.role} at {testimonial.company}
-										</div>
-									</div>
-								</div>
-							</CardContent>
-						</Card>
-					))}
-				</div>
-			</div>
-		</section>
-	);
-}
-
 function PricingSection(): React.ReactElement {
 	const plans = [
 		{
@@ -601,98 +473,58 @@ function CTASection(): React.ReactElement {
 }
 
 function Footer(): React.ReactElement {
-	const footerLinks = {
-		Product: [
-			{ label: "Features", href: "#features" },
-			{ label: "Pricing", href: "#pricing" },
-			{ label: "Changelog", href: "#" },
-			{ label: "Roadmap", href: "#" },
-		],
-		Resources: [
-			{ label: "Documentation", href: "https://docs.koko.dev" },
-			{ label: "API Reference", href: "https://docs.koko.dev/api" },
-			{ label: "Blog", href: "#" },
-			{ label: "Community", href: "#" },
-		],
-		Company: [
-			{ label: "About", href: "#" },
-			{ label: "Careers", href: "#" },
-			{ label: "Contact", href: "mailto:hello@koko.dev" },
-			{ label: "Press", href: "#" },
-		],
-		Legal: [
-			{ label: "Privacy", href: "#" },
-			{ label: "Terms", href: "#" },
-			{ label: "Security", href: "#" },
-		],
-	};
-
 	return (
 		<footer className="border-t bg-muted/30">
-			<div className="container mx-auto px-4 py-12">
-				<div className="grid gap-8 md:grid-cols-2 lg:grid-cols-6">
+			<div className="container mx-auto px-4 py-8">
+				<div className="flex flex-col items-center gap-6 md:flex-row md:justify-between">
 					{/* Brand */}
-					<div className="lg:col-span-2">
-						<div className="mb-4 flex items-center gap-2">
-							<Video className="size-6 text-primary" />
-							<span className="font-bold text-xl">Koko</span>
-						</div>
-						<p className="mb-4 max-w-xs text-muted-foreground text-sm">
-							The modern video collaboration platform for creative teams.
-						</p>
-						<div className="flex gap-4">
-							<a
-								href="https://github.com/koko/koko"
-								className="text-muted-foreground transition-colors hover:text-foreground"
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								<IconBrandGithub className="size-5" />
-							</a>
-							<a
-								href="https://twitter.com/koko"
-								className="text-muted-foreground transition-colors hover:text-foreground"
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								<IconBrandX className="size-5" />
-							</a>
-						</div>
+					<div className="flex items-center gap-2">
+						<Video className="size-6 text-primary" />
+						<span className="font-bold text-xl">Koko</span>
 					</div>
 
-					{/* Links */}
-					{Object.entries(footerLinks).map(([category, links]) => (
-						<div key={category}>
-							<h3 className="mb-3 font-semibold">{category}</h3>
-							<ul className="space-y-2">
-								{links.map((link) => (
-									<li key={link.label}>
-										<a
-											href={link.href}
-											className="text-muted-foreground text-sm transition-colors hover:text-foreground"
-										>
-											{link.label}
-										</a>
-									</li>
-								))}
-							</ul>
-						</div>
-					))}
-				</div>
+					{/* Contact Emails */}
+					<div className="flex flex-col items-center gap-2 text-sm md:flex-row md:gap-6">
+						<a
+							href="mailto:info@usekoko.com"
+							className="text-muted-foreground transition-colors hover:text-foreground"
+						>
+							info@usekoko.com
+						</a>
+						<a
+							href="mailto:support@usekoko.com"
+							className="text-muted-foreground transition-colors hover:text-foreground"
+						>
+							support@usekoko.com
+						</a>
+					</div>
 
-				<Separator className="my-8" />
-
-				<div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-					<p className="text-muted-foreground text-sm">
-						&copy; {new Date().getFullYear()} Koko. All rights reserved.
-					</p>
-					<div className="flex items-center gap-2 text-sm">
-						<Clock className="size-4 text-muted-foreground" />
-						<span className="text-muted-foreground">
-							99.9% uptime guaranteed
-						</span>
+					{/* Social Links */}
+					<div className="flex gap-4">
+						<a
+							href="https://github.com/koko/koko"
+							className="text-muted-foreground transition-colors hover:text-foreground"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							<IconBrandGithub className="size-5" />
+						</a>
+						<a
+							href="https://twitter.com/koko"
+							className="text-muted-foreground transition-colors hover:text-foreground"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							<IconBrandX className="size-5" />
+						</a>
 					</div>
 				</div>
+
+				<Separator className="my-6" />
+
+				<p className="text-center text-muted-foreground text-sm">
+					&copy; {new Date().getFullYear()} Koko. All rights reserved.
+				</p>
 			</div>
 		</footer>
 	);
