@@ -81,11 +81,11 @@ function RouteComponent() {
 
 	// User data for sidebar
 	const userData = {
-		name: session.data?.user.name || "User",
-		email: session.data?.user.email || "user@example.com",
+		name: session?.data?.user.name || "User",
+		email: session?.data?.user.email || "user@example.com",
 		avatar:
-			session.data?.user.image ||
-			`https://api.dicebear.com/7.x/avataaars/svg?seed=${session.data?.user.name || "User"}`,
+			session?.data?.user.image ||
+			`https://api.dicebear.com/7.x/avataaars/svg?seed=${session?.data?.user.name || "User"}`,
 	};
 
 	// Placeholder metrics computed from real project data
@@ -134,7 +134,7 @@ function RouteComponent() {
 							<div className="flex flex-1 items-center justify-between gap-4">
 								<div className="flex-1">
 									<h1 className="font-bold text-xl tracking-tight lg:text-2xl">
-										Welcome back, {session.data?.user.name || "there"}!
+										Welcome back, {session?.data?.user.name || "there"}!
 									</h1>
 									<p className="text-muted-foreground text-sm">
 										{currentDate} • {dashboardMetrics.pendingReviews.count}{" "}

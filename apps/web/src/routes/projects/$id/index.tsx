@@ -90,11 +90,11 @@ function ProjectDetailPage() {
 	const { deleteVideo } = useDeleteVideo();
 
 	const userData = {
-		name: session.data?.user.name || "User",
-		email: session.data?.user.email || "user@example.com",
+		name: session?.data?.user.name || "User",
+		email: session?.data?.user.email || "user@example.com",
 		avatar:
-			session.data?.user.image ||
-			`https://api.dicebear.com/7.x/avataaars/svg?seed=${session.data?.user.name || "User"}`,
+			session?.data?.user.image ||
+			`https://api.dicebear.com/7.x/avataaars/svg?seed=${session?.data?.user.name || "User"}`,
 	};
 
 	const handleDelete = async () => {
@@ -115,7 +115,7 @@ function ProjectDetailPage() {
 		navigate({ to: "/projects/$id", params: { id: result.id } });
 	};
 
-	const isOwner = project?.ownerId === session.data?.user.id;
+	const isOwner = project?.ownerId === session?.data?.user.id;
 
 	return (
 		<SidebarProvider>
@@ -367,14 +367,10 @@ function ProjectDetailPage() {
 						<CardContent>
 							<VideoUpload
 								projectId={id}
-								onSuccess={(videoId) => {
+								onSuccess={() => {
 									setIsUploadOpen(false);
 									queryClient.invalidateQueries({
 										queryKey: [["video", "getAll"]],
-									});
-									navigate({
-										to: "/projects/$id/videos/$videoId",
-										params: { id, videoId },
 									});
 								}}
 								onCancel={() => setIsUploadOpen(false)}

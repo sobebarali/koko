@@ -51,11 +51,11 @@ function NewProjectPage() {
 	const { createProject, isCreating } = useCreateProject();
 
 	const userData = {
-		name: session.data?.user.name || "User",
-		email: session.data?.user.email || "user@example.com",
+		name: session?.data?.user.name || "User",
+		email: session?.data?.user.email || "user@example.com",
 		avatar:
-			session.data?.user.image ||
-			`https://api.dicebear.com/7.x/avataaars/svg?seed=${session.data?.user.name || "User"}`,
+			session?.data?.user.image ||
+			`https://api.dicebear.com/7.x/avataaars/svg?seed=${session?.data?.user.name || "User"}`,
 	};
 
 	const handleSubmit = async (values: {

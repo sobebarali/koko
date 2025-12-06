@@ -54,11 +54,11 @@ function EditProjectPage() {
 	const { updateProject, isUpdating } = useUpdateProject();
 
 	const userData = {
-		name: session.data?.user.name || "User",
-		email: session.data?.user.email || "user@example.com",
+		name: session?.data?.user.name || "User",
+		email: session?.data?.user.email || "user@example.com",
 		avatar:
-			session.data?.user.image ||
-			`https://api.dicebear.com/7.x/avataaars/svg?seed=${session.data?.user.name || "User"}`,
+			session?.data?.user.image ||
+			`https://api.dicebear.com/7.x/avataaars/svg?seed=${session?.data?.user.name || "User"}`,
 	};
 
 	const handleSubmit = async (values: {
@@ -70,7 +70,7 @@ function EditProjectPage() {
 		navigate({ to: "/projects/$id", params: { id } });
 	};
 
-	const isOwner = project?.ownerId === session.data?.user.id;
+	const isOwner = project?.ownerId === session?.data?.user.id;
 
 	return (
 		<SidebarProvider>
