@@ -50,19 +50,80 @@ app.get("/", (c) => {
 // Bunny Stream webhook endpoint
 app.post("/webhooks/bunny", async (c) => {
 	const logger = c.get("logger") || getLogger();
+	const traceId = c.get("traceId");
+
+	logger.info(
+		{ event: "bunny_webhook_request_start", traceId },
+		"Bunny webhook request received",
+	);
 
 	try {
-		const body = await c.req.json();
+		const rawBody = await c.req.text();
+		logger.debug(
+			{ event: "bunny_webhook_raw_body", rawBody, traceId },
+			"Raw webhook body",
+		);
+
+		let body: unknown;
+		try {
+			body = JSON.parse(rawBody);
+		} catch (parseError) {
+			logger.error(
+				{
+					event: "bunny_webhook_json_parse_error",
+					rawBody,
+					error: parseError instanceof Error ? parseError.message : parseError,
+					traceId,
+				},
+				"Failed to parse webhook JSON",
+			);
+			return c.json({ error: "Invalid JSON" }, 400);
+		}
+
+		logger.debug(
+			{ event: "bunny_webhook_parsed_body", body, traceId },
+			"Parsed webhook body",
+		);
 
 		if (!validateBunnyWebhookPayload(body)) {
 			logger.warn(
-				{ event: "bunny_webhook_invalid_payload" },
-				"Invalid webhook payload",
+				{
+					event: "bunny_webhook_invalid_payload",
+					body,
+					hasVideoLibraryId:
+						body && typeof body === "object" && "VideoLibraryId" in body,
+					hasVideoGuid: body && typeof body === "object" && "VideoGuid" in body,
+					hasStatus: body && typeof body === "object" && "Status" in body,
+					traceId,
+				},
+				"Invalid webhook payload structure",
 			);
 			return c.json({ error: "Invalid payload" }, 400);
 		}
 
+		logger.info(
+			{
+				event: "bunny_webhook_validated",
+				videoGuid: body.VideoGuid,
+				status: body.Status,
+				libraryId: body.VideoLibraryId,
+				traceId,
+			},
+			"Webhook payload validated successfully",
+		);
+
 		const result = await handleBunnyWebhook({ payload: body, logger });
+
+		logger.info(
+			{
+				event: "bunny_webhook_result",
+				success: result.success,
+				message: result.message,
+				videoGuid: body.VideoGuid,
+				traceId,
+			},
+			"Webhook processing completed",
+		);
 
 		if (result.success) {
 			return c.json({ message: result.message }, 200);
@@ -73,6 +134,8 @@ app.post("/webhooks/bunny", async (c) => {
 			{
 				event: "bunny_webhook_error",
 				error: error instanceof Error ? error.message : error,
+				stack: error instanceof Error ? error.stack : undefined,
+				traceId,
 			},
 			"Webhook processing error",
 		);
