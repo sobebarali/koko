@@ -2,6 +2,7 @@ import {
 	IconClock,
 	IconDotsVertical,
 	IconEdit,
+	IconLoader2,
 	IconPlayerPlay,
 	IconTrash,
 } from "@tabler/icons-react";
@@ -28,6 +29,7 @@ import { cn } from "@/lib/utils";
 interface VideoCardProps {
 	video: VideoListItem;
 	projectId: string;
+	progress?: number;
 	onEdit?: (video: VideoListItem) => void;
 	onDelete?: (video: VideoListItem) => void;
 	isSelected?: boolean;
@@ -76,6 +78,7 @@ function getStatusLabel(status: VideoStatus): string {
 export function VideoCard({
 	video,
 	projectId,
+	progress,
 	onEdit,
 	onDelete,
 	isSelected,
@@ -133,7 +136,18 @@ export function VideoCard({
 					)}
 
 					{video.status !== "ready" && (
-						<div className="absolute inset-0 flex items-center justify-center bg-black/50">
+						<div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/50">
+							{(video.status === "processing" ||
+								video.status === "uploading") && (
+								<div className="flex items-center gap-2">
+									<IconLoader2 className="size-5 animate-spin text-white" />
+									{progress !== undefined && progress > 0 && (
+										<span className="font-medium text-sm text-white">
+											{progress}%
+										</span>
+									)}
+								</div>
+							)}
 							<Badge variant={getStatusVariant(video.status)}>
 								{getStatusLabel(video.status)}
 							</Badge>

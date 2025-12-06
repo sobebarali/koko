@@ -40,7 +40,7 @@ import {
 	SidebarProvider,
 	SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { VideoCard } from "@/components/video-card";
+import { VideoCardWithProgress } from "@/components/video-card-with-progress";
 import { VideoUpload } from "@/components/video-upload";
 import {
 	useArchiveProject,
@@ -340,7 +340,7 @@ function ProjectDetailPage() {
 										) : (
 											<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 												{videos.map((video) => (
-													<VideoCard
+													<VideoCardWithProgress
 														key={video.id}
 														video={video}
 														projectId={id}

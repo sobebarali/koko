@@ -2,7 +2,7 @@ import { IconUpload, IconVideo } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { VideoListItem } from "@/hooks/use-videos";
-import { VideoCard } from "./video-card";
+import { VideoCardWithProgress } from "./video-card-with-progress";
 
 interface VideoGridProps {
 	videos: VideoListItem[];
@@ -78,7 +78,7 @@ export function VideoGrid({
 	return (
 		<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 			{videos.map((video) => (
-				<VideoCard
+				<VideoCardWithProgress
 					key={video.id}
 					video={video}
 					projectId={projectId}

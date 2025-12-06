@@ -1,7 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { trpc, trpcClient } from "@/utils/trpc";
+
+// Track video statuses across renders to detect changes
+const videoStatusCache = new Map<string, VideoStatus>();
 
 export type VideoStatus = "uploading" | "processing" | "ready" | "failed";
 
@@ -64,6 +67,9 @@ export function useVideos({
 	hasMore: boolean;
 	nextCursor: string | undefined;
 } {
+	const queryClient = useQueryClient();
+	const initialLoadRef = useRef(true);
+
 	const { data, isLoading, error } = useQuery({
 		...trpc.video.getAll.queryOptions({ projectId, status, limit }),
 		refetchInterval: (query) => {
@@ -78,6 +84,41 @@ export function useVideos({
 			return false;
 		},
 	});
+
+	// Track status changes and show toast notifications
+	useEffect(() => {
+		if (!data?.videos) return;
+
+		// Skip notifications on initial load
+		if (initialLoadRef.current) {
+			// Just populate the cache on first load
+			for (const video of data.videos) {
+				videoStatusCache.set(video.id, video.status as VideoStatus);
+			}
+			initialLoadRef.current = false;
+			return;
+		}
+
+		for (const video of data.videos) {
+			const prevStatus = videoStatusCache.get(video.id);
+			const currentStatus = video.status as VideoStatus;
+
+			// Only notify on actual status changes (not initial load)
+			if (prevStatus && prevStatus !== currentStatus) {
+				if (currentStatus === "ready") {
+					toast.success(`"${video.title}" is ready to play!`);
+					// Invalidate to get updated metadata
+					queryClient.invalidateQueries({
+						queryKey: [["video", "getById"], { id: video.id }],
+					});
+				} else if (currentStatus === "failed") {
+					toast.error(`"${video.title}" processing failed`);
+				}
+			}
+
+			videoStatusCache.set(video.id, currentStatus);
+		}
+	}, [data?.videos, queryClient]);
 
 	return {
 		videos: (data?.videos ?? []) as VideoListItem[],
