@@ -90,13 +90,14 @@ export async function getProcessingStatus({
 			});
 		}
 
-		// 2. Fetch video with project info
+		// 2. Fetch video with project info (include status for auto-sync)
 		const videos = await db
 			.select({
 				id: video.id,
 				bunnyVideoId: video.bunnyVideoId,
 				projectId: video.projectId,
 				uploadedBy: video.uploadedBy,
+				status: video.status,
 				project: {
 					ownerId: project.ownerId,
 				},
@@ -200,12 +201,72 @@ export async function getProcessingStatus({
 		const progress =
 			status === "processing" ? Math.round(bunnyData.encodeProgress) : null;
 
+		// 6. Auto-sync: If Bunny shows final state but DB doesn't match, update DB
+		if (
+			(status === "ready" || status === "failed") &&
+			videoData.status !== status
+		) {
+			logger.info(
+				{
+					event: "get_processing_status_auto_sync",
+					videoId: id,
+					dbStatus: videoData.status,
+					bunnyStatus: status,
+				},
+				`Auto-syncing video status: ${videoData.status} → ${status}`,
+			);
+
+			const updateData: {
+				status: "ready" | "failed";
+				width?: number;
+				height?: number;
+				duration?: number;
+				streamingUrl?: string;
+				thumbnailUrl?: string;
+				errorMessage?: string;
+			} = { status };
+
+			if (status === "ready") {
+				// Sync metadata when marking ready
+				if (bunnyData.width > 0) updateData.width = bunnyData.width;
+				if (bunnyData.height > 0) updateData.height = bunnyData.height;
+				if (bunnyData.length > 0)
+					updateData.duration = Math.round(bunnyData.length);
+
+				// Generate streaming URL
+				updateData.streamingUrl = `https://iframe.mediadelivery.net/embed/${libraryId}/${videoData.bunnyVideoId}`;
+
+				// Generate thumbnail URL if CDN hostname is configured
+				const cdnHostname = process.env.BUNNY_CDN_HOSTNAME;
+				if (cdnHostname) {
+					updateData.thumbnailUrl = `https://${cdnHostname}/${videoData.bunnyVideoId}/thumbnail.jpg`;
+				}
+			}
+
+			if (status === "failed" && errorMessage) {
+				updateData.errorMessage = errorMessage;
+			}
+
+			await db.update(video).set(updateData).where(eq(video.id, id));
+
+			logger.info(
+				{
+					event: "get_processing_status_auto_sync_complete",
+					videoId: id,
+					updateData,
+				},
+				"Video status auto-synced successfully",
+			);
+		}
+
 		logger.info(
 			{
 				event: "get_processing_status_success",
 				videoId: id,
 				status,
 				progress,
+				dbStatus: videoData.status,
+				synced: videoData.status !== status,
 			},
 			"Video processing status retrieved",
 		);
