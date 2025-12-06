@@ -61,7 +61,7 @@ app.post("/webhooks/bunny", async (c) => {
 		const rawBody = await c.req.text();
 		logger.debug(
 			{ event: "bunny_webhook_raw_body", rawBody, traceId },
-			"Raw webhook body",
+			"Raw webhook body received",
 		);
 
 		let body: unknown;
