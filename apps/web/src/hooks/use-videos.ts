@@ -373,12 +373,14 @@ export function useProcessingStatus({
 	});
 
 	useEffect(() => {
-		if (data?.status === "ready") {
-			queryClient.invalidateQueries({
-				queryKey: [["video", "getById"], { id }],
-			});
-			queryClient.invalidateQueries({
+		// When video reaches final state, force immediate refetch to update UI
+		if (data?.status === "ready" || data?.status === "failed") {
+			// Use refetchQueries instead of invalidateQueries for immediate update
+			queryClient.refetchQueries({
 				queryKey: [["video", "getAll"]],
+			});
+			queryClient.refetchQueries({
+				queryKey: [["video", "getById"], { id }],
 			});
 		}
 	}, [data?.status, queryClient, id]);
