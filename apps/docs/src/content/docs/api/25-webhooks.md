@@ -16,25 +16,25 @@ The Webhooks domain enables **real-time integrations** with external services by
 ## 📌 Quick Reference
 
 ### Scale Phase Endpoints
-| Endpoint | Type | Auth | Purpose |
-|----------|------|------|---------|
-| `webhook.create` | Mutation | Yes | Create webhook endpoint |
-| `webhook.getById` | Query | Yes | Get webhook details |
-| `webhook.getAll` | Query | Yes | List all webhooks |
-| `webhook.update` | Mutation | Yes | Update webhook settings |
-| `webhook.delete` | Mutation | Yes | Delete webhook |
-| `webhook.test` | Mutation | Yes | Send test payload |
-| `webhook.getDeliveries` | Query | Yes | Get delivery history |
-| `webhook.redeliver` | Mutation | Yes | Retry failed delivery |
+| Endpoint | Type | Auth | Completed | Purpose |
+|----------|------|------|-----------|---------|
+| `webhook.create` | Mutation | Yes | Not Started | Create webhook endpoint |
+| `webhook.getById` | Query | Yes | Not Started | Get webhook details |
+| `webhook.getAll` | Query | Yes | Not Started | List all webhooks |
+| `webhook.update` | Mutation | Yes | Not Started | Update webhook settings |
+| `webhook.delete` | Mutation | Yes | Not Started | Delete webhook |
+| `webhook.test` | Mutation | Yes | Not Started | Send test payload |
+| `webhook.getDeliveries` | Query | Yes | Not Started | Get delivery history |
+| `webhook.redeliver` | Mutation | Yes | Not Started | Retry failed delivery |
 
 ### Future Endpoints
 
 #### Enterprise Phase (Month 12+)
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `webhook.rotateSecret` | Mutation | Yes | Rotate webhook secret | High |
-| `webhook.updateIpWhitelist` | Mutation | Yes | Update IP whitelist | Medium |
-| `webhook.getStats` | Query | Yes | Get webhook statistics | Low |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `webhook.rotateSecret` | Mutation | Yes | Not Started | Rotate webhook secret | High |
+| `webhook.updateIpWhitelist` | Mutation | Yes | Not Started | Update IP whitelist | Medium |
+| `webhook.getStats` | Query | Yes | Not Started | Get webhook statistics | Low |
 
 ---
 

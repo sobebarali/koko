@@ -16,27 +16,27 @@ The Assets domain enables **file attachments and reference materials** for proje
 ## 📌 Quick Reference
 
 ### Growth Phase Endpoints
-| Endpoint | Type | Auth | Purpose |
-|----------|------|------|---------|
-| `asset.upload` | Mutation | Yes | Upload asset file |
-| `asset.getById` | Query | Yes | Get asset details |
-| `asset.getAll` | Query | Yes | List project assets |
-| `asset.update` | Mutation | Yes | Update asset metadata |
-| `asset.delete` | Mutation | Yes | Delete asset |
-| `asset.download` | Query | Yes | Get download URL |
-| `asset.createFolder` | Mutation | Yes | Create asset folder |
-| `asset.move` | Mutation | Yes | Move asset to folder |
+| Endpoint | Type | Auth | Completed | Purpose |
+|----------|------|------|-----------|---------|
+| `asset.upload` | Mutation | Yes | Not Started | Upload asset file |
+| `asset.getById` | Query | Yes | Not Started | Get asset details |
+| `asset.getAll` | Query | Yes | Not Started | List project assets |
+| `asset.update` | Mutation | Yes | Not Started | Update asset metadata |
+| `asset.delete` | Mutation | Yes | Not Started | Delete asset |
+| `asset.download` | Query | Yes | Not Started | Get download URL |
+| `asset.createFolder` | Mutation | Yes | Not Started | Create asset folder |
+| `asset.move` | Mutation | Yes | Not Started | Move asset to folder |
 
 ### Future Endpoints
 
 #### Scale Phase (Month 6+)
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `asset.generatePreview` | Mutation | Yes | Generate thumbnail/preview | High |
-| `asset.search` | Query | Yes | Full-text search in assets | Medium |
-| `asset.getVersionHistory` | Query | Yes | Get file version history | Medium |
-| `asset.createVersion` | Mutation | Yes | Upload new version | Medium |
-| `asset.restore` | Mutation | Yes | Restore from trash | Low |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `asset.generatePreview` | Mutation | Yes | Not Started | Generate thumbnail/preview | High |
+| `asset.search` | Query | Yes | Not Started | Full-text search in assets | Medium |
+| `asset.getVersionHistory` | Query | Yes | Not Started | Get file version history | Medium |
+| `asset.createVersion` | Mutation | Yes | Not Started | Upload new version | Medium |
+| `asset.restore` | Mutation | Yes | Not Started | Restore from trash | Low |
 
 ---
 

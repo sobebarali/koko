@@ -14,33 +14,33 @@ The Users domain handles user profile management, avatar uploads, user search, a
 ## 📌 Quick Reference
 
 ### MVP Endpoints
-| Endpoint | Type | Auth | Purpose |
-|----------|------|------|---------|
-| `user.getProfile` | Query | Yes | Get current user's profile |
-| `user.getById` | Query | Yes | Get any user's public profile |
-| `user.updateProfile` | Mutation | Yes | Update name, bio, etc. |
-| `user.uploadAvatar` | Mutation | Yes | Upload profile picture |
+| Endpoint | Type | Auth | Completed | Purpose |
+|----------|------|------|-----------|---------|
+| `user.getProfile` | Query | Yes | Done | Get current user's profile |
+| `user.getById` | Query | Yes | Done | Get any user's public profile |
+| `user.updateProfile` | Mutation | Yes | Done | Update name, bio, etc. |
+| `user.uploadAvatar` | Mutation | Yes | Done | Upload profile picture |
 
 ### Future Endpoints
 
 #### Post-Launch (Month 1-2)
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `user.updatePreferences` | Mutation | Yes | Update app preferences | High |
-| `user.search` | Query | Yes | Search users by name/email | High |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `user.updatePreferences` | Mutation | Yes | Not Started | Update app preferences | High |
+| `user.search` | Query | Yes | Not Started | Search users by name/email | High |
 
 #### Growth (Month 3-6)
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `user.getActivity` | Query | Yes | Activity feed | Medium |
-| `user.block` | Mutation | Yes | Block a user | Low |
-| `user.unblock` | Mutation | Yes | Unblock a user | Low |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `user.getActivity` | Query | Yes | Not Started | Activity feed | Medium |
+| `user.block` | Mutation | Yes | Not Started | Block a user | Low |
+| `user.unblock` | Mutation | Yes | Not Started | Unblock a user | Low |
 
 #### Scale (Month 6+)
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `user.export` | Query | Yes | Export user data (GDPR) | High |
-| `user.delete` | Mutation | Yes | Delete account | High |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `user.export` | Query | Yes | Not Started | Export user data (GDPR) | High |
+| `user.delete` | Mutation | Yes | Not Started | Delete account | High |
 
 ---
 

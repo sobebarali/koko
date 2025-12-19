@@ -14,31 +14,31 @@ The Playlists domain enables users to create curated collections of videos for p
 ## 📌 Quick Reference
 
 ### Post-Launch Endpoints
-| Endpoint | Type | Auth | Purpose |
-|----------|------|------|---------|
-| `playlist.create` | Mutation | Yes | Create new playlist |
-| `playlist.getAll` | Query | Yes | List user's playlists |
-| `playlist.getById` | Query | Yes | Get playlist with videos |
-| `playlist.update` | Mutation | Yes | Update playlist metadata |
-| `playlist.delete` | Mutation | Yes | Delete playlist |
-| `playlist.addVideos` | Mutation | Yes | Add videos to playlist |
-| `playlist.removeVideos` | Mutation | Yes | Remove videos from playlist |
+| Endpoint | Type | Auth | Completed | Purpose |
+|----------|------|------|-----------|---------|
+| `playlist.create` | Mutation | Yes | Not Started | Create new playlist |
+| `playlist.getAll` | Query | Yes | Not Started | List user's playlists |
+| `playlist.getById` | Query | Yes | Not Started | Get playlist with videos |
+| `playlist.update` | Mutation | Yes | Not Started | Update playlist metadata |
+| `playlist.delete` | Mutation | Yes | Not Started | Delete playlist |
+| `playlist.addVideos` | Mutation | Yes | Not Started | Add videos to playlist |
+| `playlist.removeVideos` | Mutation | Yes | Not Started | Remove videos from playlist |
 
 ### Growth Endpoints
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `playlist.reorder` | Mutation | Yes | Reorder videos | High |
-| `playlist.duplicate` | Mutation | Yes | Clone playlist | Medium |
-| `playlist.share` | Mutation | Yes | Share with users/link | Medium |
-| `playlist.getShared` | Query | Yes | Get shared playlists | Medium |
-| `playlist.merge` | Mutation | Yes | Combine playlists | Low |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `playlist.reorder` | Mutation | Yes | Not Started | Reorder videos | High |
+| `playlist.duplicate` | Mutation | Yes | Not Started | Clone playlist | Medium |
+| `playlist.share` | Mutation | Yes | Not Started | Share with users/link | Medium |
+| `playlist.getShared` | Query | Yes | Not Started | Get shared playlists | Medium |
+| `playlist.merge` | Mutation | Yes | Not Started | Combine playlists | Low |
 
 ### Scale Endpoints
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `playlist.createSmart` | Mutation | Yes | Auto-updating playlist | Medium |
-| `playlist.setPresentation` | Mutation | Yes | Presentation mode settings | Low |
-| `playlist.getAnalytics` | Query | Yes | View engagement stats | Low |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `playlist.createSmart` | Mutation | Yes | Not Started | Auto-updating playlist | Medium |
+| `playlist.setPresentation` | Mutation | Yes | Not Started | Presentation mode settings | Low |
+| `playlist.getAnalytics` | Query | Yes | Not Started | View engagement stats | Low |
 
 ---
 

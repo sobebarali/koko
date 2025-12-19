@@ -16,41 +16,41 @@ The Videos domain is the **core feature** of Koko. It handles video upload, tran
 ## 📌 Quick Reference
 
 ### MVP Endpoints
-| Endpoint | Type | Auth | Purpose |
-|----------|------|------|---------|
-| `video.createUpload` | Mutation | Yes | Initialize upload & get TUS endpoint |
-| `video.getById` | Query | Yes | Get video details |
-| `video.getAll` | Query | Yes | List videos in project |
-| `video.updateMetadata` | Mutation | Yes | Update title/description/tags |
-| `video.delete` | Mutation | Yes | Delete video |
-| `video.getPlaybackUrl` | Query | Yes | Get streaming URL |
+| Endpoint | Type | Auth | Completed | Purpose |
+|----------|------|------|-----------|---------|
+| `video.createUpload` | Mutation | Yes | Done | Initialize upload & get TUS endpoint |
+| `video.getById` | Query | Yes | Done | Get video details |
+| `video.getAll` | Query | Yes | Done | List videos in project |
+| `video.updateMetadata` | Mutation | Yes | Done | Update title/description/tags |
+| `video.delete` | Mutation | Yes | Done | Delete video |
+| `video.getPlaybackUrl` | Query | Yes | Done | Get streaming URL |
 
 ### Future Endpoints
 
 #### Post-Launch (Month 1-2)
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `video.updateThumbnail` | Mutation | Yes | Custom thumbnail | High |
-| `video.getProcessingStatus` | Query | Yes | Real-time status | High |
-| `video.addCaptions` | Mutation | Yes | Upload subtitles | Medium |
-| `video.downloadOriginal` | Query | Yes | Download source | Medium |
-| `video.bulkDelete` | Mutation | Yes | Delete multiple | Medium |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `video.updateThumbnail` | Mutation | Yes | Done | Custom thumbnail | High |
+| `video.getProcessingStatus` | Query | Yes | Done | Real-time status | High |
+| `video.addCaptions` | Mutation | Yes | Done | Upload subtitles | Medium |
+| `video.downloadOriginal` | Query | Yes | Done | Download source | Medium |
+| `video.bulkDelete` | Mutation | Yes | Done | Delete multiple | Medium |
 
 #### Growth (Month 3-6)
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `video.search` | Query | Yes | Full-text search | High |
-| `video.getAnalytics` | Query | Yes | View stats (Bunny) | High |
-| `video.getHeatmap` | Query | Yes | Engagement heatmap | Medium |
-| `video.reencode` | Mutation | Yes | Change encoding | Low |
-| `video.addChapters` | Mutation | Yes | Video chapters | Low |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `video.search` | Query | Yes | Not Started | Full-text search | High |
+| `video.getAnalytics` | Query | Yes | Not Started | View stats (Bunny) | High |
+| `video.getHeatmap` | Query | Yes | Not Started | Engagement heatmap | Medium |
+| `video.reencode` | Mutation | Yes | Not Started | Change encoding | Low |
+| `video.addChapters` | Mutation | Yes | Not Started | Video chapters | Low |
 
 #### Scale (Month 6+)
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `video.transcribe` | Mutation | Yes | AI subtitles (Bunny) | High |
-| `video.generateClips` | Mutation | Yes | AI highlights | Medium |
-| `video.liveStream` | Mutation | Yes | Live streaming | Low |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `video.transcribe` | Mutation | Yes | Not Started | AI subtitles (Bunny) | High |
+| `video.generateClips` | Mutation | Yes | Not Started | AI highlights | Medium |
+| `video.liveStream` | Mutation | Yes | Not Started | Live streaming | Low |
 
 ---
 

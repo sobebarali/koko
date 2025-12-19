@@ -14,37 +14,37 @@ The Comments domain enables **timecode-based feedback** on videos, which is the 
 ## 📌 Quick Reference
 
 ### MVP Endpoints
-| Endpoint | Type | Auth | Purpose |
-|----------|------|------|---------|
-| `comment.create` | Mutation | Yes | Create comment with timecode |
-| `comment.getAll` | Query | Yes | Get all comments for video |
-| `comment.getById` | Query | Yes | Get single comment |
-| `comment.reply` | Mutation | Yes | Reply to comment |
-| `comment.update` | Mutation | Yes | Edit comment text |
-| `comment.delete` | Mutation | Yes | Delete comment |
-| `comment.resolve` | Mutation | Yes | Mark as resolved |
+| Endpoint | Type | Auth | Completed | Purpose |
+|----------|------|------|-----------|---------|
+| `comment.create` | Mutation | Yes | Done | Create comment with timecode |
+| `comment.getAll` | Query | Yes | Done | Get all comments for video |
+| `comment.getById` | Query | Yes | Done | Get single comment |
+| `comment.reply` | Mutation | Yes | Done | Reply to comment |
+| `comment.update` | Mutation | Yes | Done | Edit comment text |
+| `comment.delete` | Mutation | Yes | Done | Delete comment |
+| `comment.resolve` | Mutation | Yes | Done | Mark as resolved |
 
 ### Future Endpoints
 
 #### Post-Launch (Month 1-2)
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `comment.unresolve` | Mutation | Yes | Reopen resolved comment | High |
-| `comment.mention` | Mutation | Yes | Mention user (@username) | High |
-| `comment.search` | Query | Yes | Search comments | Medium |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `comment.unresolve` | Mutation | Yes | Done | Reopen resolved comment | High |
+| `comment.mention` | Mutation | Yes | Not Started | Mention user (@username) | High |
+| `comment.search` | Query | Yes | Done | Search comments | Medium |
 
 #### Growth (Month 3-6)
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `comment.bulkResolve` | Mutation | Yes | Resolve multiple | Medium |
-| `comment.export` | Query | Yes | Export (PDF/CSV) | Medium |
-| `comment.getThread` | Query | Yes | Get full thread | Low |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `comment.bulkResolve` | Mutation | Yes | Not Started | Resolve multiple | Medium |
+| `comment.export` | Query | Yes | Not Started | Export (PDF/CSV) | Medium |
+| `comment.getThread` | Query | Yes | Not Started | Get full thread | Low |
 
 #### Scale (Month 6+)
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `comment.translate` | Mutation | Yes | Translate comment (AI) | Low |
-| `comment.summarize` | Query | Yes | AI summary | Low |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `comment.translate` | Mutation | Yes | Not Started | Translate comment (AI) | Low |
+| `comment.summarize` | Query | Yes | Not Started | AI summary | Low |
 
 ---
 

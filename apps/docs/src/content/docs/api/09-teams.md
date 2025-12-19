@@ -16,29 +16,29 @@ The Teams domain enables **multi-user collaboration** by allowing organizations 
 ## 📌 Quick Reference
 
 ### Growth Phase Endpoints
-| Endpoint | Type | Auth | Purpose |
-|----------|------|------|---------|
-| `team.create` | Mutation | Yes | Create new team |
-| `team.getById` | Query | Yes | Get team details |
-| `team.getAll` | Query | Yes | List user's teams |
-| `team.update` | Mutation | Yes | Update team settings |
-| `team.delete` | Mutation | Yes | Delete team |
-| `team.addMember` | Mutation | Yes | Add team member |
-| `team.removeMember` | Mutation | Yes | Remove team member |
-| `team.updateMemberRole` | Mutation | Yes | Change member role |
-| `team.getMembers` | Query | Yes | List team members |
-| `team.transferOwnership` | Mutation | Yes | Transfer team ownership |
+| Endpoint | Type | Auth | Completed | Purpose |
+|----------|------|------|-----------|---------|
+| `team.create` | Mutation | Yes | Not Started | Create new team |
+| `team.getById` | Query | Yes | Not Started | Get team details |
+| `team.getAll` | Query | Yes | Not Started | List user's teams |
+| `team.update` | Mutation | Yes | Not Started | Update team settings |
+| `team.delete` | Mutation | Yes | Not Started | Delete team |
+| `team.addMember` | Mutation | Yes | Not Started | Add team member |
+| `team.removeMember` | Mutation | Yes | Not Started | Remove team member |
+| `team.updateMemberRole` | Mutation | Yes | Not Started | Change member role |
+| `team.getMembers` | Query | Yes | Not Started | List team members |
+| `team.transferOwnership` | Mutation | Yes | Not Started | Transfer team ownership |
 
 ### Future Endpoints
 
 #### Scale Phase (Month 6+)
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `team.updateBilling` | Mutation | Yes | Update billing info | High |
-| `team.getUsage` | Query | Yes | Get usage stats | High |
-| `team.inviteByEmail` | Mutation | Yes | Send email invitation | Medium |
-| `team.updateBranding` | Mutation | Yes | Update team logo/colors | Low |
-| `team.getAuditLog` | Query | Yes | Activity audit log | Medium |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `team.updateBilling` | Mutation | Yes | Not Started | Update billing info | High |
+| `team.getUsage` | Query | Yes | Not Started | Get usage stats | High |
+| `team.inviteByEmail` | Mutation | Yes | Not Started | Send email invitation | Medium |
+| `team.updateBranding` | Mutation | Yes | Not Started | Update team logo/colors | Low |
+| `team.getAuditLog` | Query | Yes | Not Started | Activity audit log | Medium |
 
 ---
 

@@ -14,32 +14,32 @@ The Guest Access domain enables sharing videos and projects with external review
 ## 📌 Quick Reference
 
 ### Post-Launch Endpoints
-| Endpoint | Type | Auth | Purpose |
-|----------|------|------|---------|
-| `guest.createLink` | Mutation | Yes | Generate shareable review link |
-| `guest.getAll` | Query | Yes | List all guest links for resource |
-| `guest.getById` | Query | Yes | Get guest link details |
-| `guest.update` | Mutation | Yes | Update link settings |
-| `guest.revoke` | Mutation | Yes | Revoke/disable link |
-| `guest.validateAccess` | Query | No | Validate guest token |
+| Endpoint | Type | Auth | Completed | Purpose |
+|----------|------|------|-----------|---------|
+| `guest.createLink` | Mutation | Yes | Not Started | Generate shareable review link |
+| `guest.getAll` | Query | Yes | Not Started | List all guest links for resource |
+| `guest.getById` | Query | Yes | Not Started | Get guest link details |
+| `guest.update` | Mutation | Yes | Not Started | Update link settings |
+| `guest.revoke` | Mutation | Yes | Not Started | Revoke/disable link |
+| `guest.validateAccess` | Query | No | Not Started | Validate guest token |
 
 ### Growth Endpoints
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `guest.setPassword` | Mutation | Yes | Add password protection | High |
-| `guest.setExpiry` | Mutation | Yes | Set expiration date | High |
-| `guest.setWatermark` | Mutation | Yes | Enable viewer watermark | Medium |
-| `guest.trackView` | Mutation | No | Log guest view activity | Medium |
-| `guest.getAnalytics` | Query | Yes | View engagement stats | Medium |
-| `guest.bulkCreate` | Mutation | Yes | Create multiple links | Low |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `guest.setPassword` | Mutation | Yes | Not Started | Add password protection | High |
+| `guest.setExpiry` | Mutation | Yes | Not Started | Set expiration date | High |
+| `guest.setWatermark` | Mutation | Yes | Not Started | Enable viewer watermark | Medium |
+| `guest.trackView` | Mutation | No | Not Started | Log guest view activity | Medium |
+| `guest.getAnalytics` | Query | Yes | Not Started | View engagement stats | Medium |
+| `guest.bulkCreate` | Mutation | Yes | Not Started | Create multiple links | Low |
 
 ### Scale Endpoints
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `guest.setDomainRestriction` | Mutation | Yes | Restrict by email domain | High |
-| `guest.requireEmail` | Mutation | Yes | Require email to view | Medium |
-| `guest.setDownloadPermission` | Mutation | Yes | Allow/deny downloads | Medium |
-| `guest.ipWhitelist` | Mutation | Yes | Restrict by IP | Low |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `guest.setDomainRestriction` | Mutation | Yes | Not Started | Restrict by email domain | High |
+| `guest.requireEmail` | Mutation | Yes | Not Started | Require email to view | Medium |
+| `guest.setDownloadPermission` | Mutation | Yes | Not Started | Allow/deny downloads | Medium |
+| `guest.ipWhitelist` | Mutation | Yes | Not Started | Restrict by IP | Low |
 
 ---
 

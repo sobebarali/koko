@@ -14,28 +14,28 @@ The Exports domain handles downloading and exporting videos, assets, comments, a
 ## 📌 Quick Reference
 
 ### Post-Launch Endpoints
-| Endpoint | Type | Auth | Purpose |
-|----------|------|------|---------|
-| `export.requestVideoDownload` | Mutation | Yes | Request video download URL |
-| `export.getDownloadUrl` | Query | Yes | Get signed download URL |
-| `export.getStatus` | Query | Yes | Check export job status |
+| Endpoint | Type | Auth | Completed | Purpose |
+|----------|------|------|-----------|---------|
+| `export.requestVideoDownload` | Mutation | Yes | Not Started | Request video download URL |
+| `export.getDownloadUrl` | Query | Yes | Not Started | Get signed download URL |
+| `export.getStatus` | Query | Yes | Not Started | Check export job status |
 
 ### Growth Endpoints
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `export.batchDownload` | Mutation | Yes | Download multiple videos | High |
-| `export.exportComments` | Mutation | Yes | Export comments to CSV/PDF | High |
-| `export.exportProject` | Mutation | Yes | Export entire project | Medium |
-| `export.createPackage` | Mutation | Yes | Create download package | Medium |
-| `export.exportAnnotations` | Mutation | Yes | Export annotations data | Low |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `export.batchDownload` | Mutation | Yes | Not Started | Download multiple videos | High |
+| `export.exportComments` | Mutation | Yes | Not Started | Export comments to CSV/PDF | High |
+| `export.exportProject` | Mutation | Yes | Not Started | Export entire project | Medium |
+| `export.createPackage` | Mutation | Yes | Not Started | Create download package | Medium |
+| `export.exportAnnotations` | Mutation | Yes | Not Started | Export annotations data | Low |
 
 ### Scale Endpoints
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `export.scheduleExport` | Mutation | Yes | Schedule recurring exports | Medium |
-| `export.exportToCloud` | Mutation | Yes | Export to cloud storage | Medium |
-| `export.getHistory` | Query | Yes | Export history log | Low |
-| `export.setDefaults` | Mutation | Yes | Set default export settings | Low |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `export.scheduleExport` | Mutation | Yes | Not Started | Schedule recurring exports | Medium |
+| `export.exportToCloud` | Mutation | Yes | Not Started | Export to cloud storage | Medium |
+| `export.getHistory` | Query | Yes | Not Started | Export history log | Low |
+| `export.setDefaults` | Mutation | Yes | Not Started | Set default export settings | Low |
 
 ---
 

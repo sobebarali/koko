@@ -14,29 +14,29 @@ The Integrations domain enables connecting Koko with external services like proj
 ## 📌 Quick Reference
 
 ### Post-Launch Endpoints
-| Endpoint | Type | Auth | Purpose |
-|----------|------|------|---------|
-| `integration.list` | Query | Yes | List available integrations |
-| `integration.connect` | Mutation | Yes | Connect an integration |
-| `integration.disconnect` | Mutation | Yes | Disconnect integration |
-| `integration.getStatus` | Query | Yes | Get connection status |
+| Endpoint | Type | Auth | Completed | Purpose |
+|----------|------|------|-----------|---------|
+| `integration.list` | Query | Yes | Not Started | List available integrations |
+| `integration.connect` | Mutation | Yes | Not Started | Connect an integration |
+| `integration.disconnect` | Mutation | Yes | Not Started | Disconnect integration |
+| `integration.getStatus` | Query | Yes | Not Started | Get connection status |
 
 ### Growth Endpoints
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `integration.sync` | Mutation | Yes | Trigger manual sync | High |
-| `integration.configure` | Mutation | Yes | Update integration settings | High |
-| `integration.getLogs` | Query | Yes | View sync logs | Medium |
-| `integration.test` | Mutation | Yes | Test connection | Medium |
-| `integration.importAssets` | Mutation | Yes | Import from cloud storage | Medium |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `integration.sync` | Mutation | Yes | Not Started | Trigger manual sync | High |
+| `integration.configure` | Mutation | Yes | Not Started | Update integration settings | High |
+| `integration.getLogs` | Query | Yes | Not Started | View sync logs | Medium |
+| `integration.test` | Mutation | Yes | Not Started | Test connection | Medium |
+| `integration.importAssets` | Mutation | Yes | Not Started | Import from cloud storage | Medium |
 
 ### Scale Endpoints
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `integration.createCustom` | Mutation | Yes | Create custom integration | High |
-| `integration.mapFields` | Mutation | Yes | Custom field mapping | Medium |
-| `integration.setTriggers` | Mutation | Yes | Automation triggers | Medium |
-| `integration.getMetrics` | Query | Yes | Integration usage metrics | Low |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `integration.createCustom` | Mutation | Yes | Not Started | Create custom integration | High |
+| `integration.mapFields` | Mutation | Yes | Not Started | Custom field mapping | Medium |
+| `integration.setTriggers` | Mutation | Yes | Not Started | Automation triggers | Medium |
+| `integration.getMetrics` | Query | Yes | Not Started | Integration usage metrics | Low |
 
 ---
 

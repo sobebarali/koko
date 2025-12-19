@@ -14,35 +14,35 @@ Projects are the primary organizational unit in Koko. Each project contains vide
 ## 📌 Quick Reference
 
 ### MVP Endpoints
-| Endpoint | Type | Auth | Purpose |
-|----------|------|------|---------|
-| `project.create` | Mutation | Yes | Create new project |
-| `project.getById` | Query | Yes | Get project details |
-| `project.getAll` | Query | Yes | List user's projects |
-| `project.update` | Mutation | Yes | Update project metadata |
-| `project.delete` | Mutation | Yes | Delete project |
+| Endpoint | Type | Auth | Completed | Purpose |
+|----------|------|------|-----------|---------|
+| `project.create` | Mutation | Yes | Done | Create new project |
+| `project.getById` | Query | Yes | Done | Get project details |
+| `project.getAll` | Query | Yes | Done | List user's projects |
+| `project.update` | Mutation | Yes | Done | Update project metadata |
+| `project.delete` | Mutation | Yes | Done | Delete project |
 
 ### Future Endpoints
 
 #### Post-Launch (Month 1-2)
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `project.archive` | Mutation | Yes | Archive project | High |
-| `project.restore` | Mutation | Yes | Restore archived project | High |
-| `project.duplicate` | Mutation | Yes | Duplicate project | Medium |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `project.archive` | Mutation | Yes | Done | Archive project | High |
+| `project.restore` | Mutation | Yes | Done | Restore archived project | High |
+| `project.duplicate` | Mutation | Yes | Done | Duplicate project | Medium |
 
 #### Growth (Month 3-6)
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `project.search` | Query | Yes | Search projects | High |
-| `project.getStats` | Query | Yes | Project statistics | Medium |
-| `project.bulkDelete` | Mutation | Yes | Delete multiple projects | Low |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `project.search` | Query | Yes | Not Started | Search projects | High |
+| `project.getStats` | Query | Yes | Not Started | Project statistics | Medium |
+| `project.bulkDelete` | Mutation | Yes | Not Started | Delete multiple projects | Low |
 
 #### Scale (Month 6+)
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `project.template.create` | Mutation | Yes | Create project template | Medium |
-| `project.template.use` | Mutation | Yes | Create from template | Medium |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `project.template.create` | Mutation | Yes | Not Started | Create project template | Medium |
+| `project.template.use` | Mutation | Yes | Not Started | Create from template | Medium |
 
 ---
 

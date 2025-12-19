@@ -9,41 +9,43 @@ description: User registration, login, session management, and password reset en
 
 The Authentication domain handles user registration, login, logout, session management, and password reset functionality. Built on Better-Auth v1.4.0 with SQLite/Turso session storage.
 
+**Important:** The MVP authentication endpoints (`signUp`, `signIn`, `signOut`, `getSession`) are provided by Better-Auth as REST API endpoints at `/api/auth/*`, **not as tRPC endpoints**. They are accessed using the Better-Auth client (`authClient`), not the tRPC client. The Post-Launch endpoints (`verifyEmail`, `requestPasswordReset`, `resetPassword`, `changePassword`) are implemented as tRPC endpoints for additional functionality.
+
 ---
 
 ## 📌 Quick Reference
 
 ### MVP Endpoints
-| Endpoint | Type | Auth | Purpose |
-|----------|------|------|---------|
-| `auth.signUp` | Mutation | No | Register new user |
-| `auth.signIn` | Mutation | No | Login with email/password |
-| `auth.signOut` | Mutation | Yes | Logout current session |
-| `auth.getSession` | Query | Yes | Get current session details |
+| Endpoint | Type | Auth | Completed | Purpose |
+|----------|------|------|-----------|---------|
+| `auth.signUp` | Mutation | No | Done | Register new user |
+| `auth.signIn` | Mutation | No | Done | Login with email/password |
+| `auth.signOut` | Mutation | Yes | Done | Logout current session |
+| `auth.getSession` | Query | Yes | Done | Get current session details |
 
 ### Future Endpoints
 
 #### Post-Launch (Month 1-2)
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `auth.verifyEmail` | Mutation | No | Verify email address | High |
-| `auth.requestPasswordReset` | Mutation | No | Request password reset | High |
-| `auth.resetPassword` | Mutation | No | Reset password with token | High |
-| `auth.changePassword` | Mutation | Yes | Change password (logged in) | Medium |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `auth.verifyEmail` | Mutation | No | Done | Verify email address | High |
+| `auth.requestPasswordReset` | Mutation | No | Done | Request password reset | High |
+| `auth.resetPassword` | Mutation | No | Done | Reset password with token | High |
+| `auth.changePassword` | Mutation | Yes | Done | Change password (logged in) | Medium |
 
 #### Growth (Month 3-6)
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `auth.oauth.google` | Mutation | No | Sign in with Google | High |
-| `auth.oauth.github` | Mutation | No | Sign in with GitHub | Medium |
-| `auth.listSessions` | Query | Yes | List all active sessions | Medium |
-| `auth.revokeSession` | Mutation | Yes | Revoke specific session | Medium |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `auth.oauth.google` | Mutation | No | Not Started | Sign in with Google | High |
+| `auth.oauth.github` | Mutation | No | Not Started | Sign in with GitHub | Medium |
+| `auth.listSessions` | Query | Yes | Not Started | List all active sessions | Medium |
+| `auth.revokeSession` | Mutation | Yes | Not Started | Revoke specific session | Medium |
 
 #### Scale (Month 6+)
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `auth.twoFactor.enable` | Mutation | Yes | Enable 2FA | High |
-| `auth.twoFactor.verify` | Mutation | Yes | Verify 2FA code | High |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `auth.twoFactor.enable` | Mutation | Yes | Not Started | Enable 2FA | High |
+| `auth.twoFactor.verify` | Mutation | Yes | Not Started | Verify 2FA code | High |
 
 ---
 
@@ -198,14 +200,24 @@ export const account = sqliteTable("account", {
 **Example Request:**
 
 ```typescript
-const result = await trpc.auth.signUp.mutate({
-  email: "john@example.com",
-  password: "SecurePass123!",
-  name: "John Doe",
-});
+import { authClient } from "@/lib/auth-client";
 
-// Session cookie automatically set by Better-Auth
-console.log(result.user.id); // "507f1f77bcf86cd799439011"
+await authClient.signUp.email(
+  {
+    email: "john@example.com",
+    password: "SecurePass123!",
+    name: "John Doe",
+  },
+  {
+    onSuccess: (ctx) => {
+      console.log(ctx.user.id); // "507f1f77bcf86cd799439011"
+      // Session cookie automatically set by Better-Auth
+    },
+    onError: (error) => {
+      console.error(error.error.message);
+    },
+  }
+);
 ```
 
 **Example Response:**
@@ -350,12 +362,23 @@ const session = await db.session.create({
 **Example Request:**
 
 ```typescript
-const result = await trpc.auth.signIn.mutate({
-  email: "john@example.com",
-  password: "SecurePass123!",
-});
+import { authClient } from "@/lib/auth-client";
 
-// Now authenticated - session cookie set
+await authClient.signIn.email(
+  {
+    email: "john@example.com",
+    password: "SecurePass123!",
+  },
+  {
+    onSuccess: (ctx) => {
+      console.log("Logged in:", ctx.user.id);
+      // Now authenticated - session cookie set
+    },
+    onError: (error) => {
+      console.error(error.error.message);
+    },
+  }
+);
 ```
 
 **Example Response:**
@@ -482,7 +505,9 @@ const session = await db.session.create({
 **Example Request:**
 
 ```typescript
-await trpc.auth.signOut.mutate();
+import { authClient } from "@/lib/auth-client";
+
+await authClient.signOut();
 
 // Session cookie cleared, user logged out
 ```
@@ -574,10 +599,15 @@ ctx.res.clearCookie('better-auth.session_token');
 **Example Request:**
 
 ```typescript
-const { session, user } = await trpc.auth.getSession.query();
+import { authClient } from "@/lib/auth-client";
 
-console.log(user.name); // "John Doe"
-console.log(session.expiresAt); // "2025-01-22T10:30:00Z"
+// In React components
+const { data: session, isPending } = authClient.useSession();
+
+if (isPending) return <div>Loading...</div>;
+
+console.log(session?.user.name); // "John Doe"
+console.log(session?.session.expiresAt); // "2025-01-22T10:30:00Z"
 ```
 
 **Example Response:**

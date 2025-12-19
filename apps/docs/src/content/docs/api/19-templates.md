@@ -14,30 +14,30 @@ The Templates domain enables teams to create reusable structures for projects, f
 ## 📌 Quick Reference
 
 ### Post-Launch Endpoints
-| Endpoint | Type | Auth | Purpose |
-|----------|------|------|---------|
-| `template.create` | Mutation | Yes | Create new template |
-| `template.getAll` | Query | Yes | List templates |
-| `template.getById` | Query | Yes | Get template details |
-| `template.update` | Mutation | Yes | Update template |
-| `template.delete` | Mutation | Yes | Delete template |
-| `template.apply` | Mutation | Yes | Apply template |
+| Endpoint | Type | Auth | Completed | Purpose |
+|----------|------|------|-----------|---------|
+| `template.create` | Mutation | Yes | Not Started | Create new template |
+| `template.getAll` | Query | Yes | Not Started | List templates |
+| `template.getById` | Query | Yes | Not Started | Get template details |
+| `template.update` | Mutation | Yes | Not Started | Update template |
+| `template.delete` | Mutation | Yes | Not Started | Delete template |
+| `template.apply` | Mutation | Yes | Not Started | Apply template |
 
 ### Growth Endpoints
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `template.duplicate` | Mutation | Yes | Clone template | High |
-| `template.createFromProject` | Mutation | Yes | Create from existing project | High |
-| `template.share` | Mutation | Yes | Share with team | Medium |
-| `template.getCategories` | Query | Yes | List template categories | Low |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `template.duplicate` | Mutation | Yes | Not Started | Clone template | High |
+| `template.createFromProject` | Mutation | Yes | Not Started | Create from existing project | High |
+| `template.share` | Mutation | Yes | Not Started | Share with team | Medium |
+| `template.getCategories` | Query | Yes | Not Started | List template categories | Low |
 
 ### Scale Endpoints
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `template.setDefault` | Mutation | Yes | Set team default template | Medium |
-| `template.getUsage` | Query | Yes | Template usage analytics | Low |
-| `template.import` | Mutation | Yes | Import from file | Low |
-| `template.export` | Mutation | Yes | Export to file | Low |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `template.setDefault` | Mutation | Yes | Not Started | Set team default template | Medium |
+| `template.getUsage` | Query | Yes | Not Started | Template usage analytics | Low |
+| `template.import` | Mutation | Yes | Not Started | Import from file | Low |
+| `template.export` | Mutation | Yes | Not Started | Export to file | Low |
 
 ---
 

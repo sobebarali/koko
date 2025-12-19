@@ -14,31 +14,31 @@ The Approvals domain enables formal review workflows for video deliverables. Sta
 ## 📌 Quick Reference
 
 ### Post-Launch Endpoints
-| Endpoint | Type | Auth | Purpose |
-|----------|------|------|---------|
-| `approval.request` | Mutation | Yes | Create approval request |
-| `approval.getAll` | Query | Yes | List approvals for video |
-| `approval.getById` | Query | Yes | Get approval details |
-| `approval.approve` | Mutation | Yes | Approve video/version |
-| `approval.reject` | Mutation | Yes | Reject with feedback |
-| `approval.requestChanges` | Mutation | Yes | Request revisions |
+| Endpoint | Type | Auth | Completed | Purpose |
+|----------|------|------|-----------|---------|
+| `approval.request` | Mutation | Yes | Not Started | Create approval request |
+| `approval.getAll` | Query | Yes | Not Started | List approvals for video |
+| `approval.getById` | Query | Yes | Not Started | Get approval details |
+| `approval.approve` | Mutation | Yes | Not Started | Approve video/version |
+| `approval.reject` | Mutation | Yes | Not Started | Reject with feedback |
+| `approval.requestChanges` | Mutation | Yes | Not Started | Request revisions |
 
 ### Growth Endpoints
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `approval.remind` | Mutation | Yes | Send reminder to approver | High |
-| `approval.delegate` | Mutation | Yes | Delegate to another user | High |
-| `approval.cancel` | Mutation | Yes | Cancel pending approval | Medium |
-| `approval.getHistory` | Query | Yes | Full approval audit trail | Medium |
-| `approval.bulkRequest` | Mutation | Yes | Request approval for multiple | Low |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `approval.remind` | Mutation | Yes | Not Started | Send reminder to approver | High |
+| `approval.delegate` | Mutation | Yes | Not Started | Delegate to another user | High |
+| `approval.cancel` | Mutation | Yes | Not Started | Cancel pending approval | Medium |
+| `approval.getHistory` | Query | Yes | Not Started | Full approval audit trail | Medium |
+| `approval.bulkRequest` | Mutation | Yes | Not Started | Request approval for multiple | Low |
 
 ### Scale Endpoints
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `approval.createWorkflow` | Mutation | Yes | Create approval workflow template | High |
-| `approval.setDeadline` | Mutation | Yes | Set approval deadline | Medium |
-| `approval.autoApprove` | Mutation | Yes | Configure auto-approval rules | Low |
-| `approval.escalate` | Mutation | Yes | Escalate overdue approval | Low |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `approval.createWorkflow` | Mutation | Yes | Not Started | Create approval workflow template | High |
+| `approval.setDeadline` | Mutation | Yes | Not Started | Set approval deadline | Medium |
+| `approval.autoApprove` | Mutation | Yes | Not Started | Configure auto-approval rules | Low |
+| `approval.escalate` | Mutation | Yes | Not Started | Escalate overdue approval | Low |
 
 ---
 

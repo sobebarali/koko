@@ -14,29 +14,29 @@ The Presence domain enables real-time collaboration features including live curs
 ## 📌 Quick Reference
 
 ### Post-Launch Endpoints
-| Endpoint | Type | Auth | Purpose |
-|----------|------|------|---------|
-| `presence.join` | Mutation | Yes | Join a room/resource |
-| `presence.leave` | Mutation | Yes | Leave a room |
-| `presence.heartbeat` | Mutation | Yes | Update presence status |
-| `presence.getActive` | Query | Yes | Get active users in room |
+| Endpoint | Type | Auth | Completed | Purpose |
+|----------|------|------|-----------|---------|
+| `presence.join` | Mutation | Yes | Not Started | Join a room/resource |
+| `presence.leave` | Mutation | Yes | Not Started | Leave a room |
+| `presence.heartbeat` | Mutation | Yes | Not Started | Update presence status |
+| `presence.getActive` | Query | Yes | Not Started | Get active users in room |
 
 ### Growth Endpoints
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `presence.updateCursor` | Mutation | Yes | Broadcast cursor position | High |
-| `presence.updateSelection` | Mutation | Yes | Broadcast selection | High |
-| `presence.setStatus` | Mutation | Yes | Set user status | Medium |
-| `presence.startTyping` | Mutation | Yes | Indicate typing | Medium |
-| `presence.stopTyping` | Mutation | Yes | Stop typing indicator | Medium |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `presence.updateCursor` | Mutation | Yes | Not Started | Broadcast cursor position | High |
+| `presence.updateSelection` | Mutation | Yes | Not Started | Broadcast selection | High |
+| `presence.setStatus` | Mutation | Yes | Not Started | Set user status | Medium |
+| `presence.startTyping` | Mutation | Yes | Not Started | Indicate typing | Medium |
+| `presence.stopTyping` | Mutation | Yes | Not Started | Stop typing indicator | Medium |
 
 ### Scale Endpoints
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `presence.syncPlayback` | Mutation | Yes | Sync video playback | High |
-| `presence.requestControl` | Mutation | Yes | Request playback control | Medium |
-| `presence.grantControl` | Mutation | Yes | Grant control to user | Medium |
-| `presence.broadcast` | Mutation | Yes | Custom broadcast message | Low |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `presence.syncPlayback` | Mutation | Yes | Not Started | Sync video playback | High |
+| `presence.requestControl` | Mutation | Yes | Not Started | Request playback control | Medium |
+| `presence.grantControl` | Mutation | Yes | Not Started | Grant control to user | Medium |
+| `presence.broadcast` | Mutation | Yes | Not Started | Custom broadcast message | Low |
 
 ---
 

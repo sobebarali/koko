@@ -16,30 +16,30 @@ The Notifications domain provides a **real-time notification system** for keepin
 ## 📌 Quick Reference
 
 ### Post-Launch Endpoints
-| Endpoint | Type | Auth | Purpose |
-|----------|------|------|---------|
-| `notification.getAll` | Query | Yes | Get user notifications |
-| `notification.getUnreadCount` | Query | Yes | Get unread count |
-| `notification.markAsRead` | Mutation | Yes | Mark notification as read |
-| `notification.markAllAsRead` | Mutation | Yes | Mark all as read |
-| `notification.delete` | Mutation | Yes | Delete notification |
-| `notification.updatePreferences` | Mutation | Yes | Update notification settings |
-| `notification.getPreferences` | Query | Yes | Get notification preferences |
+| Endpoint | Type | Auth | Completed | Purpose |
+|----------|------|------|-----------|---------|
+| `notification.getAll` | Query | Yes | Not Started | Get user notifications |
+| `notification.getUnreadCount` | Query | Yes | Not Started | Get unread count |
+| `notification.markAsRead` | Mutation | Yes | Not Started | Mark notification as read |
+| `notification.markAllAsRead` | Mutation | Yes | Not Started | Mark all as read |
+| `notification.delete` | Mutation | Yes | Not Started | Delete notification |
+| `notification.updatePreferences` | Mutation | Yes | Not Started | Update notification settings |
+| `notification.getPreferences` | Query | Yes | Not Started | Get notification preferences |
 
 ### Future Endpoints
 
 #### Growth Phase (Month 3-6)
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `notification.subscribe` | Subscription | Yes | WebSocket real-time updates | High |
-| `notification.deleteAll` | Mutation | Yes | Clear all notifications | Medium |
-| `notification.snooze` | Mutation | Yes | Snooze notification | Low |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `notification.subscribe` | Subscription | Yes | Not Started | WebSocket real-time updates | High |
+| `notification.deleteAll` | Mutation | Yes | Not Started | Clear all notifications | Medium |
+| `notification.snooze` | Mutation | Yes | Not Started | Snooze notification | Low |
 
 #### Scale Phase (Month 6+)
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `notification.sendDigest` | Mutation | No | Send email digest (cron) | High |
-| `notification.getActivityFeed` | Query | Yes | Activity timeline | Medium |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `notification.sendDigest` | Mutation | No | Not Started | Send email digest (cron) | High |
+| `notification.getActivityFeed` | Query | Yes | Not Started | Activity timeline | Medium |
 
 ---
 

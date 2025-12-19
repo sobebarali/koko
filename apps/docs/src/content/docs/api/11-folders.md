@@ -14,30 +14,30 @@ The Folders domain enables hierarchical organization of videos within projects. 
 ## 📌 Quick Reference
 
 ### Post-Launch Endpoints
-| Endpoint | Type | Auth | Purpose |
-|----------|------|------|---------|
-| `folder.create` | Mutation | Yes | Create new folder |
-| `folder.getAll` | Query | Yes | List folders in project |
-| `folder.getById` | Query | Yes | Get folder with contents |
-| `folder.update` | Mutation | Yes | Rename/update folder |
-| `folder.delete` | Mutation | Yes | Delete folder |
-| `folder.move` | Mutation | Yes | Move folder to new parent |
+| Endpoint | Type | Auth | Completed | Purpose |
+|----------|------|------|-----------|---------|
+| `folder.create` | Mutation | Yes | Not Started | Create new folder |
+| `folder.getAll` | Query | Yes | Not Started | List folders in project |
+| `folder.getById` | Query | Yes | Not Started | Get folder with contents |
+| `folder.update` | Mutation | Yes | Not Started | Rename/update folder |
+| `folder.delete` | Mutation | Yes | Not Started | Delete folder |
+| `folder.move` | Mutation | Yes | Not Started | Move folder to new parent |
 
 ### Growth Endpoints
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `folder.moveItems` | Mutation | Yes | Move videos between folders | High |
-| `folder.getTree` | Query | Yes | Get full folder hierarchy | High |
-| `folder.duplicate` | Mutation | Yes | Duplicate folder structure | Medium |
-| `folder.setColor` | Mutation | Yes | Set folder color | Low |
-| `folder.bulkMove` | Mutation | Yes | Move multiple items | Low |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `folder.moveItems` | Mutation | Yes | Not Started | Move videos between folders | High |
+| `folder.getTree` | Query | Yes | Not Started | Get full folder hierarchy | High |
+| `folder.duplicate` | Mutation | Yes | Not Started | Duplicate folder structure | Medium |
+| `folder.setColor` | Mutation | Yes | Not Started | Set folder color | Low |
+| `folder.bulkMove` | Mutation | Yes | Not Started | Move multiple items | Low |
 
 ### Scale Endpoints
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `folder.setPermissions` | Mutation | Yes | Folder-level permissions | Medium |
-| `folder.archive` | Mutation | Yes | Archive folder | Low |
-| `folder.getStats` | Query | Yes | Folder statistics | Low |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `folder.setPermissions` | Mutation | Yes | Not Started | Folder-level permissions | Medium |
+| `folder.archive` | Mutation | Yes | Not Started | Archive folder | Low |
+| `folder.getStats` | Query | Yes | Not Started | Folder statistics | Low |
 
 ---
 

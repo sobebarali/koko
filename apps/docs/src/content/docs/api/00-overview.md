@@ -49,22 +49,24 @@ const user = await trpc.user.getProfile.query();
 
 ### 🔐 Authentication Domain
 
-| Status | Endpoint | Type | Auth | Purpose |
-|--------|----------|------|------|---------|
-| ✅ | `auth.signUp` | Mutation | No | Register new user |
-| ✅ | `auth.signIn` | Mutation | No | Login with email/password |
-| ✅ | `auth.signOut` | Mutation | Yes | Logout current session |
-| ✅ | `auth.getSession` | Query | Yes | Get current session |
-| 🔄 | `auth.verifyEmail` | Mutation | No | Verify email address |
-| 🔄 | `auth.requestPasswordReset` | Mutation | No | Request password reset |
-| 🔄 | `auth.resetPassword` | Mutation | No | Reset password with token |
-| 🔄 | `auth.changePassword` | Mutation | Yes | Change password (logged in) |
-| 📋 | `auth.oauth.google` | Mutation | No | Sign in with Google |
-| 📋 | `auth.oauth.github` | Mutation | No | Sign in with GitHub |
-| 📋 | `auth.listSessions` | Query | Yes | List all active sessions |
-| 📋 | `auth.revokeSession` | Mutation | Yes | Revoke specific session |
-| 🎯 | `auth.twoFactor.enable` | Mutation | Yes | Enable 2FA |
-| 🎯 | `auth.twoFactor.verify` | Mutation | Yes | Verify 2FA code |
+> **Note:** MVP authentication endpoints (`signUp`, `signIn`, `signOut`, `getSession`) are Better-Auth REST endpoints at `/api/auth/*`, accessed via `authClient` (not tRPC). Post-Launch endpoints are tRPC procedures.
+
+| Status | Endpoint | Type | Auth | Completed | Purpose |
+|--------|----------|------|------|-----------|---------|
+| ✅ | `auth.signUp` | Mutation | No | Done | Register new user |
+| ✅ | `auth.signIn` | Mutation | No | Done | Login with email/password |
+| ✅ | `auth.signOut` | Mutation | Yes | Done | Logout current session |
+| ✅ | `auth.getSession` | Query | Yes | Done | Get current session |
+| 🔄 | `auth.verifyEmail` | Mutation | No | Done | Verify email address |
+| 🔄 | `auth.requestPasswordReset` | Mutation | No | Done | Request password reset |
+| 🔄 | `auth.resetPassword` | Mutation | No | Done | Reset password with token |
+| 🔄 | `auth.changePassword` | Mutation | Yes | Done | Change password (logged in) |
+| 📋 | `auth.oauth.google` | Mutation | No | Not Started | Sign in with Google |
+| 📋 | `auth.oauth.github` | Mutation | No | Not Started | Sign in with GitHub |
+| 📋 | `auth.listSessions` | Query | Yes | Not Started | List all active sessions |
+| 📋 | `auth.revokeSession` | Mutation | Yes | Not Started | Revoke specific session |
+| 🎯 | `auth.twoFactor.enable` | Mutation | Yes | Not Started | Enable 2FA |
+| 🎯 | `auth.twoFactor.verify` | Mutation | Yes | Not Started | Verify 2FA code |
 
 **MVP Total:** 4 endpoints  
 **Roadmap Total:** +10 endpoints
@@ -73,19 +75,19 @@ const user = await trpc.user.getProfile.query();
 
 ### 👤 Users Domain
 
-| Status | Endpoint | Type | Auth | Purpose |
-|--------|----------|------|------|---------|
-| ✅ | `user.getProfile` | Query | Yes | Get current user profile |
-| ✅ | `user.getById` | Query | Yes | Get user by ID |
-| ✅ | `user.updateProfile` | Mutation | Yes | Update profile info |
-| ✅ | `user.uploadAvatar` | Mutation | Yes | Upload profile picture |
-| 🔄 | `user.updatePreferences` | Mutation | Yes | Update user preferences |
-| 🔄 | `user.search` | Query | Yes | Search users |
-| 📋 | `user.getActivity` | Query | Yes | Get user activity feed |
-| 📋 | `user.block` | Mutation | Yes | Block a user |
-| 📋 | `user.unblock` | Mutation | Yes | Unblock a user |
-| 🎯 | `user.export` | Query | Yes | Export user data (GDPR) |
-| 🎯 | `user.delete` | Mutation | Yes | Delete account |
+| Status | Endpoint | Type | Auth | Completed | Purpose |
+|--------|----------|------|------|-----------|---------|
+| ✅ | `user.getProfile` | Query | Yes | Done | Get current user profile |
+| ✅ | `user.getById` | Query | Yes | Done | Get user by ID |
+| ✅ | `user.updateProfile` | Mutation | Yes | Done | Update profile info |
+| ✅ | `user.uploadAvatar` | Mutation | Yes | Done | Upload profile picture |
+| 🔄 | `user.updatePreferences` | Mutation | Yes | Not Started | Update user preferences |
+| 🔄 | `user.search` | Query | Yes | Not Started | Search users |
+| 📋 | `user.getActivity` | Query | Yes | Not Started | Get user activity feed |
+| 📋 | `user.block` | Mutation | Yes | Not Started | Block a user |
+| 📋 | `user.unblock` | Mutation | Yes | Not Started | Unblock a user |
+| 🎯 | `user.export` | Query | Yes | Not Started | Export user data (GDPR) |
+| 🎯 | `user.delete` | Mutation | Yes | Not Started | Delete account |
 
 **MVP Total:** 4 endpoints  
 **Roadmap Total:** +7 endpoints
@@ -94,21 +96,21 @@ const user = await trpc.user.getProfile.query();
 
 ### 📁 Projects Domain
 
-| Status | Endpoint | Type | Auth | Purpose |
-|--------|----------|------|------|---------|
-| ✅ | `project.create` | Mutation | Yes | Create new project |
-| ✅ | `project.getById` | Query | Yes | Get project details |
-| ✅ | `project.getAll` | Query | Yes | List user's projects |
-| ✅ | `project.update` | Mutation | Yes | Update project metadata |
-| ✅ | `project.delete` | Mutation | Yes | Delete project |
-| 🔄 | `project.archive` | Mutation | Yes | Archive project |
-| 🔄 | `project.restore` | Mutation | Yes | Restore archived project |
-| 🔄 | `project.duplicate` | Mutation | Yes | Duplicate project |
-| 📋 | `project.search` | Query | Yes | Search projects |
-| 📋 | `project.getStats` | Query | Yes | Project statistics |
-| 📋 | `project.bulkDelete` | Mutation | Yes | Delete multiple projects |
-| 🎯 | `project.template.create` | Mutation | Yes | Create project template |
-| 🎯 | `project.template.use` | Mutation | Yes | Create from template |
+| Status | Endpoint | Type | Auth | Completed | Purpose |
+|--------|----------|------|------|-----------|---------|
+| ✅ | `project.create` | Mutation | Yes | Done | Create new project |
+| ✅ | `project.getById` | Query | Yes | Done | Get project details |
+| ✅ | `project.getAll` | Query | Yes | Done | List user's projects |
+| ✅ | `project.update` | Mutation | Yes | Done | Update project metadata |
+| ✅ | `project.delete` | Mutation | Yes | Done | Delete project |
+| 🔄 | `project.archive` | Mutation | Yes | Done | Archive project |
+| 🔄 | `project.restore` | Mutation | Yes | Done | Restore archived project |
+| 🔄 | `project.duplicate` | Mutation | Yes | Done | Duplicate project |
+| 📋 | `project.search` | Query | Yes | Not Started | Search projects |
+| 📋 | `project.getStats` | Query | Yes | Not Started | Project statistics |
+| 📋 | `project.bulkDelete` | Mutation | Yes | Not Started | Delete multiple projects |
+| 🎯 | `project.template.create` | Mutation | Yes | Not Started | Create project template |
+| 🎯 | `project.template.use` | Mutation | Yes | Not Started | Create from template |
 
 **MVP Total:** 5 endpoints  
 **Roadmap Total:** +8 endpoints
@@ -119,28 +121,28 @@ const user = await trpc.user.getProfile.query();
 
 > **Note:** Video upload uses Bunny Stream for managed video hosting, transcoding, and global CDN delivery. See [Videos API](./04-videos) for Bunny integration details.
 
-| Status | Endpoint | Type | Auth | Purpose |
-|--------|----------|------|------|---------|
-| ✅ | `video.createUpload` | Mutation | Yes | Create video & get TUS upload endpoint |
-| ✅ | `video.getById` | Query | Yes | Get video details |
-| ✅ | `video.getAll` | Query | Yes | List videos in project |
-| ✅ | `video.updateMetadata` | Mutation | Yes | Update title/description/tags |
-| ✅ | `video.delete` | Mutation | Yes | Delete video |
-| ✅ | `video.getPlaybackUrl` | Query | Yes | Get streaming URL |
-| 🔄 | `video.updateThumbnail` | Mutation | Yes | Upload custom thumbnail |
-| 🔄 | `video.getProcessingStatus` | Query | Yes | Get transcode status |
-| 🔄 | `video.downloadOriginal` | Query | Yes | Download source file |
-| 🔄 | `video.bulkDelete` | Mutation | Yes | Delete multiple videos |
-| 🔄 | `video.duplicate` | Mutation | Yes | Copy video to another project |
-| 📋 | `video.search` | Query | Yes | Full-text search videos |
-| 📋 | `video.getAnalytics` | Query | Yes | View count, engagement stats |
-| 📋 | `video.generateProxy` | Mutation | Yes | Create lower quality proxy |
-| 📋 | `video.extractAudio` | Mutation | Yes | Extract audio track |
-| 📋 | `video.addSubtitles` | Mutation | Yes | Upload SRT/VTT subtitles |
-| 🎯 | `video.transcribe` | Mutation | Yes | Auto-generate subtitles (AI) |
-| 🎯 | `video.detectScenes` | Query | Yes | AI scene detection |
-| 🎯 | `video.generateAIThumbnails` | Mutation | Yes | AI thumbnail suggestions |
-| 🎯 | `video.liveStream` | Mutation | Yes | Start live stream |
+| Status | Endpoint | Type | Auth | Completed | Purpose |
+|--------|----------|------|------|-----------|---------|
+| ✅ | `video.createUpload` | Mutation | Yes | Done | Create video & get TUS upload endpoint |
+| ✅ | `video.getById` | Query | Yes | Done | Get video details |
+| ✅ | `video.getAll` | Query | Yes | Done | List videos in project |
+| ✅ | `video.updateMetadata` | Mutation | Yes | Done | Update title/description/tags |
+| ✅ | `video.delete` | Mutation | Yes | Done | Delete video |
+| ✅ | `video.getPlaybackUrl` | Query | Yes | Done | Get streaming URL |
+| 🔄 | `video.updateThumbnail` | Mutation | Yes | Done | Upload custom thumbnail |
+| 🔄 | `video.getProcessingStatus` | Query | Yes | Done | Get transcode status |
+| 🔄 | `video.downloadOriginal` | Query | Yes | Done | Download source file |
+| 🔄 | `video.bulkDelete` | Mutation | Yes | Done | Delete multiple videos |
+| 🔄 | `video.duplicate` | Mutation | Yes | Not Started | Copy video to another project |
+| 📋 | `video.search` | Query | Yes | Not Started | Full-text search videos |
+| 📋 | `video.getAnalytics` | Query | Yes | Not Started | View count, engagement stats |
+| 📋 | `video.generateProxy` | Mutation | Yes | Not Started | Create lower quality proxy |
+| 📋 | `video.extractAudio` | Mutation | Yes | Not Started | Extract audio track |
+| 📋 | `video.addSubtitles` | Mutation | Yes | Done | Upload SRT/VTT subtitles |
+| 🎯 | `video.transcribe` | Mutation | Yes | Not Started | Auto-generate subtitles (AI) |
+| 🎯 | `video.detectScenes` | Query | Yes | Not Started | AI scene detection |
+| 🎯 | `video.generateAIThumbnails` | Mutation | Yes | Not Started | AI thumbnail suggestions |
+| 🎯 | `video.liveStream` | Mutation | Yes | Not Started | Start live stream |
 
 **MVP Total:** 6 endpoints  
 **Roadmap Total:** +14 endpoints
@@ -149,23 +151,23 @@ const user = await trpc.user.getProfile.query();
 
 ### 💬 Comments Domain (CORE MVP)
 
-| Status | Endpoint | Type | Auth | Purpose |
-|--------|----------|------|------|---------|
-| ✅ | `comment.create` | Mutation | Yes | Create comment (with timecode) |
-| ✅ | `comment.getAll` | Query | Yes | Get all comments for video |
-| ✅ | `comment.getById` | Query | Yes | Get single comment |
-| ✅ | `comment.reply` | Mutation | Yes | Reply to comment |
-| ✅ | `comment.update` | Mutation | Yes | Edit comment text |
-| ✅ | `comment.delete` | Mutation | Yes | Delete comment |
-| ✅ | `comment.resolve` | Mutation | Yes | Mark comment as resolved |
-| 🔄 | `comment.unresolve` | Mutation | Yes | Reopen resolved comment |
-| 🔄 | `comment.mention` | Mutation | Yes | Mention user (@username) |
-| 🔄 | `comment.search` | Query | Yes | Search comments |
-| 📋 | `comment.bulkResolve` | Mutation | Yes | Resolve multiple comments |
-| 📋 | `comment.export` | Query | Yes | Export comments (PDF/CSV) |
-| 📋 | `comment.getThread` | Query | Yes | Get full comment thread |
-| 🎯 | `comment.translate` | Mutation | Yes | Translate comment (AI) |
-| 🎯 | `comment.summarize` | Query | Yes | AI summary of all comments |
+| Status | Endpoint | Type | Auth | Completed | Purpose |
+|--------|----------|------|------|-----------|---------|
+| ✅ | `comment.create` | Mutation | Yes | Done | Create comment (with timecode) |
+| ✅ | `comment.getAll` | Query | Yes | Done | Get all comments for video |
+| ✅ | `comment.getById` | Query | Yes | Done | Get single comment |
+| ✅ | `comment.reply` | Mutation | Yes | Done | Reply to comment |
+| ✅ | `comment.update` | Mutation | Yes | Done | Edit comment text |
+| ✅ | `comment.delete` | Mutation | Yes | Done | Delete comment |
+| ✅ | `comment.resolve` | Mutation | Yes | Done | Mark comment as resolved |
+| 🔄 | `comment.unresolve` | Mutation | Yes | Done | Reopen resolved comment |
+| 🔄 | `comment.mention` | Mutation | Yes | Not Started | Mention user (@username) |
+| 🔄 | `comment.search` | Query | Yes | Done | Search comments |
+| 📋 | `comment.bulkResolve` | Mutation | Yes | Not Started | Resolve multiple comments |
+| 📋 | `comment.export` | Query | Yes | Not Started | Export comments (PDF/CSV) |
+| 📋 | `comment.getThread` | Query | Yes | Not Started | Get full comment thread |
+| 🎯 | `comment.translate` | Mutation | Yes | Not Started | Translate comment (AI) |
+| 🎯 | `comment.summarize` | Query | Yes | Not Started | AI summary of all comments |
 
 **MVP Total:** 7 endpoints  
 **Roadmap Total:** +8 endpoints
@@ -174,15 +176,15 @@ const user = await trpc.user.getProfile.query();
 
 ### 🎨 Annotations Domain
 
-| Status | Endpoint | Type | Auth | Purpose |
-|--------|----------|------|------|---------|
-| 🔄 | `annotation.create` | Mutation | Yes | Create frame annotation |
-| 🔄 | `annotation.getAll` | Query | Yes | Get annotations for video |
-| 🔄 | `annotation.update` | Mutation | Yes | Update annotation |
-| 🔄 | `annotation.delete` | Mutation | Yes | Delete annotation |
-| 📋 | `annotation.bulkDelete` | Mutation | Yes | Delete multiple |
-| 📋 | `annotation.export` | Query | Yes | Export as image |
-| 🎯 | `annotation.collaborate` | Mutation | Yes | Real-time drawing sync |
+| Status | Endpoint | Type | Auth | Completed | Purpose |
+|--------|----------|------|------|-----------|---------|
+| 🔄 | `annotation.create` | Mutation | Yes | Not Started | Create frame annotation |
+| 🔄 | `annotation.getAll` | Query | Yes | Not Started | Get annotations for video |
+| 🔄 | `annotation.update` | Mutation | Yes | Not Started | Update annotation |
+| 🔄 | `annotation.delete` | Mutation | Yes | Not Started | Delete annotation |
+| 📋 | `annotation.bulkDelete` | Mutation | Yes | Not Started | Delete multiple |
+| 📋 | `annotation.export` | Query | Yes | Not Started | Export as image |
+| 🎯 | `annotation.collaborate` | Mutation | Yes | Not Started | Real-time drawing sync |
 
 **Roadmap Total:** 7 endpoints
 
@@ -190,15 +192,15 @@ const user = await trpc.user.getProfile.query();
 
 ### 🔄 Versions Domain
 
-| Status | Endpoint | Type | Auth | Purpose |
-|--------|----------|------|------|---------|
-| 🔄 | `version.upload` | Mutation | Yes | Upload new version |
-| 🔄 | `version.getAll` | Query | Yes | List all versions |
-| 🔄 | `version.setActive` | Mutation | Yes | Set active version |
-| 🔄 | `version.compare` | Query | Yes | Side-by-side comparison |
-| 📋 | `version.delete` | Mutation | Yes | Delete version |
-| 📋 | `version.label` | Mutation | Yes | Add label/tag to version |
-| 🎯 | `version.diff` | Query | Yes | AI visual diff |
+| Status | Endpoint | Type | Auth | Completed | Purpose |
+|--------|----------|------|------|-----------|---------|
+| 🔄 | `version.upload` | Mutation | Yes | Not Started | Upload new version |
+| 🔄 | `version.getAll` | Query | Yes | Not Started | List all versions |
+| 🔄 | `version.setActive` | Mutation | Yes | Not Started | Set active version |
+| 🔄 | `version.compare` | Query | Yes | Not Started | Side-by-side comparison |
+| 📋 | `version.delete` | Mutation | Yes | Not Started | Delete version |
+| 📋 | `version.label` | Mutation | Yes | Not Started | Add label/tag to version |
+| 🎯 | `version.diff` | Query | Yes | Not Started | AI visual diff |
 
 **Roadmap Total:** 7 endpoints
 
@@ -206,16 +208,16 @@ const user = await trpc.user.getProfile.query();
 
 ### 👥 Teams Domain
 
-| Status | Endpoint | Type | Auth | Purpose |
-|--------|----------|------|------|---------|
-| 📋 | `team.create` | Mutation | Yes | Create team |
-| 📋 | `team.getById` | Query | Yes | Get team details |
-| 📋 | `team.update` | Mutation | Yes | Update team settings |
-| 📋 | `team.invite` | Mutation | Yes | Invite member |
-| 📋 | `team.removeMember` | Mutation | Yes | Remove member |
-| 📋 | `team.updateRole` | Mutation | Yes | Change member role |
-| 🎯 | `team.getStats` | Query | Yes | Team analytics |
-| 🎯 | `team.billing` | Query | Yes | Team billing info |
+| Status | Endpoint | Type | Auth | Completed | Purpose |
+|--------|----------|------|------|-----------|---------|
+| 📋 | `team.create` | Mutation | Yes | Not Started | Create team |
+| 📋 | `team.getById` | Query | Yes | Not Started | Get team details |
+| 📋 | `team.update` | Mutation | Yes | Not Started | Update team settings |
+| 📋 | `team.invite` | Mutation | Yes | Not Started | Invite member |
+| 📋 | `team.removeMember` | Mutation | Yes | Not Started | Remove member |
+| 📋 | `team.updateRole` | Mutation | Yes | Not Started | Change member role |
+| 🎯 | `team.getStats` | Query | Yes | Not Started | Team analytics |
+| 🎯 | `team.billing` | Query | Yes | Not Started | Team billing info |
 
 **Roadmap Total:** 8 endpoints
 
@@ -223,15 +225,15 @@ const user = await trpc.user.getProfile.query();
 
 ### 🔒 Permissions Domain
 
-| Status | Endpoint | Type | Auth | Purpose |
-|--------|----------|------|------|---------|
-| 🔄 | `permission.share` | Mutation | Yes | Generate share link |
-| 🔄 | `permission.revoke` | Mutation | Yes | Revoke access |
-| 🔄 | `permission.listShares` | Query | Yes | List all shares |
-| 📋 | `permission.setRole` | Mutation | Yes | Set user role on project |
-| 📋 | `permission.setExpiry` | Mutation | Yes | Set link expiration |
-| 📋 | `permission.passwordProtect` | Mutation | Yes | Add password to link |
-| 🎯 | `permission.watermark` | Mutation | Yes | Add watermark for viewers |
+| Status | Endpoint | Type | Auth | Completed | Purpose |
+|--------|----------|------|------|-----------|---------|
+| 🔄 | `permission.share` | Mutation | Yes | Not Started | Generate share link |
+| 🔄 | `permission.revoke` | Mutation | Yes | Not Started | Revoke access |
+| 🔄 | `permission.listShares` | Query | Yes | Not Started | List all shares |
+| 📋 | `permission.setRole` | Mutation | Yes | Not Started | Set user role on project |
+| 📋 | `permission.setExpiry` | Mutation | Yes | Not Started | Set link expiration |
+| 📋 | `permission.passwordProtect` | Mutation | Yes | Not Started | Add password to link |
+| 🎯 | `permission.watermark` | Mutation | Yes | Not Started | Add watermark for viewers |
 
 **Roadmap Total:** 7 endpoints
 
@@ -239,15 +241,15 @@ const user = await trpc.user.getProfile.query();
 
 ### 🔔 Notifications Domain
 
-| Status | Endpoint | Type | Auth | Purpose |
-|--------|----------|------|------|---------|
-| 🔄 | `notification.getAll` | Query | Yes | Get all notifications |
-| 🔄 | `notification.markRead` | Mutation | Yes | Mark as read |
-| 🔄 | `notification.markAllRead` | Mutation | Yes | Mark all as read |
-| 🔄 | `notification.updatePreferences` | Mutation | Yes | Notification settings |
-| 📋 | `notification.subscribe` | Mutation | Yes | WebSocket subscription |
-| 📋 | `notification.unsubscribe` | Mutation | Yes | Unsubscribe |
-| 🎯 | `notification.digest` | Query | Yes | Email digest settings |
+| Status | Endpoint | Type | Auth | Completed | Purpose |
+|--------|----------|------|------|-----------|---------|
+| 🔄 | `notification.getAll` | Query | Yes | Not Started | Get all notifications |
+| 🔄 | `notification.markRead` | Mutation | Yes | Not Started | Mark as read |
+| 🔄 | `notification.markAllRead` | Mutation | Yes | Not Started | Mark all as read |
+| 🔄 | `notification.updatePreferences` | Mutation | Yes | Not Started | Notification settings |
+| 📋 | `notification.subscribe` | Mutation | Yes | Not Started | WebSocket subscription |
+| 📋 | `notification.unsubscribe` | Mutation | Yes | Not Started | Unsubscribe |
+| 🎯 | `notification.digest` | Query | Yes | Not Started | Email digest settings |
 
 **Roadmap Total:** 7 endpoints
 
@@ -255,14 +257,14 @@ const user = await trpc.user.getProfile.query();
 
 ### 📎 Assets Domain
 
-| Status | Endpoint | Type | Auth | Purpose |
-|--------|----------|------|------|---------|
-| 📋 | `asset.upload` | Mutation | Yes | Upload supporting file |
-| 📋 | `asset.getAll` | Query | Yes | List assets |
-| 📋 | `asset.delete` | Mutation | Yes | Delete asset |
-| 📋 | `asset.createFolder` | Mutation | Yes | Create folder |
-| 🎯 | `asset.search` | Query | Yes | Search assets |
-| 🎯 | `asset.tag` | Mutation | Yes | Tag assets |
+| Status | Endpoint | Type | Auth | Completed | Purpose |
+|--------|----------|------|------|-----------|---------|
+| 📋 | `asset.upload` | Mutation | Yes | Not Started | Upload supporting file |
+| 📋 | `asset.getAll` | Query | Yes | Not Started | List assets |
+| 📋 | `asset.delete` | Mutation | Yes | Not Started | Delete asset |
+| 📋 | `asset.createFolder` | Mutation | Yes | Not Started | Create folder |
+| 🎯 | `asset.search` | Query | Yes | Not Started | Search assets |
+| 🎯 | `asset.tag` | Mutation | Yes | Not Started | Tag assets |
 
 **Roadmap Total:** 6 endpoints
 
@@ -270,12 +272,12 @@ const user = await trpc.user.getProfile.query();
 
 ### 🔗 Webhooks Domain
 
-| Status | Endpoint | Type | Auth | Purpose |
-|--------|----------|------|------|---------|
-| 🎯 | `webhook.create` | Mutation | Yes | Register webhook |
-| 🎯 | `webhook.getAll` | Query | Yes | List webhooks |
-| 🎯 | `webhook.delete` | Mutation | Yes | Delete webhook |
-| 🎯 | `webhook.test` | Mutation | Yes | Test webhook |
+| Status | Endpoint | Type | Auth | Completed | Purpose |
+|--------|----------|------|------|-----------|---------|
+| 🎯 | `webhook.create` | Mutation | Yes | Not Started | Register webhook |
+| 🎯 | `webhook.getAll` | Query | Yes | Not Started | List webhooks |
+| 🎯 | `webhook.delete` | Mutation | Yes | Not Started | Delete webhook |
+| 🎯 | `webhook.test` | Mutation | Yes | Not Started | Test webhook |
 
 **Roadmap Total:** 4 endpoints
 
@@ -285,22 +287,22 @@ const user = await trpc.user.getProfile.query();
 
 > **Note:** Uses Polar.sh for payment processing. Required for monetization strategy.
 
-| Status | Endpoint | Type | Auth | Purpose |
-|--------|----------|------|------|---------|
-| ✅ | `billing.getPlans` | Query | No | List available pricing plans |
-| ✅ | `billing.getCurrentPlan` | Query | Yes | Get user's current subscription |
-| ✅ | `billing.subscribe` | Mutation | Yes | Subscribe to plan (Polar checkout) |
-| ✅ | `billing.cancelSubscription` | Mutation | Yes | Cancel subscription |
-| ✅ | `billing.updatePaymentMethod` | Mutation | Yes | Update credit card |
-| 🔄 | `billing.getInvoices` | Query | Yes | List past invoices |
-| 🔄 | `billing.downloadInvoice` | Query | Yes | Download PDF invoice |
-| 🔄 | `billing.getUsage` | Query | Yes | Get current usage stats |
-| 🔄 | `billing.previewUpgrade` | Query | Yes | Preview cost of upgrading |
-| 📋 | `billing.addSeats` | Mutation | Yes | Add team seats |
-| 📋 | `billing.removeSeats` | Mutation | Yes | Remove team seats |
-| 📋 | `billing.applyPromoCode` | Mutation | Yes | Apply discount code |
-| 🎯 | `billing.reactivate` | Mutation | Yes | Reactivate canceled subscription |
-| 🎯 | `billing.requestRefund` | Mutation | Yes | Request refund |
+| Status | Endpoint | Type | Auth | Completed | Purpose |
+|--------|----------|------|------|-----------|---------|
+| ✅ | `billing.getPlans` | Query | No | Not Started | List available pricing plans |
+| ✅ | `billing.getCurrentPlan` | Query | Yes | Not Started | Get user's current subscription |
+| ✅ | `billing.subscribe` | Mutation | Yes | Not Started | Subscribe to plan (Polar checkout) |
+| ✅ | `billing.cancelSubscription` | Mutation | Yes | Not Started | Cancel subscription |
+| ✅ | `billing.updatePaymentMethod` | Mutation | Yes | Not Started | Update credit card |
+| 🔄 | `billing.getInvoices` | Query | Yes | Not Started | List past invoices |
+| 🔄 | `billing.downloadInvoice` | Query | Yes | Not Started | Download PDF invoice |
+| 🔄 | `billing.getUsage` | Query | Yes | Not Started | Get current usage stats |
+| 🔄 | `billing.previewUpgrade` | Query | Yes | Not Started | Preview cost of upgrading |
+| 📋 | `billing.addSeats` | Mutation | Yes | Not Started | Add team seats |
+| 📋 | `billing.removeSeats` | Mutation | Yes | Not Started | Remove team seats |
+| 📋 | `billing.applyPromoCode` | Mutation | Yes | Not Started | Apply discount code |
+| 🎯 | `billing.reactivate` | Mutation | Yes | Not Started | Reactivate canceled subscription |
+| 🎯 | `billing.requestRefund` | Mutation | Yes | Not Started | Request refund |
 
 **MVP Total:** 5 endpoints  
 **Roadmap Total:** +9 endpoints
@@ -317,13 +319,13 @@ const user = await trpc.user.getProfile.query();
 
 > **Note:** Tracks usage and enforces plan limits. Critical for freemium model.
 
-| Status | Endpoint | Type | Auth | Purpose |
-|--------|----------|------|------|---------|
-| ✅ | `quota.getCurrent` | Query | Yes | Get current usage vs limits |
-| ✅ | `quota.checkLimit` | Query | Yes | Check if action allowed |
-| 🔄 | `quota.getHistory` | Query | Yes | Historical usage data |
-| 📋 | `quota.requestIncrease` | Mutation | Yes | Request limit increase |
-| 📋 | `quota.getBreakdown` | Query | Yes | Detailed usage breakdown |
+| Status | Endpoint | Type | Auth | Completed | Purpose |
+|--------|----------|------|------|-----------|---------|
+| ✅ | `quota.getCurrent` | Query | Yes | Not Started | Get current usage vs limits |
+| ✅ | `quota.checkLimit` | Query | Yes | Not Started | Check if action allowed |
+| 🔄 | `quota.getHistory` | Query | Yes | Not Started | Historical usage data |
+| 📋 | `quota.requestIncrease` | Mutation | Yes | Not Started | Request limit increase |
+| 📋 | `quota.getBreakdown` | Query | Yes | Not Started | Detailed usage breakdown |
 
 **MVP Total:** 2 endpoints  
 **Roadmap Total:** +3 endpoints
@@ -337,14 +339,14 @@ const user = await trpc.user.getProfile.query();
 
 ### 🔍 Search & Discovery Domain
 
-| Status | Endpoint | Type | Auth | Purpose |
-|--------|----------|------|------|---------|
-| 📋 | `search.global` | Query | Yes | Unified search across all resources |
-| 📋 | `search.videos` | Query | Yes | Advanced video search with filters |
-| 📋 | `search.projects` | Query | Yes | Project-specific search |
-| 📋 | `search.comments` | Query | Yes | Comment search |
-| 🎯 | `search.advanced` | Query | Yes | Boolean queries, facets |
-| 🎯 | `search.suggestions` | Query | Yes | AI autocomplete |
+| Status | Endpoint | Type | Auth | Completed | Purpose |
+|--------|----------|------|------|-----------|---------|
+| 📋 | `search.global` | Query | Yes | Not Started | Unified search across all resources |
+| 📋 | `search.videos` | Query | Yes | Not Started | Advanced video search with filters |
+| 📋 | `search.projects` | Query | Yes | Not Started | Project-specific search |
+| 📋 | `search.comments` | Query | Yes | Not Started | Comment search |
+| 🎯 | `search.advanced` | Query | Yes | Not Started | Boolean queries, facets |
+| 🎯 | `search.suggestions` | Query | Yes | Not Started | AI autocomplete |
 
 **Roadmap Total:** 6 endpoints
 
@@ -352,14 +354,14 @@ const user = await trpc.user.getProfile.query();
 
 ### 🏷️ Tags & Labels Domain
 
-| Status | Endpoint | Type | Auth | Purpose |
-|--------|----------|------|------|---------|
-| 📋 | `tag.create` | Mutation | Yes | Create custom tag |
-| 📋 | `tag.getAll` | Query | Yes | List all tags |
-| 📋 | `tag.update` | Mutation | Yes | Rename/recolor tag |
-| 📋 | `tag.delete` | Mutation | Yes | Delete tag |
-| 📋 | `tag.merge` | Mutation | Yes | Merge two tags |
-| 🎯 | `tag.suggest` | Query | Yes | AI tag suggestions |
+| Status | Endpoint | Type | Auth | Completed | Purpose |
+|--------|----------|------|------|-----------|---------|
+| 📋 | `tag.create` | Mutation | Yes | Not Started | Create custom tag |
+| 📋 | `tag.getAll` | Query | Yes | Not Started | List all tags |
+| 📋 | `tag.update` | Mutation | Yes | Not Started | Rename/recolor tag |
+| 📋 | `tag.delete` | Mutation | Yes | Not Started | Delete tag |
+| 📋 | `tag.merge` | Mutation | Yes | Not Started | Merge two tags |
+| 🎯 | `tag.suggest` | Query | Yes | Not Started | AI tag suggestions |
 
 **Roadmap Total:** 6 endpoints
 
@@ -367,13 +369,13 @@ const user = await trpc.user.getProfile.query();
 
 ### 📊 Analytics Domain
 
-| Status | Endpoint | Type | Auth | Purpose |
-|--------|----------|------|------|---------|
-| 📋 | `analytics.overview` | Query | Yes | Dashboard metrics |
-| 📋 | `analytics.videoPerformance` | Query | Yes | Video engagement stats |
-| 📋 | `analytics.teamActivity` | Query | Yes | Collaboration metrics |
-| 📋 | `analytics.export` | Mutation | Yes | Export analytics (CSV/PDF) |
-| 📋 | `analytics.customReport` | Mutation | Yes | Create custom reports |
+| Status | Endpoint | Type | Auth | Completed | Purpose |
+|--------|----------|------|------|-----------|---------|
+| 📋 | `analytics.overview` | Query | Yes | Not Started | Dashboard metrics |
+| 📋 | `analytics.videoPerformance` | Query | Yes | Not Started | Video engagement stats |
+| 📋 | `analytics.teamActivity` | Query | Yes | Not Started | Collaboration metrics |
+| 📋 | `analytics.export` | Mutation | Yes | Not Started | Export analytics (CSV/PDF) |
+| 📋 | `analytics.customReport` | Mutation | Yes | Not Started | Create custom reports |
 
 **Roadmap Total:** 5 endpoints
 
@@ -381,13 +383,13 @@ const user = await trpc.user.getProfile.query();
 
 ### 🛡️ Compliance & Security Domain
 
-| Status | Endpoint | Type | Auth | Purpose |
-|--------|----------|------|------|---------|
-| 🎯 | `compliance.exportData` | Mutation | Yes | GDPR data export |
-| 🎯 | `compliance.deleteData` | Mutation | Yes | Right to erasure |
-| 🎯 | `compliance.auditLog` | Query | Yes | Security audit trail |
-| 🎯 | `compliance.downloadReport` | Mutation | Yes | Compliance reports (SOC2, HIPAA) |
-| 🎯 | `compliance.ipWhitelist` | Mutation | Yes | IP whitelist management |
+| Status | Endpoint | Type | Auth | Completed | Purpose |
+|--------|----------|------|------|-----------|---------|
+| 🎯 | `compliance.exportData` | Mutation | Yes | Not Started | GDPR data export |
+| 🎯 | `compliance.deleteData` | Mutation | Yes | Not Started | Right to erasure |
+| 🎯 | `compliance.auditLog` | Query | Yes | Not Started | Security audit trail |
+| 🎯 | `compliance.downloadReport` | Mutation | Yes | Not Started | Compliance reports (SOC2, HIPAA) |
+| 🎯 | `compliance.ipWhitelist` | Mutation | Yes | Not Started | IP whitelist management |
 
 **Roadmap Total:** 5 endpoints
 
@@ -395,15 +397,15 @@ const user = await trpc.user.getProfile.query();
 
 ### 🎫 Invitations Domain
 
-| Status | Endpoint | Type | Auth | Purpose |
-|--------|----------|------|------|---------|
-| 🔄 | `invitation.send` | Mutation | Yes | Send team/project invite |
-| 🔄 | `invitation.accept` | Mutation | No | Accept invitation |
-| 🔄 | `invitation.decline` | Mutation | No | Decline invitation |
-| 🔄 | `invitation.cancel` | Mutation | Yes | Cancel pending invite |
-| 🔄 | `invitation.listPending` | Query | Yes | List sent/received invites |
-| 📋 | `invitation.resend` | Mutation | Yes | Resend email |
-| 📋 | `invitation.bulkInvite` | Mutation | Yes | Bulk CSV import |
+| Status | Endpoint | Type | Auth | Completed | Purpose |
+|--------|----------|------|------|-----------|---------|
+| 🔄 | `invitation.send` | Mutation | Yes | Not Started | Send team/project invite |
+| 🔄 | `invitation.accept` | Mutation | No | Not Started | Accept invitation |
+| 🔄 | `invitation.decline` | Mutation | No | Not Started | Decline invitation |
+| 🔄 | `invitation.cancel` | Mutation | Yes | Not Started | Cancel pending invite |
+| 🔄 | `invitation.listPending` | Query | Yes | Not Started | List sent/received invites |
+| 📋 | `invitation.resend` | Mutation | Yes | Not Started | Resend email |
+| 📋 | `invitation.bulkInvite` | Mutation | Yes | Not Started | Bulk CSV import |
 
 **Roadmap Total:** 7 endpoints
 
@@ -792,18 +794,30 @@ Explore detailed documentation for each API domain:
 ### 1. Setup Authentication
 
 ```typescript
+import { authClient } from "@/lib/auth-client";
+
 // Sign up
-const user = await trpc.auth.signUp.mutate({
-  email: "user@example.com",
-  password: "SecurePass123!",
-  name: "John Doe",
-});
+await authClient.signUp.email(
+  {
+    email: "user@example.com",
+    password: "SecurePass123!",
+    name: "John Doe",
+  },
+  {
+    onSuccess: (ctx) => console.log("User created:", ctx.user.id),
+  }
+);
 
 // Sign in
-const session = await trpc.auth.signIn.mutate({
-  email: "user@example.com",
-  password: "SecurePass123!",
-});
+await authClient.signIn.email(
+  {
+    email: "user@example.com",
+    password: "SecurePass123!",
+  },
+  {
+    onSuccess: (ctx) => console.log("Logged in:", ctx.user.id),
+  }
+);
 
 // Session cookie automatically set
 ```

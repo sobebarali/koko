@@ -14,26 +14,26 @@ The Comparisons domain enables side-by-side comparison of video versions, helpin
 ## 📌 Quick Reference
 
 ### Post-Launch Endpoints
-| Endpoint | Type | Auth | Purpose |
-|----------|------|------|---------|
-| `comparison.create` | Mutation | Yes | Create new comparison |
-| `comparison.getById` | Query | Yes | Get comparison details |
-| `comparison.getAll` | Query | Yes | List comparisons |
-| `comparison.delete` | Mutation | Yes | Delete comparison |
+| Endpoint | Type | Auth | Completed | Purpose |
+|----------|------|------|-----------|---------|
+| `comparison.create` | Mutation | Yes | Not Started | Create new comparison |
+| `comparison.getById` | Query | Yes | Not Started | Get comparison details |
+| `comparison.getAll` | Query | Yes | Not Started | List comparisons |
+| `comparison.delete` | Mutation | Yes | Not Started | Delete comparison |
 
 ### Growth Endpoints
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `comparison.addComment` | Mutation | Yes | Comment on comparison | High |
-| `comparison.share` | Mutation | Yes | Share comparison | Medium |
-| `comparison.setPreferences` | Mutation | Yes | Set view preferences | Low |
-| `comparison.generateDiff` | Mutation | Yes | Auto-detect differences | Low |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `comparison.addComment` | Mutation | Yes | Not Started | Comment on comparison | High |
+| `comparison.share` | Mutation | Yes | Not Started | Share comparison | Medium |
+| `comparison.setPreferences` | Mutation | Yes | Not Started | Set view preferences | Low |
+| `comparison.generateDiff` | Mutation | Yes | Not Started | Auto-detect differences | Low |
 
 ### Scale Endpoints
-| Endpoint | Type | Auth | Purpose | Priority |
-|----------|------|------|---------|----------|
-| `comparison.createBatch` | Mutation | Yes | Compare multiple versions | Medium |
-| `comparison.getHistory` | Query | Yes | Version comparison history | Low |
+| Endpoint | Type | Auth | Completed | Purpose | Priority |
+|----------|------|------|-----------|---------|----------|
+| `comparison.createBatch` | Mutation | Yes | Not Started | Compare multiple versions | Medium |
+| `comparison.getHistory` | Query | Yes | Not Started | Version comparison history | Low |
 
 ---
 
