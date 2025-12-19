@@ -1732,9 +1732,9 @@ throw new TRPCError({
 
 - [Projects API](./03-projects) - Project-level permissions
 - [Videos API](./04-videos) - Video-level permissions
-- [Teams API](./08-teams) - Team-based permission management
-- [Guest Access API](./20-guest-access) - External reviewer access
-- [Audit & Compliance API](./18-audit-compliance) - Permission audit logs
+- [Teams API](./13-teams) - Team-based permission management
+- [Guest Access API](./21-guest-access) - External reviewer access
+- [Audit & Compliance API](./29-compliance) - Permission audit logs
 
 ---
 

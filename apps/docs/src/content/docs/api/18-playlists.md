@@ -807,8 +807,8 @@ await trpc.playlist.createSmart.mutate({
 ## 📚 Related Documentation
 
 - [Videos API](./04-videos) - Video sources
-- [Tags API](./17-tags) - Tag filtering
-- [Guest Access API](./20-guest-access) - External sharing
+- [Tags API](./15-tags) - Tag filtering
+- [Guest Access API](./21-guest-access) - External sharing
 
 ---
 

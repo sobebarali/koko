@@ -843,9 +843,9 @@ const { integration } = await trpc.integration.connect.mutate({
 
 ## 📚 Related Documentation
 
-- [Webhooks API](./12-webhooks) - Incoming webhooks
-- [Teams API](./08-teams) - Team management
-- [Notifications API](./10-notifications) - Notification settings
+- [Webhooks API](./25-webhooks) - Incoming webhooks
+- [Teams API](./13-teams) - Team management
+- [Notifications API](./09-notifications) - Notification settings
 
 ---
 

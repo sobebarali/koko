@@ -1059,10 +1059,10 @@ export function QuotaDisplay() {
 
 ## 🔗 Related APIs
 
-- [Billing API](./13-billing) - Subscription plans and pricing
+- [Billing API](./06-billing) - Subscription plans and pricing
 - [Videos API](./04-videos) - Video storage usage
 - [Projects API](./03-projects) - Project limits
-- [Teams API](./08-teams) - Team member limits
+- [Teams API](./13-teams) - Team member limits
 
 ---
 

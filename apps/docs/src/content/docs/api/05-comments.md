@@ -916,7 +916,7 @@ Comment 3 (timecode: 120.0s)
 
 - [Videos API](./04-videos) - Parent video
 - [Projects API](./03-projects) - Permission system
-- [Notifications API](./10-notifications) - Comment notifications *(Post-Launch)*
+- [Notifications API](./09-notifications) - Comment notifications *(Post-Launch)*
 - [Users API](./02-users) - Comment authors
 
 ---

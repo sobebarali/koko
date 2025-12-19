@@ -747,7 +747,7 @@ Project Root
 
 - [Projects API](./03-projects) - Parent container
 - [Videos API](./04-videos) - Folder contents
-- [Assets API](./11-assets) - Non-video files
+- [Assets API](./17-assets) - Non-video files
 
 ---
 

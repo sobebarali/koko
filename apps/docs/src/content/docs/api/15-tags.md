@@ -552,7 +552,7 @@ const videos = await trpc.video.getAll.query({
 
 - [Videos API](./04-videos) - Tag videos
 - [Projects API](./03-projects) - Tag projects
-- [Assets API](./11-assets) - Tag assets
+- [Assets API](./17-assets) - Tag assets
 - [Search API](./16-search) - Search by tag
 
 ---

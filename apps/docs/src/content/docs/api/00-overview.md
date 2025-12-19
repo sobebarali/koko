@@ -748,44 +748,44 @@ X-RateLimit-Reset: 1705334400
 
 Explore detailed documentation for each API domain:
 
-### Core MVP Domains
+### Core MVP Domains (Done)
 - [🔐 Authentication API](./01-authentication) - User registration, login, session management
 - [👤 Users API](./02-users) - Profile management, preferences, avatar
 - [📁 Projects API](./03-projects) - Project CRUD, organization, settings
 - [🎬 Videos API](./04-videos) - **CORE** - Upload (Bunny Stream), playback, metadata
 - [💬 Comments API](./05-comments) - **CORE** - Timecode comments, threads, mentions
-- [💳 Billing API](./13-billing) - **CRITICAL** - Subscriptions, payments, Polar.sh integration
-- [📊 Quota API](./14-quota) - **CRITICAL** - Usage tracking, limit enforcement
 
-### Post-Launch Domains
-- [🎨 Annotations API](./06-annotations) - Visual frame annotations
-- [🔄 Versions API](./07-versions) - Version control, comparison
-- [🔒 Permissions API](./09-permissions) - Access control, sharing
-- [🔔 Notifications API](./10-notifications) - Real-time notifications
+### MVP Monetization (Critical - Next to Build)
+- [💳 Billing API](./06-billing) - **CRITICAL** - Subscriptions, payments, Polar.sh integration
+- [📊 Quota API](./07-quota) - **CRITICAL** - Usage tracking, limit enforcement
 
-### Growth Phase Domains
-- [👥 Teams API](./08-teams) - Team collaboration
-- [📎 Assets API](./11-assets) - Supporting files
-- [🎫 Invitations API](./15-invitations) - Team/project invites
+### Post-Launch Domains (Month 1-2)
+- [🔒 Permissions API](./08-permissions) - Access control, sharing
+- [🔔 Notifications API](./09-notifications) - Real-time notifications
+- [🎫 Invitations API](./10-invitations) - Team/project invites
+- [🎨 Annotations API](./11-annotations) - Visual frame annotations
+- [🔄 Versions API](./12-versions) - Version control, comparison
+
+### Growth Phase Domains (Month 3-6)
+- [👥 Teams API](./13-teams) - Team collaboration
+- [📂 Folders API](./14-folders) - Hierarchical organization within projects
+- [🏷️ Tags API](./15-tags) - Custom tags & labels
 - [🔍 Search API](./16-search) - Unified search & discovery
-- [🏷️ Tags API](./17-tags) - Custom tags & labels
-- [📊 Analytics API](./18-analytics) - Video engagement, team metrics
+- [📎 Assets API](./17-assets) - Supporting files
+- [🎬 Playlists API](./18-playlists) - Video collections and presentations
+- [📊 Analytics API](./19-analytics) - Video engagement, team metrics
 
-### Scale Phase Domains
-- [🔗 Webhooks API](./12-webhooks) - Integrations
-- [🛡️ Compliance API](./19-compliance) - GDPR, SOC2, audit logs
-
-### Extended Domains (Competitive Feature Parity)
-- [🔑 Guest Access API](./20-guest-access) - External review links, guest permissions
-- [✅ Approvals API](./21-approvals) - Review workflows, approval chains, sign-off management
-- [📂 Folders API](./22-folders) - Hierarchical organization within projects
+### Scale Phase Domains (Month 6+)
+- [✅ Approvals API](./20-approvals) - Review workflows, approval chains, sign-off management
+- [🔑 Guest Access API](./21-guest-access) - External review links, guest permissions
+- [🔀 Comparisons API](./22-comparisons) - Side-by-side version comparison
 - [📥 Exports API](./23-exports) - Download and export videos, assets, project data
-- [🔌 Integrations API](./24-integrations) - Third-party service connections (Slack, Asana, etc.)
-- [🎬 Playlists API](./25-playlists) - Video collections and presentations
-- [🔀 Comparisons API](./26-comparisons) - Side-by-side version comparison
-- [📋 Templates API](./27-templates) - Reusable project, folder, and workflow templates
+- [📋 Templates API](./24-templates) - Reusable project, folder, and workflow templates
+- [🔗 Webhooks API](./25-webhooks) - Integrations
+- [🔌 Integrations API](./26-integrations) - Third-party service connections (Slack, Asana, etc.)
+- [🤖 AI Features API](./27-ai) - Transcription, scene detection, smart search
 - [👥 Presence API](./28-presence) - Real-time collaboration, live cursors, sync
-- [🤖 AI Features API](./29-ai) - Transcription, scene detection, smart search
+- [🛡️ Compliance API](./29-compliance) - GDPR, SOC2, audit logs
 
 ---
 

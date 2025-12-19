@@ -1617,8 +1617,8 @@ throw new TRPCError({
 
 - [Videos API](./04-videos) - Video management and playback
 - [Comments API](./05-comments) - Text-based feedback
-- [Versions API](./07-versions) - Version comparison with annotations
-- [Comparisons API](./26-comparisons) - Side-by-side annotation comparison
+- [Versions API](./12-versions) - Version comparison with annotations
+- [Comparisons API](./22-comparisons) - Side-by-side annotation comparison
 - [Presence API](./28-presence) - Real-time collaboration
 
 ---

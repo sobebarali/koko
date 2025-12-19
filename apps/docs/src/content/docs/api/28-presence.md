@@ -767,7 +767,7 @@ interface ServerMessage {
 
 - [Videos API](./04-videos) - Video player integration
 - [Comments API](./05-comments) - Typing indicators
-- [Comparisons API](./26-comparisons) - Synced comparison viewing
+- [Comparisons API](./22-comparisons) - Synced comparison viewing
 
 ---
 

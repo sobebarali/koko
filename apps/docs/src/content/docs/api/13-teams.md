@@ -1451,9 +1451,9 @@ Member (Multiple allowed)
 
 - [Users API](./02-users) - Team members
 - [Projects API](./03-projects) - Team projects
-- [Permissions API](./09-permissions) - Role-based access *(Post-Launch)*
-- [Billing API](./13-billing) - Team subscriptions *(Scale Phase)*
-- [Invitations API](./15-invitations) - Email invitations *(Growth Phase)*
+- [Permissions API](./08-permissions) - Role-based access *(Post-Launch)*
+- [Billing API](./06-billing) - Team subscriptions *(Scale Phase)*
+- [Invitations API](./10-invitations) - Email invitations *(Growth Phase)*
 
 ---
 

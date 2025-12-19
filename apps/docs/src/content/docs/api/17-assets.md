@@ -1149,8 +1149,8 @@ if (project.storageUsed + file.size > project.storageQuota) {
 
 - [Projects API](./03-projects) - Parent projects
 - [Videos API](./04-videos) - Video attachments vs assets
-- [Teams API](./08-teams) - Team-wide assets *(Growth Phase)*
-- [Quota API](./14-quota) - Storage quotas and limits
+- [Teams API](./13-teams) - Team-wide assets *(Growth Phase)*
+- [Quota API](./07-quota) - Storage quotas and limits
 
 ---
 

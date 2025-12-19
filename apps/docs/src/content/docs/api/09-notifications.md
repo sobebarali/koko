@@ -1103,9 +1103,9 @@ interface GroupedNotification {
 - [Comments API](./05-comments) - Comment notifications
 - [Videos API](./04-videos) - Video processing notifications
 - [Projects API](./03-projects) - Project invite notifications
-- [Teams API](./08-teams) - Team notifications *(Growth Phase)*
-- [Webhooks API](./12-webhooks) - Webhook notifications *(Scale Phase)*
-- [Billing API](./13-billing) - Payment notifications
+- [Teams API](./13-teams) - Team notifications *(Growth Phase)*
+- [Webhooks API](./25-webhooks) - Webhook notifications *(Scale Phase)*
+- [Billing API](./06-billing) - Payment notifications
 
 ---
 

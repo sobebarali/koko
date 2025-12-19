@@ -1202,8 +1202,8 @@ app.post("/webhooks/koko", (req, res) => {
 - [Videos API](./04-videos) - Video events
 - [Comments API](./05-comments) - Comment events
 - [Projects API](./03-projects) - Project events
-- [Teams API](./08-teams) - Team events *(Growth Phase)*
-- [Billing API](./13-billing) - Payment events
+- [Teams API](./13-teams) - Team events *(Growth Phase)*
+- [Billing API](./06-billing) - Payment events
 
 ---
 

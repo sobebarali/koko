@@ -804,9 +804,9 @@ await trpc.approval.createWorkflow.mutate({
 ## 📚 Related Documentation
 
 - [Videos API](./04-videos) - Video resources
-- [Versions API](./07-versions) - Version management
+- [Versions API](./12-versions) - Version management
 - [Comments API](./05-comments) - Link comments to approvals
-- [Notifications API](./10-notifications) - Approval notifications
+- [Notifications API](./09-notifications) - Approval notifications
 
 ---
 

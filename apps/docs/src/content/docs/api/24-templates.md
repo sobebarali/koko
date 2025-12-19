@@ -856,8 +856,8 @@ Video Delivery Checklist:
 ## 📚 Related Documentation
 
 - [Projects API](./03-projects) - Project creation
-- [Folders API](./22-folders) - Folder management
-- [Approvals API](./21-approvals) - Approval workflows
+- [Folders API](./14-folders) - Folder management
+- [Approvals API](./20-approvals) - Approval workflows
 - [Comments API](./05-comments) - Comment presets
 
 ---

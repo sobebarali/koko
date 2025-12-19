@@ -766,8 +766,8 @@ project-export-2025-01-15.zip
 
 - [Videos API](./04-videos) - Video sources
 - [Comments API](./05-comments) - Comment data
-- [Annotations API](./06-annotations) - Annotation data
-- [Quota API](./14-quota) - Export limits
+- [Annotations API](./11-annotations) - Annotation data
+- [Quota API](./07-quota) - Export limits
 
 ---
 

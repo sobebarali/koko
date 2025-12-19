@@ -643,7 +643,7 @@ const popularSearches = await db.searchLog.groupBy({
 - [Videos API](./04-videos) - Video metadata
 - [Projects API](./03-projects) - Project data
 - [Comments API](./05-comments) - Comment search
-- [Tags API](./17-tags) - Tag-based filtering
+- [Tags API](./15-tags) - Tag-based filtering
 
 ---
 

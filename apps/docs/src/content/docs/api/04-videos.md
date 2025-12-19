@@ -877,7 +877,7 @@ Set up webhooks in Bunny Stream to notify Koko when:
 - [TUS Resumable Uploads](https://docs.bunny.net/reference/tus-resumable-uploads)
 - [Comments API](./05-comments) - Timecode comments
 - [Projects API](./03-projects) - Parent container
-- [Annotations API](./06-annotations) - Visual annotations
+- [Annotations API](./11-annotations) - Visual annotations
 
 ---
 

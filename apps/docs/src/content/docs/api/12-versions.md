@@ -1577,9 +1577,9 @@ throw new TRPCError({
 ## Related Documentation
 
 - [Videos API](./04-videos) - Video management and uploads
-- [Annotations API](./06-annotations) - Frame annotations per version
+- [Annotations API](./11-annotations) - Frame annotations per version
 - [Comments API](./05-comments) - Comments linked to versions
-- [Comparisons API](./26-comparisons) - Side-by-side version comparison
+- [Comparisons API](./22-comparisons) - Side-by-side version comparison
 - [Exports API](./23-exports) - Export specific versions
 
 ---

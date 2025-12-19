@@ -333,10 +333,10 @@ Koko
 
 ## 🔗 Related APIs
 
-- [Teams API](./08-teams) - Team management
+- [Teams API](./13-teams) - Team management
 - [Projects API](./03-projects) - Project collaboration
-- [Permissions API](./09-permissions) - Access control
-- [Quota API](./14-quota) - Team member limits
+- [Permissions API](./08-permissions) - Access control
+- [Quota API](./07-quota) - Team member limits
 
 ---
 

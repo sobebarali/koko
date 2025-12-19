@@ -696,7 +696,7 @@ const { shareUrl } = await trpc.comparison.share.mutate({
 ## 📚 Related Documentation
 
 - [Videos API](./04-videos) - Video sources
-- [Versions API](./07-versions) - Version management
+- [Versions API](./12-versions) - Version management
 - [Comments API](./05-comments) - Comment system
 
 ---

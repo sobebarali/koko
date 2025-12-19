@@ -1210,8 +1210,8 @@ const requestRefundSchema = z.object({
 
 ## 🔗 Related APIs
 
-- [Quota & Usage API](./14-quota) - Usage tracking and enforcement
-- [Teams API](./08-teams) - Team management (seats)
+- [Quota & Usage API](./07-quota) - Usage tracking and enforcement
+- [Teams API](./13-teams) - Team management (seats)
 - [Authentication API](./01-authentication) - User sessions
 
 ---

@@ -874,8 +874,8 @@ OWNER > EDITOR > REVIEWER > VIEWER
 
 - [Videos API](./04-videos) - Project contains videos
 - [Comments API](./05-comments) - Comments belong to project videos
-- [Teams API](./08-teams) - Team-owned projects *(Growth)*
-- [Permissions API](./09-permissions) - Sharing projects *(Post-Launch)*
+- [Teams API](./13-teams) - Team-owned projects *(Growth)*
+- [Permissions API](./08-permissions) - Sharing projects *(Post-Launch)*
 
 ---
 

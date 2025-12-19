@@ -761,8 +761,8 @@ const access = await trpc.guest.validateAccess.query({
 
 - [Videos API](./04-videos) - Video resources
 - [Projects API](./03-projects) - Project resources
-- [Permissions API](./09-permissions) - Internal permissions
-- [Analytics API](./18-analytics) - Engagement tracking
+- [Permissions API](./08-permissions) - Internal permissions
+- [Analytics API](./19-analytics) - Engagement tracking
 
 ---
 
